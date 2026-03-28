@@ -67,9 +67,9 @@
   let showHexes = true
   let showRacks = true
   let showInfrastructure = true
-  let showHotspots = true
-  let showCorridors = true
-  let showConnectors = true
+  let showHotspots = false
+  let showCorridors = false
+  let showConnectors = false
   let onlyTopSegments = false
 
   // --- Routing A→B state ---
@@ -188,6 +188,14 @@
     title: string
   }
 
+  type MockVibeSuggestion = {
+    id: string
+    imagePath: string
+    note: string
+    title: string
+    vibeIds: string[]
+  }
+
   const emptyHexFeatureCollection: HexFeatureCollection = {
     type: 'FeatureCollection',
     features: [],
@@ -258,6 +266,30 @@
     rack_access: '#0284c7',
     rack_density: '#14b8a6',
   }
+
+  const mockVibeSuggestions: MockVibeSuggestion[] = [
+    {
+      id: 'dune',
+      imagePath: '/Dune-3.webp',
+      title: 'Post-apo',
+      note: 'Vibe dnia: po premierze trailera DUNE 3 proponujemy pustynny, surowy vibe i polecamy zalozyc maske.',
+      vibeIds: ['post_apo'],
+    },
+    {
+      id: 'green-ride',
+      imagePath: '/green.jpg',
+      title: 'Zdrowie + Slow',
+      note: 'Na spokojny przejazd przez zielen, cisze i miejsca z lepszym dostepem do stojakow.',
+      vibeIds: ['health', 'slow'],
+    },
+    {
+      id: 'city-flow',
+      imagePath: '/krakow.jpg',
+      title: 'Miejski przeplyw',
+      note: 'Gdy chcesz sprawnie przejechac przez miasto i trzymac sie mocniejszej sieci rowerowej.',
+      vibeIds: ['urban_flow'],
+    },
+  ]
 
   const mixedVibes: VibeDefinition[] = [
     {
@@ -483,7 +515,7 @@
   let customVibes: VibeDefinition[] = []
   let enabledVibeIds = mixedVibes.map((vibe) => vibe.id)
   let customVibeLabel = 'Wlasny vibe'
-  let customVibeColor = '#7c3aed'
+  let customVibeColor = '#2563eb'
   let customVibeWeights = createEmptyVibeWeights()
   let selectedCorridorScenarioId: string | null = null
   let catalogVibeList: VibeDefinition[] = []
@@ -1316,6 +1348,24 @@
     rerouteIfReady()
   }
 
+  function clearAllVibes() {
+    if (enabledVibeIds.length === 0) {
+      return
+    }
+
+    enabledVibeIds = []
+    rerouteIfReady()
+  }
+
+  function applyVibeSelection(vibeIds: string[]) {
+    const catalogIds = new Set(catalogVibes().map((vibe) => vibe.id))
+    const nextIds = vibeIds.filter((vibeId, index) => catalogIds.has(vibeId) && vibeIds.indexOf(vibeId) === index)
+
+    enabledVibeIds = nextIds
+    routeVibeSearch = ''
+    rerouteIfReady()
+  }
+
   function normalizeSearchValue(value: string) {
     return value
       .normalize('NFD')
@@ -1448,6 +1498,16 @@
     return 'Tryb vibe-first. Algorytm może wybrać nawet dużo dłuższą trasę, jeśli vibe jest istotnie lepszy.'
   }
 
+  function routeMultiplierForVibe(level: number, vibeScore: number) {
+    const alpha = routeVibeAlphaValue(level)
+    if (alpha <= 0) {
+      return 1
+    }
+
+    const deficit = Math.max(0, Math.min(100, 100 - vibeScore)) / 100
+    return 1 + alpha * deficit ** 1.5
+  }
+
   function dataDocByCode(currentSummary: Summary, code: string | undefined) {
     if (!code) {
       return null
@@ -1541,7 +1601,7 @@
 
   function resetCustomVibeDraft() {
     customVibeLabel = 'Wlasny vibe'
-    customVibeColor = '#7c3aed'
+    customVibeColor = '#2563eb'
     customVibeWeights = createEmptyVibeWeights()
   }
 
@@ -3179,159 +3239,148 @@
 </script>
 
 <svelte:head>
-  <title>KrakHack | Analiza tras rowerowych</title>
+  <title>Vibe your Trip 🤙</title>
   <meta
     name="description"
-    content="Polska wizualizacja danych cycling-smart-city z preprocessingiem w Node i mapa w Svelte + MapLibre."
+    content="Vibe your Trip 🤙 — prosta aplikacja do wybierania rowerowej trasy w Krakowie na podstawie vibe, H3 i istniejącej sieci rowerowej."
   />
 </svelte:head>
 
-<div class="min-h-screen bg-[radial-gradient(circle_at_top,_#fde68a,_#fff7ed_34%,_#f5f5f4_72%)] text-stone-950">
-  <main class="mx-auto flex min-h-screen max-w-7xl flex-col gap-8 px-4 py-8 sm:px-6 lg:px-8">
-    <header class="grid gap-6 rounded-[2rem] border border-stone-300 bg-white/80 p-6 shadow-xl shadow-amber-100/60 backdrop-blur md:grid-cols-[minmax(0,1.5fr)_minmax(18rem,1fr)] md:p-8">
+<div class="min-h-screen bg-stone-50 text-stone-950">
+  <main class="mx-auto flex min-h-screen max-w-7xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
+    <header class="grid gap-5 rounded-[0.5rem] border border-stone-200 bg-white p-6 lg:grid-cols-[minmax(0,1.45fr)_minmax(18rem,1fr)]">
       <div class="space-y-4">
-        <span class="inline-flex w-fit items-center rounded-full border border-amber-300 bg-amber-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-amber-950">
-          Smart Infrastructure Challenge
+        <span class="inline-flex w-fit items-center rounded-[0.35rem] border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-blue-900">
+          Vibe your Trip 🤙
         </span>
         <div class="space-y-3">
-          <h1 class="max-w-4xl font-serif text-4xl leading-tight tracking-tight text-stone-950 sm:text-5xl">
-            Krakowskie trasy rowerowe zintegrowane z punktami infrastruktury, zielenią i hałasem.
+          <h1 class="max-w-4xl text-4xl font-semibold leading-tight tracking-tight text-stone-950 sm:text-5xl">
+            Znajdz rowerowa trase, ktora pasuje do Twojego nastroju.
           </h1>
           <p class="max-w-3xl text-base leading-8 text-stone-700 sm:text-lg">
-            Preprocessing dzieje sie w Node na danych z paczki challenge, a frontend renderuje
-            gotowe segmenty z policzonym komfortem. Dane sa osadzone na mapie Krakowa, zeby
-            trasy i punkty byly czytelne przestrzennie, a nie wygladaly jak losowe linie.
+            Wybierz vibe, kliknij punkt <span class="font-semibold text-stone-950">A</span> i
+            <span class="font-semibold text-stone-950">B</span> na mapie Krakowa i jedz po trasie
+            policzonej na istniejacej sieci rowerowej. Kolor heksow H3 i koszt routingu korzystaja
+            z tego samego zestawu aktywnych vibe.
           </p>
         </div>
       </div>
 
-      <div class="grid gap-3 sm:grid-cols-2 md:grid-cols-1">
-        <div class="rounded-[1.5rem] border border-stone-200 bg-stone-50 p-4">
-          <p class="text-xs font-semibold uppercase tracking-[0.24em] text-stone-500">Przeplyw danych</p>
-          <p class="mt-2 text-sm leading-7 text-stone-700">
-            ZIP challenge -> normalizacja CRS -> scoring segmentow -> statyczne GeoJSON/JSON -> mapa.
-          </p>
-        </div>
-        <div class="rounded-[1.5rem] border border-stone-200 bg-stone-50 p-4">
-          <p class="text-xs font-semibold uppercase tracking-[0.24em] text-stone-500">Deterministycznosc</p>
-          <p class="mt-2 text-sm leading-7 text-stone-700">
-            Warstwy analityczne sa statyczne i lokalne. Jedyny zewnetrzny element to podklad OSM,
-            potrzebny tylko po to, zeby osadzic dane w realnym ukladzie ulic Krakowa.
-          </p>
+      <div class="rounded-[0.5rem] border border-stone-200 bg-stone-50 p-4">
+        <p class="text-xs font-semibold uppercase tracking-[0.24em] text-stone-500">
+          Vibe dnia
+        </p>
+        <div class="mt-3 space-y-3">
+          {#each mockVibeSuggestions as suggestion}
+            <button
+              class="w-full overflow-hidden rounded-[0.4rem] border border-stone-200 bg-white text-left transition hover:border-blue-300 hover:bg-blue-50"
+              onclick={() => applyVibeSelection(suggestion.vibeIds)}
+              type="button"
+            >
+              <div class="grid min-h-28 grid-cols-[6.5rem_minmax(0,1fr)]">
+                <div class="relative min-h-full">
+                  <img
+                    alt={suggestion.title}
+                    class="absolute inset-0 h-full w-full object-cover"
+                    loading="lazy"
+                    src={suggestion.imagePath}
+                  />
+                  <div class="absolute inset-0 bg-gradient-to-r from-black/20 via-black/10 to-transparent"></div>
+                </div>
+                <div class="flex items-center justify-between gap-3 px-4 py-3">
+                  <div class="min-w-0">
+                    <p class="text-sm font-semibold text-stone-950">{suggestion.title}</p>
+                    <p class="mt-1 text-xs leading-5 text-stone-500">{suggestion.note}</p>
+                  </div>
+                  <span class="shrink-0 rounded-[0.35rem] bg-blue-600 px-3 py-1 text-xs font-semibold text-white">
+                    Ustaw vibe
+                  </span>
+                </div>
+              </div>
+            </button>
+          {/each}
         </div>
       </div>
     </header>
 
     {#if error}
-      <section class="rounded-[2rem] border border-red-200 bg-red-50 p-6 text-red-900 shadow-lg shadow-red-100/60">
+      <section class="rounded-[0.5rem] border border-red-200 bg-red-50 p-6 text-red-900">
         <h2 class="text-xl font-semibold">Nie udalo sie uruchomic wizualizacji</h2>
         <p class="mt-3 text-sm leading-7">{error}</p>
-        <pre class="mt-4 overflow-x-auto rounded-2xl bg-white/80 p-4 text-xs text-stone-800">npm run prepare:cycling-data
+        <pre class="mt-4 overflow-x-auto rounded-[0.35rem] bg-white/80 p-4 text-xs text-stone-800">npm run prepare:cycling-data
 npm run dev</pre>
       </section>
     {:else}
-      <section class="grid gap-6 xl:grid-cols-[minmax(0,1.55fr)_24rem]">
-        <div class="overflow-hidden rounded-[2rem] border border-stone-300 bg-white/82 shadow-xl shadow-amber-100/60 backdrop-blur">
+      <section class="grid gap-6 xl:grid-cols-[minmax(0,1.65fr)_24rem]">
+        <div class="overflow-hidden rounded-[0.5rem] border border-stone-300 bg-white">
           <div class="flex flex-col gap-4 border-b border-stone-200 px-4 py-4 sm:px-5">
             <div class="flex flex-wrap items-center justify-between gap-4">
               <div>
-                <p class="text-xs font-semibold uppercase tracking-[0.24em] text-stone-500">Mapa</p>
+                <p class="text-xs font-semibold uppercase tracking-[0.24em] text-stone-500">Mapa Krakowa</p>
                 <h2 class="text-2xl font-semibold tracking-tight text-stone-950">
-                  Segmenty, H3 i routing po score komorki
+                  Kolor miasta = vibe, kolor sciezek = komfort
                 </h2>
               </div>
 
               <div class="flex flex-wrap gap-2">
-                <label class={`inline-flex cursor-pointer items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition ${showHexes ? 'bg-blue-600 text-white' : 'bg-stone-100 text-stone-700'}`}>
+                <label class={`inline-flex cursor-pointer items-center gap-2 rounded-[0.35rem] px-4 py-2 text-sm font-medium transition ${showHexes ? 'bg-blue-600 text-white' : 'bg-stone-100 text-stone-700'}`}>
                   <input bind:checked={showHexes} class="sr-only" type="checkbox" />
-                  <span>H3</span>
+                  <span>Siatka vibe</span>
                 </label>
-                <label class={`inline-flex cursor-pointer items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition ${showRacks ? 'bg-stone-900 text-stone-50' : 'bg-stone-100 text-stone-700'}`}>
+                <label class={`inline-flex cursor-pointer items-center gap-2 rounded-[0.35rem] px-4 py-2 text-sm font-medium transition ${showRacks ? 'bg-stone-900 text-stone-50' : 'bg-stone-100 text-stone-700'}`}>
                   <input bind:checked={showRacks} class="sr-only" type="checkbox" />
                   <span>Stojaki</span>
                 </label>
-                <label class={`inline-flex cursor-pointer items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition ${showInfrastructure ? 'bg-stone-900 text-stone-50' : 'bg-stone-100 text-stone-700'}`}>
+                <label class={`inline-flex cursor-pointer items-center gap-2 rounded-[0.35rem] px-4 py-2 text-sm font-medium transition ${showInfrastructure ? 'bg-stone-900 text-stone-50' : 'bg-stone-100 text-stone-700'}`}>
                   <input bind:checked={showInfrastructure} class="sr-only" type="checkbox" />
                   <span>Punkty</span>
                 </label>
-                <label class={`inline-flex cursor-pointer items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition ${showHotspots ? 'bg-orange-500 text-white' : 'bg-stone-100 text-stone-700'}`}>
+                <label class={`inline-flex cursor-pointer items-center gap-2 rounded-[0.35rem] px-4 py-2 text-sm font-medium transition ${showHotspots ? 'bg-orange-500 text-white' : 'bg-stone-100 text-stone-700'}`}>
                   <input bind:checked={showHotspots} class="sr-only" type="checkbox" />
                   <span>Huby H3</span>
                 </label>
-                <label class={`inline-flex cursor-pointer items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition ${showCorridors ? 'bg-sky-600 text-white' : 'bg-stone-100 text-stone-700'}`}>
-                  <input bind:checked={showCorridors} class="sr-only" type="checkbox" />
-                  <span>Korytarze</span>
-                </label>
-                <label class={`inline-flex cursor-pointer items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition ${showConnectors ? 'bg-red-500 text-white' : 'bg-stone-100 text-stone-700'}`}>
-                  <input bind:checked={showConnectors} class="sr-only" type="checkbox" />
-                  <span>Łączniki</span>
-                </label>
                 <button
-                  class={`rounded-full px-4 py-2 text-sm font-medium transition ${onlyTopSegments ? 'bg-amber-500 text-stone-950' : 'bg-stone-100 text-stone-700'}`}
-                  onclick={() => (onlyTopSegments = !onlyTopSegments)}
-                  type="button"
-                >
-                  {onlyTopSegments ? 'Pokazuje Top 20' : 'Wszystkie segmenty'}
-                </button>
-                <button
-                  class="rounded-full bg-white px-4 py-2 text-sm font-medium text-stone-700 ring-1 ring-stone-300 transition hover:bg-stone-50"
+                  class="rounded-[0.35rem] bg-white px-4 py-2 text-sm font-medium text-stone-700 ring-1 ring-stone-300 transition hover:bg-stone-50"
                   onclick={resetView}
                   type="button"
                 >
                   Widok Krakow
                 </button>
-                {#if routingGraph}
-                  <button
-                    class={`rounded-full px-4 py-2 text-sm font-medium transition ${routingMode !== 'idle' ? 'bg-violet-600 text-white ring-2 ring-violet-300' : routeResult ? 'bg-violet-500 text-white' : 'bg-violet-100 text-violet-800 ring-1 ring-violet-300 hover:bg-violet-200'}`}
-                    onclick={() => routingMode !== 'idle' ? cancelRouting() : startRouting()}
-                    type="button"
-                  >
-                    {routingMode === 'selectStart' ? 'Kliknij A na mapie...' : routingMode === 'selectEnd' ? 'Kliknij B na mapie...' : routeResult ? 'Nowa trasa' : 'Wyznacz trase'}
-                  </button>
-                {:else if isGraphBuilding}
-                  <span class="inline-flex items-center gap-2 rounded-full bg-stone-100 px-4 py-2 text-sm text-stone-500">
-                    Budowanie grafu...
-                  </span>
-                {/if}
               </div>
             </div>
 
             <div class="flex flex-wrap items-center gap-3">
               {#each scoreLegend as item}
-                <div class="inline-flex items-center gap-2 rounded-full bg-stone-100 px-3 py-1 text-xs font-medium text-stone-700">
+                <div class="inline-flex items-center gap-2 rounded-[0.35rem] bg-stone-100 px-3 py-1 text-xs font-medium text-stone-700">
                   <span class="size-2.5 rounded-full" style={`background:${item.color}`}></span>
                   <span>{item.label}</span>
                 </div>
               {/each}
-              <div class="inline-flex items-center gap-2 rounded-full bg-sky-100 px-3 py-1 text-xs font-medium text-sky-800">
-                <span class="size-2.5 rounded-full bg-sky-600"></span>
+              <div class="inline-flex items-center gap-2 rounded-[0.35rem] bg-blue-100 px-3 py-1 text-xs font-medium text-blue-800">
+                <span class="size-2.5 rounded-full bg-blue-600"></span>
                 <span>Kraków / OSM</span>
               </div>
-              <div class="inline-flex items-center gap-2 rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-900">
+              <div class="inline-flex items-center gap-2 rounded-[0.35rem] bg-blue-100 px-3 py-1 text-xs font-medium text-blue-900">
                 <span class="size-2.5 rounded-full bg-blue-600"></span>
                 <span>Siatka H3 / vibe</span>
               </div>
-              <div class="inline-flex items-center gap-2 rounded-full bg-orange-100 px-3 py-1 text-xs font-medium text-orange-900">
+              <div class="inline-flex items-center gap-2 rounded-[0.35rem] bg-orange-100 px-3 py-1 text-xs font-medium text-orange-900">
                 <span class="size-2.5 rounded-full bg-orange-500"></span>
                 <span>Hub H3</span>
               </div>
-              <div class="inline-flex items-center gap-2 rounded-full bg-sky-100 px-3 py-1 text-xs font-medium text-sky-900">
-                <span class="size-2.5 rounded-full bg-sky-500"></span>
-                <span>Rekomendowany korytarz</span>
-              </div>
-              <div class="inline-flex items-center gap-2 rounded-full bg-red-100 px-3 py-1 text-xs font-medium text-red-900">
-                <span class="size-2.5 rounded-full bg-red-500"></span>
-                <span>Nowy łącznik</span>
+              <div class="inline-flex items-center gap-2 rounded-[0.35rem] bg-violet-100 px-3 py-1 text-xs font-medium text-violet-900">
+                <span class="size-2.5 rounded-full bg-violet-500"></span>
+                <span>Twoja trasa A → B</span>
               </div>
             </div>
-            <div class="mt-3 rounded-[1rem] border border-stone-200 bg-stone-50 px-3 py-3 text-xs leading-6 text-stone-600">
+            <div class="mt-3 rounded-[0.35rem] border border-stone-200 bg-stone-50 px-3 py-3 text-xs leading-6 text-stone-600">
               <p>
-                <span class="font-semibold text-stone-900">80-100 / 65-79 / 50-64 / 0-49</span>
-                = progi koloru końcowego <code>score</code> segmentu. Nie dotyczą H3, korytarzy ani łączników.
+                <span class="font-semibold text-stone-900">Kolor sciezek</span>
+                = komfort segmentu liczony z zieleni, halasu, stojakow i infrastruktury.
               </p>
               <p class="mt-1">
-                <span class="font-semibold text-stone-900">Siatka H3 / vibe</span>
-                = geometria i metryki H3 z preprocessingu, ale kolor na mapie pochodzi z miksu aktywnych vibe. Liczbowy <code>hex_score</code> jest pokazany osobno w panelu analitycznym.
+                <span class="font-semibold text-stone-900">Kolor heksow H3</span>
+                = miks aktywnych vibe. Ten sam zestaw vibe steruje tez kosztem trasy A -> B.
               </p>
             </div>
           </div>
@@ -3341,7 +3390,7 @@ npm run dev</pre>
 
             {#if isLoading}
               <div class="absolute inset-0 flex items-center justify-center bg-white/65 backdrop-blur-sm">
-                <div class="rounded-[1.5rem] border border-stone-200 bg-white px-5 py-4 text-sm font-medium text-stone-700 shadow-lg">
+                <div class="rounded-[0.4rem] border border-stone-200 bg-white px-5 py-4 text-sm font-medium text-stone-700">
                   Wczytywanie mapy i warstw...
                 </div>
               </div>
@@ -3351,69 +3400,16 @@ npm run dev</pre>
 
         <aside class="space-y-4">
           {#if summary}
-            <section class="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
-              <div class="rounded-[1.5rem] border border-stone-300 bg-white/82 p-4 shadow-lg shadow-amber-100/50 backdrop-blur">
-                <p class="text-xs font-semibold uppercase tracking-[0.24em] text-stone-500">Sciezki</p>
-                <p class="mt-2 text-3xl font-semibold tracking-tight text-stone-950">{summary.counts.cycling_path_segments}</p>
-                <p class="mt-2 text-sm text-stone-600">Scoring policzony dla kazdego segmentu liniowego.</p>
-              </div>
-              <div class="rounded-[1.5rem] border border-stone-300 bg-white/82 p-4 shadow-lg shadow-amber-100/50 backdrop-blur">
-                <p class="text-xs font-semibold uppercase tracking-[0.24em] text-stone-500">Punkty</p>
-                <p class="mt-2 text-3xl font-semibold tracking-tight text-stone-950">{summary.counts.bike_racks + summary.counts.bike_infrastructure_points}</p>
-                <p class="mt-2 text-sm text-stone-600">Stojaki i punktowa infrastruktura rowerowa.</p>
-              </div>
-              <div class="rounded-[1.5rem] border border-stone-300 bg-white/82 p-4 shadow-lg shadow-amber-100/50 backdrop-blur">
-                <p class="text-xs font-semibold uppercase tracking-[0.24em] text-stone-500">Zielen</p>
-                <p class="mt-2 text-3xl font-semibold tracking-tight text-stone-950">{summary.counts.greenery_polygons}</p>
-                <p class="mt-2 text-sm text-stone-600">Poligony BDOT10k wpiete tylko do obliczen buforowych.</p>
-              </div>
-              <div class="rounded-[1.5rem] border border-stone-300 bg-white/82 p-4 shadow-lg shadow-amber-100/50 backdrop-blur">
-                <p class="text-xs font-semibold uppercase tracking-[0.24em] text-stone-500">Halas</p>
-                <p class="mt-2 text-3xl font-semibold tracking-tight text-stone-950">{summary.counts.noise_polygons}</p>
-                <p class="mt-2 text-sm text-stone-600">Poligony halasu znormalizowane do WGS84 przed analiza.</p>
-              </div>
-            </section>
-
-            <section class="rounded-[1.5rem] border border-stone-300 bg-white/82 p-5 shadow-lg shadow-amber-100/50 backdrop-blur">
+            <section class="rounded-[0.5rem] border border-blue-200 bg-white p-5">
               <div class="flex items-center justify-between gap-4">
                 <div>
-                  <p class="text-xs font-semibold uppercase tracking-[0.24em] text-stone-500">Score</p>
-                  <h3 class="mt-1 text-xl font-semibold tracking-tight text-stone-950">Rozklad komfortu</h3>
-                </div>
-                <span class="rounded-full bg-stone-900 px-3 py-1 text-sm font-semibold text-stone-50">
-                  mediana {formatScore(summary.score.median)}
-                </span>
-              </div>
-              <dl class="mt-4 grid grid-cols-2 gap-3 text-sm text-stone-700">
-                <div class="rounded-2xl bg-stone-50 px-4 py-3">
-                  <dt class="text-stone-500">Min</dt>
-                  <dd class="mt-1 text-lg font-semibold text-stone-950">{formatScore(summary.score.min)}</dd>
-                </div>
-                <div class="rounded-2xl bg-stone-50 px-4 py-3">
-                  <dt class="text-stone-500">Max</dt>
-                  <dd class="mt-1 text-lg font-semibold text-stone-950">{formatScore(summary.score.max)}</dd>
-                </div>
-                <div class="rounded-2xl bg-stone-50 px-4 py-3">
-                  <dt class="text-stone-500">Srednia</dt>
-                  <dd class="mt-1 text-lg font-semibold text-stone-950">{formatScore(summary.score.mean)}</dd>
-                </div>
-                <div class="rounded-2xl bg-stone-50 px-4 py-3">
-                  <dt class="text-stone-500">Prog top 20</dt>
-                  <dd class="mt-1 text-lg font-semibold text-stone-950">{formatScore(summary.top_score_threshold)}</dd>
-                </div>
-              </dl>
-            </section>
-
-            <section class="rounded-[1.5rem] border border-violet-300 bg-violet-50/80 p-5 shadow-lg shadow-violet-100/50 backdrop-blur">
-              <div class="flex items-center justify-between gap-4">
-                <div>
-                  <p class="text-xs font-semibold uppercase tracking-[0.24em] text-violet-600">Trasa A → B</p>
+                  <p class="text-xs font-semibold uppercase tracking-[0.24em] text-blue-600">Trasa A → B</p>
                   <h3 class="mt-1 text-xl font-semibold tracking-tight text-stone-950">
                     Routing po ścieżkach rowerowych
                   </h3>
                 </div>
                 {#if routeResult}
-                  <span class="rounded-full bg-violet-600 px-3 py-1 text-sm font-semibold text-white">
+                  <span class="rounded-[0.35rem] bg-blue-600 px-3 py-1 text-sm font-semibold text-white">
                     {(routeResult.total_length_m / 1000).toFixed(2)} km
                   </span>
                 {/if}
@@ -3428,7 +3424,7 @@ npm run dev</pre>
                   <div class="flex gap-2">
                     {#if routingMode === 'idle' && !routeResult}
                       <button
-                        class="flex-1 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-700"
+                        class="flex-1 rounded-[0.35rem] bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700"
                         onclick={startRouting}
                         type="button"
                       >
@@ -3436,7 +3432,7 @@ npm run dev</pre>
                       </button>
                     {:else if routingMode !== 'idle'}
                       <button
-                        class="flex-1 rounded-xl bg-stone-200 px-4 py-2.5 text-sm font-semibold text-stone-800 transition hover:bg-stone-300"
+                        class="flex-1 rounded-[0.35rem] bg-stone-200 px-4 py-2.5 text-sm font-semibold text-stone-800 transition hover:bg-stone-300"
                         onclick={cancelRouting}
                         type="button"
                       >
@@ -3444,14 +3440,14 @@ npm run dev</pre>
                       </button>
                     {:else}
                       <button
-                        class="flex-1 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-700"
+                        class="flex-1 rounded-[0.35rem] bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700"
                         onclick={startRouting}
                         type="button"
                       >
                         Nowa trasa
                       </button>
                       <button
-                        class="rounded-xl bg-stone-200 px-4 py-2.5 text-sm font-medium text-stone-700 transition hover:bg-stone-300"
+                        class="rounded-[0.35rem] bg-stone-200 px-4 py-2.5 text-sm font-medium text-stone-700 transition hover:bg-stone-300"
                         onclick={cancelRouting}
                         type="button"
                       >
@@ -3461,38 +3457,38 @@ npm run dev</pre>
                   </div>
 
                   {#if routingMode === 'selectStart'}
-                    <div class="rounded-xl bg-green-100 px-4 py-3 text-sm text-green-900">
+                    <div class="rounded-[0.35rem] bg-green-100 px-4 py-3 text-sm text-green-900">
                       Kliknij na mapie, zeby wybrac <span class="font-bold">punkt A</span> (start).
                     </div>
                   {:else if routingMode === 'selectEnd'}
-                    <div class="rounded-xl bg-red-100 px-4 py-3 text-sm text-red-900">
+                    <div class="rounded-[0.35rem] bg-red-100 px-4 py-3 text-sm text-red-900">
                       Kliknij na mapie, zeby wybrac <span class="font-bold">punkt B</span> (cel).
                     </div>
                   {/if}
 
                   {#if routeStart}
-                    <div class="flex items-center gap-2 rounded-xl bg-white px-3 py-2 text-sm">
-                      <span class="inline-flex size-6 items-center justify-center rounded-full bg-green-500 text-xs font-bold text-white">A</span>
+                    <div class="flex items-center gap-2 rounded-[0.35rem] bg-white px-3 py-2 text-sm">
+                      <span class="inline-flex size-6 items-center justify-center rounded-[0.3rem] bg-green-500 text-xs font-bold text-white">A</span>
                       <span class="text-stone-700">{routeStart.coordinate[1].toFixed(5)}, {routeStart.coordinate[0].toFixed(5)}</span>
                       <span class="text-stone-400">({Math.round(routeStart.snap_distance_m)} m snap)</span>
                     </div>
                   {/if}
                   {#if routeEnd}
-                    <div class="flex items-center gap-2 rounded-xl bg-white px-3 py-2 text-sm">
-                      <span class="inline-flex size-6 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white">B</span>
+                    <div class="flex items-center gap-2 rounded-[0.35rem] bg-white px-3 py-2 text-sm">
+                      <span class="inline-flex size-6 items-center justify-center rounded-[0.3rem] bg-red-500 text-xs font-bold text-white">B</span>
                       <span class="text-stone-700">{routeEnd.coordinate[1].toFixed(5)}, {routeEnd.coordinate[0].toFixed(5)}</span>
                       <span class="text-stone-400">({Math.round(routeEnd.snap_distance_m)} m snap)</span>
                     </div>
                   {/if}
 
                   {#if routeError}
-                    <div class="rounded-xl bg-red-100 px-4 py-3 text-sm text-red-900">{routeError}</div>
+                    <div class="rounded-[0.35rem] bg-red-100 px-4 py-3 text-sm text-red-900">{routeError}</div>
                   {/if}
 
                   <div class="space-y-2">
                     <div class="flex items-center justify-between text-sm text-stone-700">
                       <span>Sila vibe</span>
-                      <span class="font-semibold text-violet-700">{routeAlphaLabel(routeVibeLevel)}</span>
+                      <span class="font-semibold text-blue-700">{routeAlphaLabel(routeVibeLevel)}</span>
                     </div>
                     <input
                       id="route-vibe-alpha"
@@ -3502,7 +3498,7 @@ npm run dev</pre>
                       step="1"
                       bind:value={routeVibeLevel}
                       onchange={() => { if (routeStart && routeEnd && routingMode === 'idle') computeRoute() }}
-                      class="w-full accent-violet-600"
+                      class="w-full accent-blue-600"
                     />
                     <div class="flex justify-between text-xs text-stone-400">
                       <span>1 = najkrotsza</span>
@@ -3510,17 +3506,26 @@ npm run dev</pre>
                     </div>
                   </div>
 
-                  <div class="space-y-2 rounded-xl bg-white p-3 ring-1 ring-violet-200">
+                  <div class="space-y-2 rounded-[0.35rem] border border-blue-200 bg-stone-50 p-3">
                     <div class="flex items-start justify-between gap-3">
                       <div>
-                        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-violet-600">Vibe dla mapy i routingu</p>
+                        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-blue-600">Vibe dla mapy i routingu</p>
                         <p class="mt-1 text-xs leading-5 text-stone-500">
                           Ten sam zestaw steruje jednoczesnie kolorem H3 i kosztem trasy.
                         </p>
                       </div>
-                      <span class="rounded-full bg-violet-50 px-2.5 py-1 text-[11px] font-semibold text-violet-700">
-                        {activeVibeList.length} aktywne
-                      </span>
+                      <div class="flex items-center gap-2">
+                        <span class="rounded-[0.3rem] bg-blue-50 px-2.5 py-1 text-[11px] font-semibold text-blue-700">
+                          {activeVibeList.length} aktywne
+                        </span>
+                        <button
+                          class="rounded-[0.3rem] bg-stone-100 px-2.5 py-1 text-[11px] font-semibold text-stone-600 transition hover:bg-stone-200"
+                          onclick={clearAllVibes}
+                          type="button"
+                        >
+                          wyczysc vibe
+                        </button>
+                      </div>
                     </div>
 
                     {#if activeVibeList.length === 0}
@@ -3529,13 +3534,13 @@ npm run dev</pre>
                       <div class="flex flex-wrap gap-2">
                         {#each activeVibeList as vibe (vibe.id)}
                           <div
-                            class="inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold text-white shadow-sm"
+                            class="inline-flex items-center gap-2 rounded-[0.35rem] px-3 py-1.5 text-xs font-semibold text-white"
                             style={`background:${vibe.color}`}
                           >
                             <span>{vibe.label}</span>
                             <button
                               aria-label={`Usun vibe ${vibe.label}`}
-                              class="inline-flex size-5 items-center justify-center rounded-full bg-white/20 text-[11px] font-bold text-white transition hover:bg-white/30"
+                              class="inline-flex size-5 items-center justify-center rounded-[0.25rem] bg-white/20 text-[11px] font-bold text-white transition hover:bg-white/30"
                               onclick={(event) => { event.stopPropagation(); removeRouteVibe(vibe.id) }}
                               type="button"
                             >
@@ -3544,6 +3549,9 @@ npm run dev</pre>
                           </div>
                         {/each}
                       </div>
+                      <p class="text-xs text-stone-500">
+                        Aktywne: <span class="font-semibold text-stone-700">{activeVibeList.map((vibe) => vibe.label).join(', ')}</span>
+                      </p>
                     {/if}
 
                     <div class="space-y-2 pt-2">
@@ -3551,7 +3559,7 @@ npm run dev</pre>
                         <span class="text-xs font-semibold text-stone-700">Dodaj vibe przez wyszukanie</span>
                         <input
                           bind:value={routeVibeSearch}
-                          class="w-full rounded-2xl border border-stone-300 bg-stone-50 px-3 py-2 text-sm text-stone-900 outline-none transition focus:border-violet-500 focus:bg-white"
+                          class="w-full rounded-[0.35rem] border border-stone-300 bg-white px-3 py-2 text-sm text-stone-900 outline-none transition focus:border-blue-500"
                           placeholder="Szukaj bazowego, czystego albo wlasnego vibe..."
                           type="text"
                         />
@@ -3569,7 +3577,7 @@ npm run dev</pre>
                         <div class="max-h-48 space-y-2 overflow-y-auto pr-1">
                           {#each availableRouteVibeList as vibe (vibe.id)}
                             <button
-                              class="w-full rounded-[1rem] border border-stone-200 bg-stone-50 px-3 py-2 text-left transition hover:border-violet-300 hover:bg-violet-50"
+                              class="w-full rounded-[0.35rem] border border-stone-200 bg-white px-3 py-2 text-left transition hover:border-blue-300 hover:bg-blue-50"
                               onclick={() => addRouteVibe(vibe.id)}
                               type="button"
                             >
@@ -3577,7 +3585,7 @@ npm run dev</pre>
                                 <div class="min-w-0">
                                   <div class="flex flex-wrap items-center gap-2">
                                     <span class="text-sm font-semibold text-stone-900">{vibe.label}</span>
-                                    <span class="rounded-full bg-white px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-stone-500 ring-1 ring-stone-200">
+                                    <span class="rounded-[0.3rem] bg-white px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-stone-500 ring-1 ring-stone-200">
                                       {vibeKindLabel(vibe)}
                                     </span>
                                   </div>
@@ -3590,33 +3598,140 @@ npm run dev</pre>
                         </div>
                       {/if}
                     </div>
+
+                    <div class="space-y-3 border-t border-stone-200 pt-3">
+                      <div class="flex items-start justify-between gap-3">
+                        <div>
+                          <p class="text-xs font-semibold uppercase tracking-[0.2em] text-blue-600">Dodaj własny vibe</p>
+                          <p class="mt-1 text-xs leading-5 text-stone-500">
+                            Ustaw własne proporcje metryk 0-100. Dodatnia waga wzmacnia metrykę, ujemna odwraca ją do <code class="rounded-[0.2rem] bg-stone-100 px-1">100 - metryka</code>.
+                          </p>
+                        </div>
+                        <button
+                          class="rounded-[0.3rem] bg-stone-100 px-2.5 py-1 text-[11px] font-semibold text-stone-600 transition hover:bg-stone-200"
+                          onclick={resetCustomVibeDraft}
+                          type="button"
+                        >
+                          reset
+                        </button>
+                      </div>
+
+                      <div class="grid gap-3 sm:grid-cols-[minmax(0,1fr)_5.5rem]">
+                        <label class="space-y-1">
+                          <span class="text-xs font-semibold text-stone-700">Nazwa</span>
+                          <input
+                            bind:value={customVibeLabel}
+                            class="w-full rounded-[0.35rem] border border-stone-300 bg-white px-3 py-2 text-sm text-stone-900 outline-none transition focus:border-blue-500"
+                            type="text"
+                          />
+                        </label>
+                        <label class="space-y-1">
+                          <span class="text-xs font-semibold text-stone-700">Kolor</span>
+                          <input
+                            bind:value={customVibeColor}
+                            class="h-10 w-full rounded-[0.35rem] border border-stone-300 bg-white px-2 py-2"
+                            type="color"
+                          />
+                        </label>
+                      </div>
+
+                      <div class="grid gap-2">
+                        {#each vibeMetricMeta as metric}
+                          <label class="rounded-[0.35rem] border border-stone-200 bg-white px-3 py-2">
+                            <div class="flex items-center justify-between gap-3">
+                              <div class="min-w-0">
+                                <p class="text-sm font-semibold text-stone-900">{metric.label}</p>
+                                <p class="mt-0.5 text-[11px] leading-5 text-stone-500">{metric.note}</p>
+                              </div>
+                              <span class="shrink-0 text-xs font-semibold text-blue-700">{customVibeWeights[metric.key]}</span>
+                            </div>
+                            <input
+                              class="mt-2 w-full accent-blue-600"
+                              max="100"
+                              min="-100"
+                              step="5"
+                              type="range"
+                              value={customVibeWeights[metric.key]}
+                              oninput={(event) =>
+                                (customVibeWeights = {
+                                  ...customVibeWeights,
+                                  [metric.key]: Number((event.currentTarget as HTMLInputElement).value),
+                                })}
+                            />
+                          </label>
+                        {/each}
+                      </div>
+
+                      <div class="flex justify-end">
+                        <button
+                          class="rounded-[0.35rem] bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700"
+                          onclick={addCustomVibe}
+                          type="button"
+                        >
+                          Dodaj vibe
+                        </button>
+                      </div>
+
+                      {#if customVibes.length > 0}
+                        <div class="space-y-2 border-t border-stone-200 pt-3">
+                          <p class="text-xs font-semibold uppercase tracking-[0.2em] text-stone-500">Twoje vibe</p>
+                          {#each customVibes as vibe (vibe.id)}
+                            <div class={`rounded-[0.35rem] border px-3 py-2 ${isVibeEnabled(vibe.id) ? 'border-blue-300 bg-blue-50' : 'border-stone-200 bg-white'}`}>
+                              <div class="flex items-start justify-between gap-3">
+                                <div class="min-w-0">
+                                  <p class="text-sm font-semibold text-stone-900">{vibe.label}</p>
+                                  <p class="mt-1 text-xs leading-5 text-stone-500">{vibe.formula}</p>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                  <span class="size-4 shrink-0 rounded-[0.2rem]" style={`background:${vibe.color}`}></span>
+                                  <button
+                                    class={`rounded-[0.3rem] px-2.5 py-1 text-[11px] font-semibold transition ${isVibeEnabled(vibe.id) ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-stone-100 text-stone-600 hover:bg-stone-200'}`}
+                                    onclick={() => toggleVibe(vibe.id)}
+                                    type="button"
+                                  >
+                                    {isVibeEnabled(vibe.id) ? 'aktywne' : 'dodaj'}
+                                  </button>
+                                  <button
+                                    class="rounded-[0.3rem] bg-stone-100 px-2.5 py-1 text-[11px] font-semibold text-stone-600 transition hover:bg-stone-200"
+                                    onclick={() => removeCustomVibe(vibe.id)}
+                                    type="button"
+                                  >
+                                    usun
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          {/each}
+                        </div>
+                      {/if}
+                    </div>
                   </div>
                 </div>
 
                 {#if routeResult}
                   <dl class="mt-4 grid grid-cols-2 gap-3 text-sm text-stone-700">
-                    <div class="rounded-2xl bg-white px-4 py-3">
+                    <div class="rounded-[0.35rem] bg-white px-4 py-3">
                       <dt class="text-stone-500">Dystans</dt>
                       <dd class="mt-1 text-lg font-semibold text-stone-950">{(routeResult.total_length_m / 1000).toFixed(2)} km</dd>
                     </div>
-                    <div class="rounded-2xl bg-white px-4 py-3">
+                    <div class="rounded-[0.35rem] bg-white px-4 py-3">
                       <dt class="text-stone-500">Czas (~15 km/h)</dt>
                       <dd class="mt-1 text-lg font-semibold text-stone-950">{Math.ceil(routeResult.total_length_m / 250)} min</dd>
                     </div>
-                    <div class="rounded-2xl bg-white px-4 py-3">
+                    <div class="rounded-[0.35rem] bg-white px-4 py-3">
                       <dt class="text-stone-500">Segmenty</dt>
                       <dd class="mt-1 text-lg font-semibold text-stone-950">{routeResult.segment_count}</dd>
                     </div>
-                    <div class="rounded-2xl bg-white px-4 py-3">
+                    <div class="rounded-[0.35rem] bg-white px-4 py-3">
                       <dt class="text-stone-500">Sredni score</dt>
                       <dd class="mt-1 text-lg font-semibold" style={`color:${scoreColor(routeResult.mean_score)}`}>{formatScore(routeResult.mean_score)}</dd>
                     </div>
                   </dl>
 
-                  <div class="mt-3 rounded-[1.25rem] border border-violet-200 bg-white px-4 py-3 text-sm leading-6 text-stone-600">
+                  <div class="mt-3 rounded-[0.35rem] border border-blue-200 bg-stone-50 px-4 py-3 text-sm leading-6 text-stone-600">
                     <p>
                       Trasa znaleziona algorytmem <span class="font-semibold text-stone-900">A*</span> po grafie {summary.network_analysis.nodes} wezlow
-                      i {summary.network_analysis.edges} krawedzi. Koszt krawedzi: <code class="rounded bg-stone-100 px-1 text-xs">length × (1 + α × ((100−vibe)/100)^1.5)</code>.
+                      i {summary.network_analysis.edges} krawedzi. Koszt krawedzi: <code class="rounded-[0.2rem] bg-stone-100 px-1 text-xs">length × (1 + α × ((100−vibe)/100)^1.5)</code>.
                       {#if routeVibeAlphaValue(routeVibeLevel) > 0}
                         Aktywne vibe wplywaja na score krawedzi — trasa preferuje segmenty o wyzszym vibe.
                       {:else}
@@ -3624,13 +3739,14 @@ npm run dev</pre>
                       {/if}
                     </p>
                     <p class="mt-2 text-xs text-stone-500">
-                      Kara jest eksponencjalna: <code class="rounded bg-stone-100 px-1">((100−vibe)/100)^1.5</code>. Dla poziomu {routeVibeLevel}/10 (α={routeVibeAlphaValue(routeVibeLevel).toFixed(1)}) odcinek z vibe=0 kosztuje <code class="rounded bg-stone-100 px-1">{(1 + routeVibeAlphaValue(routeVibeLevel)).toFixed(1)}×</code>, z vibe=50 kosztuje <code class="rounded bg-stone-100 px-1">{(1 + routeVibeAlphaValue(routeVibeLevel) * 0.354).toFixed(1)}×</code> swoja dlugosc.
+                      Kara jest eksponencjalna: <code class="rounded-[0.2rem] bg-stone-100 px-1">((100−vibe)/100)^1.5</code>. Dla poziomu {routeVibeLevel}/10 (α={routeVibeAlphaValue(routeVibeLevel).toFixed(1)}) odcinek z vibe=0 kosztuje <code class="rounded-[0.2rem] bg-stone-100 px-1">{routeMultiplierForVibe(routeVibeLevel, 0).toFixed(1)}×</code>, a z vibe=50 kosztuje <code class="rounded-[0.2rem] bg-stone-100 px-1">{routeMultiplierForVibe(routeVibeLevel, 50).toFixed(1)}×</code> swoja dlugosc.
                     </p>
                   </div>
                 {/if}
               {/if}
             </section>
 
+            <div class="hidden">
             <section class="rounded-[1.5rem] border border-purple-300 bg-purple-50/80 p-5 shadow-lg shadow-purple-100/50 backdrop-blur">
               <div class="flex items-center justify-between gap-4">
                 <div>
@@ -4913,6 +5029,7 @@ npm run dev</pre>
                 {/each}
               </div>
             </section>
+            </div>
           {/if}
         </aside>
       </section>
