@@ -54,7 +54,7 @@ const H3_SCORE_WEIGHTS = Object.freeze({
 })
 const H3_SCENARIO = Object.freeze({
   id: 'h3_corridor_index_v1',
-  label: 'Uber-style H3 corridor indexing',
+  label: 'Indeksowanie korytarzy H3',
   resolution: H3_RESOLUTION,
   hub_count: H3_HUB_COUNT,
   top_cell_count: H3_TOP_CELL_COUNT,
@@ -67,9 +67,34 @@ const H3_SCENARIO = Object.freeze({
     'hex_score = demand_score*0.45 + network_score*0.20 + quality_score*0.35',
   edge_score_formula: 'edge_h3_score = hex_score(cell_at_segment_midpoint)',
 })
+const PURE_VIBE_ROUTE_METRICS = Object.freeze([
+  { id: 'air_proxy', label: 'air_proxy 100%', field: 'air_proxy_score', hub_label_prefix: 'Hub air_proxy' },
+  { id: 'greenery', label: 'greenery 100%', field: 'mean_greenery_score', hub_label_prefix: 'Hub greenery' },
+  { id: 'quietness', label: 'quietness 100%', field: 'mean_noise_score', hub_label_prefix: 'Hub quietness' },
+  { id: 'rack_access', label: 'rack_access 100%', field: 'mean_rack_score', hub_label_prefix: 'Hub rack_access' },
+  {
+    id: 'infrastructure_access',
+    label: 'infrastructure_access 100%',
+    field: 'mean_infrastructure_score',
+    hub_label_prefix: 'Hub infrastructure_access',
+  },
+  { id: 'rack_density', label: 'rack_density 100%', field: 'rack_density_score', hub_label_prefix: 'Hub rack_density' },
+  {
+    id: 'infrastructure_density',
+    label: 'infrastructure_density 100%',
+    field: 'infrastructure_density_score',
+    hub_label_prefix: 'Hub infrastructure_density',
+  },
+  { id: 'demand', label: 'demand 100%', field: 'demand_score', hub_label_prefix: 'Hub demand' },
+  { id: 'network', label: 'network 100%', field: 'network_score', hub_label_prefix: 'Hub network' },
+  { id: 'quality', label: 'quality 100%', field: 'quality_score', hub_label_prefix: 'Hub quality' },
+])
 const CORRIDOR_SCENARIO = Object.freeze({
   id: 'h3_balanced_corridor_v2',
-  label: 'H3 balanced corridor priority',
+  label: 'Zbalansowany score H3',
+  kind: 'balanced',
+  metric_key: null,
+  metric_label: 'hex_score',
   hub_source: 'top_h3_cells',
   h3_resolution: H3_RESOLUTION,
   hub_count: H3_HUB_COUNT,
@@ -84,7 +109,7 @@ const CORRIDOR_SCENARIO = Object.freeze({
 })
 const CONNECTOR_SCENARIO = Object.freeze({
   id: 'off_network_connector_v1',
-  label: 'Fragmentation repair connectors',
+  label: 'Łączniki naprawiające fragmentację',
   source_component: 'largest_component',
   min_connector_length_meters: MIN_CONNECTOR_LENGTH_METERS,
   max_connector_length_meters: MAX_CONNECTOR_LENGTH_METERS,
@@ -93,7 +118,34 @@ const CONNECTOR_SCENARIO = Object.freeze({
   priority_formula:
     'priority = demand_gain_points + network_gain_points + distance_points + environment_points - crossing_penalty_points',
   crossing_method:
-    'count intersections with existing segments, excluding intersections within 20 m of connector endpoints',
+    'licz przecięcia z istniejącymi segmentami, z wykluczeniem przecięć w promieniu 20 m od końców łącznika',
+})
+const CONNECTOR_EXPLAINABILITY = Object.freeze({
+  connector_definition:
+    'Łącznik to kandydat nowego krótkiego odcinka, który ma połączyć dwa dziś rozłączne komponenty istniejącej sieci rowerowej.',
+  why_this_is_not_guessing:
+    'To nie jest zgadywanie ani opis AI. Kandydat wynika z jawnego grafu sieci, najkrótszej dopuszczalnej pary węzłów między komponentami i policzonej punktacji środowiskowo-sieciowej.',
+  data_used: [
+    'geometria istniejących ciągów rowerowych -> budowa grafu, komponentów i para węzłów do połączenia',
+    'stojaki rowerowe ZTP -> popyt i zysk popytu komponentu docelowego',
+    'punktowa infrastruktura rowerowa ZTP -> popyt i zysk popytu komponentu docelowego',
+    'poligony zieleni BDOT10k -> greenery_ratio i environment_points',
+    'poligony hałasu -> max_noise_db, noise_score i environment_points',
+    'przecięcia z istniejącą siecią -> crossing_penalty_points',
+  ],
+  qualification_steps: [
+    'zbuduj graf z istniejących segmentów rowerowych',
+    'wykryj rozłączne komponenty sieci',
+    'weź największy komponent jako źródło naprawy fragmentacji',
+    'dla każdego komponentu docelowego znajdź najkrótszą parę węzłów w zakresie 80-1800 m',
+    'odrzuć kandydaty poza zakresem długości',
+    'policz zysk popytu i zysk sieci dla komponentu docelowego',
+    'spróbkuj warunki środowiskowe łącznika: zieleń i hałas',
+    'policz przecięcia z istniejącą siecią z wyłączeniem 20 m od końców',
+    'policz priorytet i posortuj kandydatów malejąco',
+  ],
+  planning_note:
+    'Łącznik jest kandydatem planistycznym, nie gotowym projektem budowlanym. W paczce challenge nie ma warstw budynków, wód, działek, ruchu i nachylenia, więc wynik mówi: warto sprawdzić ten brakujący odcinek, a nie: można go na pewno od razu wybudować.',
 })
 const DATA_SOURCES = Object.freeze([
   {
@@ -103,7 +155,7 @@ const DATA_SOURCES = Object.freeze([
     geometry: 'Point/MultiPoint',
     source_crs: 'EPSG:4326',
     normalized_crs: 'EPSG:4326',
-    usage: ['nearest_rack_m', 'map layer: points-racks'],
+    usage: ['nearest_rack_m', 'warstwa mapy: points-racks'],
   },
   {
     id: 'bike_infrastructure',
@@ -112,7 +164,7 @@ const DATA_SOURCES = Object.freeze([
     geometry: 'Point/MultiPoint',
     source_crs: 'EPSG:4326',
     normalized_crs: 'EPSG:4326',
-    usage: ['nearest_infra_m', 'map layer: points-infrastructure'],
+    usage: ['nearest_infra_m', 'warstwa mapy: points-infrastructure'],
   },
   {
     id: 'cycling_paths',
@@ -121,7 +173,7 @@ const DATA_SOURCES = Object.freeze([
     geometry: 'LineString/MultiLineString',
     source_crs: 'ETRF2000-PL CS2000 zone 7',
     normalized_crs: 'EPSG:4326',
-    usage: ['segment geometry', 'base ranking unit', 'map layer: segments-base'],
+    usage: ['geometria segmentu', 'bazowa jednostka rankingu', 'warstwa mapy: segments-base'],
   },
   {
     id: 'greenery',
@@ -130,7 +182,7 @@ const DATA_SOURCES = Object.freeze([
     geometry: 'Polygon/MultiPolygon',
     source_crs: 'CS92',
     normalized_crs: 'EPSG:4326',
-    usage: ['greenery_ratio', 'not rendered directly'],
+    usage: ['greenery_ratio', 'nie renderowane bezposrednio'],
   },
   {
     id: 'noise',
@@ -139,7 +191,7 @@ const DATA_SOURCES = Object.freeze([
     geometry: 'Polygon/MultiPolygon',
     source_crs: 'ETRF2000-PL CS2000 zone 7',
     normalized_crs: 'EPSG:4326',
-    usage: ['max_noise_db', 'not rendered directly'],
+    usage: ['max_noise_db', 'nie renderowane bezposrednio'],
   },
 ])
 const PROCESSING_STEPS = Object.freeze([
@@ -199,100 +251,100 @@ const PROCESSING_STEPS = Object.freeze([
   {
     step: 9,
     id: 'off_network_connectors',
-    title: 'Laczniki miedzy komponentami',
+    title: 'Łączniki między komponentami',
     description:
-      'Dla rozlacznych komponentow sieci generowane sa kandydaty nowych lacznikow do najwiekszego komponentu, z jawna punktacja priorytetu.',
+      'Dla rozłącznych komponentów sieci generowane są kandydaty nowych łączników do największego komponentu, z jawną punktacją priorytetu.',
   },
 ])
 const MAP_LAYER_ORDER = Object.freeze([
   {
     order: 1,
     id: 'osm',
-    role: 'basemap',
+    role: 'podklad mapy',
     data_source: 'OpenStreetMap raster',
   },
   {
     order: 2,
     id: 'hexes-fill',
-    role: 'h3 score grid',
+    role: 'siatka H3 z kolorem vibe; hex_score liczone osobno',
     data_source: 'hexes.geojson',
   },
   {
     order: 3,
     id: 'segments-base',
-    role: 'all scored segments',
+    role: 'wszystkie ocenione segmenty',
     data_source: 'segments.geojson',
   },
   {
     order: 4,
     id: 'corridors-base',
-    role: 'recommended corridor outline',
+    role: 'obrys rekomendowanego korytarza',
     data_source: 'corridors.geojson',
   },
   {
     order: 5,
     id: 'corridors-fill',
-    role: 'recommended corridor highlight',
+    role: 'podswietlenie rekomendowanego korytarza',
     data_source: 'corridors.geojson',
   },
   {
     order: 6,
     id: 'corridors-selected',
-    role: 'selected corridor highlight',
+    role: 'podswietlenie wybranego korytarza',
     data_source: 'corridors.geojson',
   },
   {
     order: 7,
     id: 'connectors-base',
-    role: 'off-network connector outline',
+    role: 'obrys łącznika poza siecią',
     data_source: 'connectors.geojson',
   },
   {
     order: 8,
     id: 'connectors-fill',
-    role: 'off-network connector proposal',
+    role: 'propozycja łącznika poza siecią',
     data_source: 'connectors.geojson',
   },
   {
     order: 9,
     id: 'connectors-selected',
-    role: 'selected off-network connector',
+    role: 'wybrany łącznik poza siecią',
     data_source: 'connectors.geojson',
   },
   {
     order: 10,
     id: 'segments-top-casing',
-    role: 'top segment outline',
+    role: 'obrys top segmentu',
     data_source: 'segments.geojson',
   },
   {
     order: 11,
     id: 'segments-top-fill',
-    role: 'top segment highlight',
+    role: 'podswietlenie top segmentu',
     data_source: 'segments.geojson',
   },
   {
     order: 12,
     id: 'segments-selected',
-    role: 'selected segment highlight',
+    role: 'podswietlenie wybranego segmentu',
     data_source: 'segments.geojson',
   },
   {
     order: 13,
     id: 'hotspots',
-    role: 'h3 route hubs',
+    role: 'huby tras H3',
     data_source: 'hotspots.geojson',
   },
   {
     order: 14,
     id: 'points-racks',
-    role: 'bike racks',
+    role: 'stojaki rowerowe',
     data_source: 'points.geojson',
   },
   {
     order: 15,
     id: 'points-infrastructure',
-    role: 'bike infrastructure points',
+    role: 'punkty infrastruktury rowerowej',
     data_source: 'points.geojson',
   },
 ])
@@ -302,7 +354,7 @@ const METHOD_LIMITATIONS = Object.freeze([
   'Brak warstwy ruchu drogowego, nachylenia i bezpieczenstwa skrzyzowan, wiec ranking nie jest pelna ocena jakosci trasy.',
   'Rekomendowane korytarze poruszaja sie po istniejacej geometrii sieci rowerowej; nie projektuja nowych linii przez tereny bez danych sieciowych.',
   'Score H3 korzysta z punktow popytu i probkowania segmentow; nie ma tu danych demograficznych, przejazdow ani ruchu rzeczywistego.',
-  'Proponowane laczniki off-network nie sprawdzaja kolizji z budynkami, woda ani dzialkami, bo takich warstw nie ma w paczce challenge.',
+  'Proponowane łączniki off-network nie sprawdzają kolizji z budynkami, wodą ani działkami, bo takich warstw nie ma w paczce challenge.',
 ])
 const NONDETERMINISM = Object.freeze([
   'Jedyny runtime zewnetrzny na froncie to raster OSM; wynik analityczny i ranking sa lokalne i statyczne.',
@@ -350,8 +402,8 @@ async function main() {
   const h3Analysis = buildH3Analysis(datasets, scoredSegments)
   const graph = buildCyclingGraph(scoredSegments, h3Analysis.cell_score_by_index)
   const componentSummaries = buildComponentSummaries(graph, datasets)
-  const demandHotspots = buildH3RouteHubs(h3Analysis.cells, graph)
-  const corridorAnalysis = buildCorridorRecommendations(scoredSegments, graph, demandHotspots)
+  const routeScenarios = buildRouteScenarios(scoredSegments, graph, h3Analysis)
+  const corridorAnalysis = routeScenarios[0]
   const connectorAnalysis = buildOffNetworkConnectors(
     datasets,
     scoredSegments,
@@ -361,13 +413,13 @@ async function main() {
   applyCorridorUsage(scoredSegments, corridorAnalysis.segmentUsageBySegmentId)
   const pointsLayer = buildPointsLayer(datasets)
   const hexesLayer = buildHexesLayer(h3Analysis.cells)
-  const hotspotsLayer = buildHotspotsLayer(corridorAnalysis.hotspots)
-  const corridorsLayer = buildCorridorsLayer(corridorAnalysis.corridors)
+  const hotspotsLayer = buildHotspotsLayer(routeScenarios.flatMap((scenario) => scenario.hotspots))
+  const corridorsLayer = buildCorridorsLayer(routeScenarios.flatMap((scenario) => scenario.corridors))
   const connectorsLayer = buildConnectorsLayer(connectorAnalysis.connectors)
   const spatialStatistics = buildSpatialStatistics(
     datasets,
     scoredSegments,
-    demandHotspots,
+    corridorAnalysis.hotspots,
     safeBbox(scoredSegments),
   )
   const summary = buildSummary(
@@ -377,6 +429,7 @@ async function main() {
     spatialStatistics,
     h3Analysis,
     corridorAnalysis,
+    routeScenarios,
     connectorAnalysis,
     componentSummaries,
   )
@@ -616,9 +669,19 @@ function buildHexesLayer(cells) {
         infrastructure_count: cell.infrastructure_count,
         segment_sample_count: cell.segment_sample_count,
         covered_segment_count: cell.covered_segment_count,
+        total_segment_length_km: cell.total_segment_length_km,
         mean_segment_score: cell.mean_segment_score,
         mean_greenery_ratio: cell.mean_greenery_ratio,
+        mean_greenery_score: cell.mean_greenery_score,
+        mean_noise_score: cell.mean_noise_score,
+        mean_rack_score: cell.mean_rack_score,
+        mean_infrastructure_score: cell.mean_infrastructure_score,
+        mean_nearest_rack_m: cell.mean_nearest_rack_m,
+        mean_nearest_infra_m: cell.mean_nearest_infra_m,
         max_noise_db: cell.max_noise_db,
+        air_proxy_score: cell.air_proxy_score,
+        rack_density_score: cell.rack_density_score,
+        infrastructure_density_score: cell.infrastructure_density_score,
       },
     })),
   }
@@ -636,6 +699,11 @@ function buildHotspotsLayer(hotspots) {
       properties: {
         hub_id: hotspot.hub_id,
         label: hotspot.label,
+        scenario_id: hotspot.scenario_id,
+        scenario_label: hotspot.scenario_label,
+        route_metric_key: hotspot.route_metric_key,
+        route_metric_label: hotspot.route_metric_label,
+        route_score: hotspot.route_score,
         cell_id: hotspot.cell_id,
         h3_index: hotspot.h3_index,
         h3_resolution: hotspot.h3_resolution,
@@ -645,6 +713,9 @@ function buildHotspotsLayer(hotspots) {
         demand_score: hotspot.demand_score,
         network_score: hotspot.network_score,
         quality_score: hotspot.quality_score,
+        air_proxy_score: hotspot.air_proxy_score,
+        rack_density_score: hotspot.rack_density_score,
+        infrastructure_density_score: hotspot.infrastructure_density_score,
         total_weight: hotspot.total_weight,
         point_count: hotspot.point_count,
         rack_count: hotspot.rack_count,
@@ -666,7 +737,12 @@ function buildCorridorsLayer(corridors) {
       geometry: corridor.geometry,
       properties: {
         corridor_id: corridor.corridor_id,
+        corridor_key: corridor.corridor_key,
         corridor_rank: corridor.corridor_rank,
+        scenario_id: corridor.scenario_id,
+        scenario_label: corridor.scenario_label,
+        route_metric_key: corridor.route_metric_key,
+        route_metric_label: corridor.route_metric_label,
         label: corridor.label,
         from_hub_id: corridor.from_hub_id,
         to_hub_id: corridor.to_hub_id,
@@ -947,13 +1023,31 @@ function buildH3Analysis(datasets, scoredSegments) {
       infrastructure_count: 0,
       segment_sample_count: 0,
       covered_segment_count: 0,
+      total_segment_length_km: 0,
       segment_score_total: 0,
       greenery_ratio_total: 0,
+      greenery_score_total: 0,
+      noise_score_total: 0,
+      rack_score_total: 0,
+      infrastructure_score_total: 0,
+      nearest_rack_distance_total: 0,
+      nearest_rack_distance_count: 0,
+      nearest_infra_distance_total: 0,
+      nearest_infra_distance_count: 0,
       noise_sample_count: 0,
       noise_max: null,
       mean_segment_score: 0,
       mean_greenery_ratio: 0,
+      mean_greenery_score: 0,
+      mean_noise_score: 0,
+      mean_rack_score: 0,
+      mean_infrastructure_score: 0,
+      mean_nearest_rack_m: null,
+      mean_nearest_infra_m: null,
       max_noise_db: null,
+      air_proxy_score: 0,
+      rack_density_score: 0,
+      infrastructure_density_score: 0,
       demand_score: 0,
       network_score: 0,
       quality_score: 0,
@@ -992,6 +1086,22 @@ function buildH3Analysis(datasets, scoredSegments) {
       cell.segment_sample_count += 1
       cell.segment_score_total += Number(feature.properties.score ?? 0)
       cell.greenery_ratio_total += Number(feature.properties.greenery_ratio ?? 0)
+      cell.greenery_score_total += Number(feature.properties.greenery_score ?? 0)
+      cell.noise_score_total += Number(feature.properties.noise_score ?? 0)
+      cell.rack_score_total += Number(feature.properties.rack_score ?? 0)
+      cell.infrastructure_score_total += Number(feature.properties.infrastructure_score ?? 0)
+
+      const nearestRackDistance = toFiniteNumber(feature.properties.nearest_rack_m)
+      if (nearestRackDistance != null) {
+        cell.nearest_rack_distance_total += nearestRackDistance
+        cell.nearest_rack_distance_count += 1
+      }
+
+      const nearestInfraDistance = toFiniteNumber(feature.properties.nearest_infra_m)
+      if (nearestInfraDistance != null) {
+        cell.nearest_infra_distance_total += nearestInfraDistance
+        cell.nearest_infra_distance_count += 1
+      }
 
       const noiseValue = toFiniteNumber(feature.properties.max_noise_db)
       if (noiseValue != null) {
@@ -1002,6 +1112,7 @@ function buildH3Analysis(datasets, scoredSegments) {
       if (!seenCells.has(cell.h3_index) && segmentId > 0) {
         seenCells.add(cell.h3_index)
         cell.covered_segment_count += 1
+        cell.total_segment_length_km += Number(feature.properties.length_km ?? 0)
       }
     }
   }
@@ -1009,6 +1120,8 @@ function buildH3Analysis(datasets, scoredSegments) {
   const rawCells = [...cellsByIndex.values()]
   const maxDemandWeight = Math.max(0, ...rawCells.map((cell) => cell.demand_weight))
   const maxSegmentSampleCount = Math.max(0, ...rawCells.map((cell) => cell.segment_sample_count))
+  const maxRackCount = Math.max(0, ...rawCells.map((cell) => cell.rack_count))
+  const maxInfrastructureCount = Math.max(0, ...rawCells.map((cell) => cell.infrastructure_count))
 
   const cells = rawCells
     .map((cell) => {
@@ -1016,9 +1129,25 @@ function buildH3Analysis(datasets, scoredSegments) {
         cell.segment_sample_count === 0 ? 0 : cell.segment_score_total / cell.segment_sample_count
       const meanGreeneryRatio =
         cell.segment_sample_count === 0 ? 0 : cell.greenery_ratio_total / cell.segment_sample_count
+      const meanGreeneryScore =
+        cell.segment_sample_count === 0 ? 0 : cell.greenery_score_total / cell.segment_sample_count
+      const meanNoiseScore =
+        cell.segment_sample_count === 0 ? 0 : cell.noise_score_total / cell.segment_sample_count
+      const meanRackScore =
+        cell.segment_sample_count === 0 ? 0 : cell.rack_score_total / cell.segment_sample_count
+      const meanInfrastructureScore =
+        cell.segment_sample_count === 0
+          ? 0
+          : cell.infrastructure_score_total / cell.segment_sample_count
       const demandScore = normalizeScore(cell.demand_weight, maxDemandWeight)
       const networkScore = normalizeScore(cell.segment_sample_count, maxSegmentSampleCount)
       const qualityScore = clamp(meanSegmentScore, 0, 100)
+      const airProxyScore = clamp(meanGreeneryScore * 0.55 + meanNoiseScore * 0.45, 0, 100)
+      const rackDensityScore = normalizeScore(cell.rack_count, maxRackCount)
+      const infrastructureDensityScore = normalizeScore(
+        cell.infrastructure_count,
+        maxInfrastructureCount,
+      )
       const hexScore = clamp(
         demandScore * H3_SCORE_WEIGHTS.demand +
           networkScore * H3_SCORE_WEIGHTS.network +
@@ -1036,7 +1165,27 @@ function buildH3Analysis(datasets, scoredSegments) {
         bounds: geometryCoordinatesBounds(geometry.coordinates),
         mean_segment_score: round(meanSegmentScore, 2),
         mean_greenery_ratio: round(meanGreeneryRatio, 4),
+        mean_greenery_score: round(meanGreeneryScore, 2),
+        mean_noise_score: round(meanNoiseScore, 2),
+        mean_rack_score: round(meanRackScore, 2),
+        mean_infrastructure_score: round(meanInfrastructureScore, 2),
+        mean_nearest_rack_m: roundNullable(
+          cell.nearest_rack_distance_count === 0
+            ? null
+            : cell.nearest_rack_distance_total / cell.nearest_rack_distance_count,
+          2,
+        ),
+        mean_nearest_infra_m: roundNullable(
+          cell.nearest_infra_distance_count === 0
+            ? null
+            : cell.nearest_infra_distance_total / cell.nearest_infra_distance_count,
+          2,
+        ),
+        total_segment_length_km: round(cell.total_segment_length_km, 3),
         max_noise_db: roundNullable(cell.noise_max, 2),
+        air_proxy_score: round(airProxyScore, 2),
+        rack_density_score: round(rackDensityScore, 2),
+        infrastructure_density_score: round(infrastructureDensityScore, 2),
         demand_score: round(demandScore, 2),
         network_score: round(networkScore, 2),
         quality_score: round(qualityScore, 2),
@@ -1064,7 +1213,55 @@ function buildH3Analysis(datasets, scoredSegments) {
   }
 }
 
-function buildH3RouteHubs(cells, graph) {
+function buildRouteScenarios(scoredSegments, graph, h3Analysis) {
+  const scenarios = []
+
+  const balancedHubs = buildH3RouteHubs(h3Analysis.cells, graph, {
+    scenario: CORRIDOR_SCENARIO,
+    score_field: 'hex_score',
+    hub_label_prefix: 'H3 Hub',
+  })
+  scenarios.push(
+    buildCorridorRecommendations(scoredSegments, graph, balancedHubs, {
+      scenario: CORRIDOR_SCENARIO,
+      cell_score_by_index: h3Analysis.cell_score_by_index,
+    }),
+  )
+
+  for (const pureMetric of PURE_VIBE_ROUTE_METRICS) {
+    const scenario = {
+      ...CORRIDOR_SCENARIO,
+      id: `pure_${pureMetric.id}_corridor_v1`,
+      label: pureMetric.label,
+      kind: 'pure_metric',
+      metric_key: pureMetric.id,
+      metric_label: pureMetric.label,
+      edge_cost_formula: `edge_cost = length_m * (1 + (100 - ${pureMetric.id}) / 100)`,
+      edge_score_formula: `edge_metric_score = ${pureMetric.id}(cell_at_segment_midpoint)`,
+      pair_priority_formula:
+        `pair_priority = (from_${pureMetric.id} + to_${pureMetric.id}) * direct_distance_km`,
+    }
+    const cellScoreByIndex = new Map(
+      h3Analysis.cells.map((cell) => [cell.h3_index, Number(cell[pureMetric.field] ?? 0)]),
+    )
+    const hubs = buildH3RouteHubs(h3Analysis.cells, graph, {
+      scenario,
+      score_field: pureMetric.field,
+      hub_label_prefix: pureMetric.hub_label_prefix,
+    })
+
+    scenarios.push(
+      buildCorridorRecommendations(scoredSegments, graph, hubs, {
+        scenario,
+        cell_score_by_index: cellScoreByIndex,
+      }),
+    )
+  }
+
+  return scenarios
+}
+
+function buildH3RouteHubs(cells, graph, config) {
   const hubCandidates = []
 
   for (const cell of cells) {
@@ -1088,11 +1285,19 @@ function buildH3RouteHubs(cells, graph) {
       cell_id: cell.h3_index,
       h3_index: cell.h3_index,
       h3_resolution: cell.h3_resolution,
-      density_score: cell.hex_score,
+      density_score: Number(cell[config.score_field] ?? 0),
       hex_score: cell.hex_score,
       demand_score: cell.demand_score,
       network_score: cell.network_score,
       quality_score: cell.quality_score,
+      air_proxy_score: cell.air_proxy_score,
+      rack_density_score: cell.rack_density_score,
+      infrastructure_density_score: cell.infrastructure_density_score,
+      route_score: round(Number(cell[config.score_field] ?? 0), 2),
+      scenario_id: config.scenario.id,
+      scenario_label: config.scenario.label,
+      route_metric_key: config.scenario.metric_key ?? 'hex_score',
+      route_metric_label: config.scenario.metric_label ?? 'hex_score',
       mean_segment_score: cell.mean_segment_score,
       total_weight: cell.demand_weight,
       point_count: cell.point_count,
@@ -1124,7 +1329,7 @@ function buildH3RouteHubs(cells, graph) {
     hubs.push({
       ...candidate,
       hub_id: hubs.length + 1,
-      label: `H3 Hub ${hubs.length + 1}`,
+      label: `${config.hub_label_prefix} ${hubs.length + 1}`,
     })
 
     if (hubs.length >= H3_HUB_COUNT) {
@@ -1362,11 +1567,12 @@ function findNearestNode(coordinate, nodeIndex, nodes, maxDistanceMeters) {
   return null
 }
 
-function buildCorridorRecommendations(scoredSegments, graph, hotspots) {
+function buildCorridorRecommendations(scoredSegments, graph, hotspots, config) {
   const segmentById = new Map(
     scoredSegments.features.map((feature) => [feature.properties.segment_id, feature]),
   )
   const pairCandidates = []
+  const edgeCostByIndex = buildScenarioEdgeCosts(graph, config.cell_score_by_index)
 
   for (let leftIndex = 0; leftIndex < hotspots.length; leftIndex += 1) {
     for (let rightIndex = leftIndex + 1; rightIndex < hotspots.length; rightIndex += 1) {
@@ -1388,7 +1594,7 @@ function buildCorridorRecommendations(scoredSegments, graph, hotspots) {
         to_hub: toHub,
         direct_distance_m: directDistanceMeters,
         direct_distance_km: directDistanceMeters / 1000,
-        pair_priority: (fromHub.hex_score + toHub.hex_score) * (directDistanceMeters / 1000),
+        pair_priority: (fromHub.route_score + toHub.route_score) * (directDistanceMeters / 1000),
       })
     }
   }
@@ -1409,7 +1615,12 @@ function buildCorridorRecommendations(scoredSegments, graph, hotspots) {
   const segmentUsageBySegmentId = {}
 
   for (const candidate of pairCandidates) {
-    const path = shortestPath(graph, candidate.from_hub.graph_node_id, candidate.to_hub.graph_node_id)
+    const path = shortestPath(
+      graph,
+      candidate.from_hub.graph_node_id,
+      candidate.to_hub.graph_node_id,
+      edgeCostByIndex,
+    )
 
     if (!path || path.segment_ids.length === 0) {
       continue
@@ -1428,6 +1639,7 @@ function buildCorridorRecommendations(scoredSegments, graph, hotspots) {
       path,
       graph.edges,
       segmentById,
+      config.scenario,
     )
 
     corridor.segment_ids.forEach((segmentId) => {
@@ -1442,6 +1654,7 @@ function buildCorridorRecommendations(scoredSegments, graph, hotspots) {
   }
 
   return {
+    scenario: config.scenario,
     hotspots,
     corridors,
     segmentUsageBySegmentId,
@@ -1687,7 +1900,18 @@ function countConnectorCrossings(
   return crossingsCount
 }
 
-function shortestPath(graph, startNodeId, targetNodeId) {
+function buildScenarioEdgeCosts(graph, cellScoreByIndex) {
+  return graph.edges.map((edge) => {
+    const edgeScore =
+      edge.edge_h3_index == null
+        ? edge.segment_score
+        : Number(cellScoreByIndex.get(edge.edge_h3_index) ?? edge.segment_score)
+
+    return round(computeEdgeTravelCost(edge.length_m, edgeScore), 4)
+  })
+}
+
+function shortestPath(graph, startNodeId, targetNodeId, edgeCostByIndex = null) {
   if (!startNodeId || !targetNodeId || startNodeId === targetNodeId) {
     return null
   }
@@ -1711,7 +1935,9 @@ function shortestPath(graph, startNodeId, targetNodeId) {
     }
 
     for (const neighbor of graph.adjacency[current.node_id]) {
-      const nextDistance = current.distance + neighbor.cost
+      const neighborCost =
+        edgeCostByIndex?.[neighbor.edge_index] ?? graph.edges[neighbor.edge_index]?.edge_cost ?? neighbor.cost
+      const nextDistance = current.distance + neighborCost
 
       if (nextDistance >= distances[neighbor.to_node_id]) {
         continue
@@ -1759,7 +1985,7 @@ function shortestPath(graph, startNodeId, targetNodeId) {
   }
 }
 
-function summarizeCorridor(corridorRank, candidate, path, edges, segmentById) {
+function summarizeCorridor(corridorRank, candidate, path, edges, segmentById, scenario) {
   const traversedEdges = path.steps.map((step) => ({
     ...step,
     edge: edges[step.edge_index],
@@ -1788,8 +2014,13 @@ function summarizeCorridor(corridorRank, candidate, path, edges, segmentById) {
     .filter((value) => value != null)
 
   return {
+    corridor_key: `${scenario.id}:${corridorRank}`,
     corridor_id: corridorRank,
     corridor_rank: corridorRank,
+    scenario_id: scenario.id,
+    scenario_label: scenario.label,
+    route_metric_key: scenario.metric_key ?? 'hex_score',
+    route_metric_label: scenario.metric_label ?? 'hex_score',
     label: `${candidate.from_hub.label} -> ${candidate.to_hub.label}`,
     from_hub_id: candidate.from_hub.hub_id,
     to_hub_id: candidate.to_hub.hub_id,
@@ -1968,7 +2199,7 @@ function computeNearestNeighborIndex(coordinates, bounds) {
     expected_mean_distance_m: round(expectedMean, 2),
     nni: round(nni, 3),
     pattern:
-      nni < 0.9 ? 'clustered' : nni > 1.1 ? 'dispersed' : 'near-random',
+      nni < 0.9 ? 'skupione' : nni > 1.1 ? 'rozproszone' : 'bliskie losowym',
   }
 }
 
@@ -1979,6 +2210,7 @@ function buildSummary(
   spatialStatistics,
   h3Analysis,
   corridorAnalysis,
+  routeScenarios,
   connectorAnalysis,
   componentSummaries,
 ) {
@@ -2013,6 +2245,68 @@ function buildSummary(
       center: feature.properties.center,
     }))
 
+  const serializeHotspot = (hotspot) => ({
+    center: hotspot.center,
+    cell_id: hotspot.cell_id,
+    h3_index: hotspot.h3_index,
+    h3_resolution: hotspot.h3_resolution,
+    density_score: hotspot.density_score,
+    hex_score: hotspot.hex_score,
+    demand_score: hotspot.demand_score,
+    network_score: hotspot.network_score,
+    quality_score: hotspot.quality_score,
+    air_proxy_score: hotspot.air_proxy_score,
+    rack_density_score: hotspot.rack_density_score,
+    infrastructure_density_score: hotspot.infrastructure_density_score,
+    total_weight: hotspot.total_weight,
+    point_count: hotspot.point_count,
+    rack_count: hotspot.rack_count,
+    infrastructure_count: hotspot.infrastructure_count,
+    graph_node_id: hotspot.graph_node_id,
+    snap_distance_m: hotspot.snap_distance_m,
+    component_id: hotspot.component_id,
+    hub_id: hotspot.hub_id,
+    label: hotspot.label,
+    mean_segment_score: hotspot.mean_segment_score,
+    scenario_id: hotspot.scenario_id,
+    scenario_label: hotspot.scenario_label,
+    route_metric_key: hotspot.route_metric_key,
+    route_metric_label: hotspot.route_metric_label,
+    route_score: hotspot.route_score,
+  })
+
+  const serializeCorridor = (corridor) => ({
+    corridor_id: corridor.corridor_id,
+    corridor_key: corridor.corridor_key,
+    corridor_rank: corridor.corridor_rank,
+    label: corridor.label,
+    from_hub_id: corridor.from_hub_id,
+    to_hub_id: corridor.to_hub_id,
+    from_label: corridor.from_label,
+    to_label: corridor.to_label,
+    from_h3_index: corridor.from_h3_index,
+    to_h3_index: corridor.to_h3_index,
+    direct_distance_km: corridor.direct_distance_km,
+    path_length_km: corridor.path_length_km,
+    path_cost: corridor.path_cost,
+    pair_priority: corridor.pair_priority,
+    segment_count: corridor.segment_count,
+    mean_segment_score: corridor.mean_segment_score,
+    min_segment_score: corridor.min_segment_score,
+    mean_h3_score: corridor.mean_h3_score,
+    min_h3_score: corridor.min_h3_score,
+    max_noise_db: corridor.max_noise_db,
+    mean_greenery_ratio: corridor.mean_greenery_ratio,
+    mean_rack_distance_m: corridor.mean_rack_distance_m,
+    mean_infrastructure_distance_m: corridor.mean_infrastructure_distance_m,
+    scenario_id: corridor.scenario_id,
+    scenario_label: corridor.scenario_label,
+    route_metric_key: corridor.route_metric_key,
+    route_metric_label: corridor.route_metric_label,
+    center: corridor.center,
+    bounds: corridor.bounds,
+  })
+
   return {
     bounds: safeBbox(scoredSegments),
     counts: {
@@ -2032,7 +2326,7 @@ function buildSummary(
     h3_grid: {
       scenario: H3_SCENARIO,
       active_cells: h3Analysis.cells.length,
-      hubs: corridorAnalysis.hotspots,
+      hubs: corridorAnalysis.hotspots.map(serializeHotspot),
       top_cells: h3Analysis.cells.slice(0, H3_TOP_CELL_COUNT).map((cell) => ({
         h3_index: cell.h3_index,
         h3_resolution: cell.h3_resolution,
@@ -2048,9 +2342,19 @@ function buildSummary(
         infrastructure_count: cell.infrastructure_count,
         segment_sample_count: cell.segment_sample_count,
         covered_segment_count: cell.covered_segment_count,
+        total_segment_length_km: cell.total_segment_length_km,
         mean_segment_score: cell.mean_segment_score,
         mean_greenery_ratio: cell.mean_greenery_ratio,
+        mean_greenery_score: cell.mean_greenery_score,
+        mean_noise_score: cell.mean_noise_score,
+        mean_rack_score: cell.mean_rack_score,
+        mean_infrastructure_score: cell.mean_infrastructure_score,
+        mean_nearest_rack_m: cell.mean_nearest_rack_m,
+        mean_nearest_infra_m: cell.mean_nearest_infra_m,
         max_noise_db: cell.max_noise_db,
+        air_proxy_score: cell.air_proxy_score,
+        rack_density_score: cell.rack_density_score,
+        infrastructure_density_score: cell.infrastructure_density_score,
       })),
     },
     network_analysis: {
@@ -2074,33 +2378,13 @@ function buildSummary(
       })),
     },
     corridor_recommendations: {
-      scenario: CORRIDOR_SCENARIO,
-      hotspots: corridorAnalysis.hotspots,
-      recommended: corridorAnalysis.corridors.map((corridor) => ({
-        corridor_id: corridor.corridor_id,
-        corridor_rank: corridor.corridor_rank,
-        label: corridor.label,
-        from_hub_id: corridor.from_hub_id,
-        to_hub_id: corridor.to_hub_id,
-        from_label: corridor.from_label,
-        to_label: corridor.to_label,
-        from_h3_index: corridor.from_h3_index,
-        to_h3_index: corridor.to_h3_index,
-        direct_distance_km: corridor.direct_distance_km,
-        path_length_km: corridor.path_length_km,
-        path_cost: corridor.path_cost,
-        pair_priority: corridor.pair_priority,
-        segment_count: corridor.segment_count,
-        mean_segment_score: corridor.mean_segment_score,
-        min_segment_score: corridor.min_segment_score,
-        mean_h3_score: corridor.mean_h3_score,
-        min_h3_score: corridor.min_h3_score,
-        max_noise_db: corridor.max_noise_db,
-        mean_greenery_ratio: corridor.mean_greenery_ratio,
-        mean_rack_distance_m: corridor.mean_rack_distance_m,
-        mean_infrastructure_distance_m: corridor.mean_infrastructure_distance_m,
-        center: corridor.center,
-        bounds: corridor.bounds,
+      scenario: corridorAnalysis.scenario,
+      hotspots: corridorAnalysis.hotspots.map(serializeHotspot),
+      recommended: corridorAnalysis.corridors.map(serializeCorridor),
+      scenarios: routeScenarios.map((scenario) => ({
+        scenario: scenario.scenario,
+        hotspots: scenario.hotspots.map(serializeHotspot),
+        recommended: scenario.corridors.map(serializeCorridor),
       })),
     },
     off_network_connectors: {
@@ -2159,6 +2443,11 @@ function buildSummary(
       connector_optimization: {
         scenario: CONNECTOR_SCENARIO,
         endpoint_proximity_tolerance_meters: CONNECTOR_ENDPOINT_PROXIMITY_TOLERANCE_METERS,
+        connector_definition: CONNECTOR_EXPLAINABILITY.connector_definition,
+        why_this_is_not_guessing: CONNECTOR_EXPLAINABILITY.why_this_is_not_guessing,
+        data_used: CONNECTOR_EXPLAINABILITY.data_used,
+        qualification_steps: CONNECTOR_EXPLAINABILITY.qualification_steps,
+        planning_note: CONNECTOR_EXPLAINABILITY.planning_note,
       },
       limitations: METHOD_LIMITATIONS,
       nondeterminism: NONDETERMINISM,

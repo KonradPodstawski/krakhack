@@ -61,9 +61,19 @@
         "infrastructure_count": 3,
         "segment_sample_count": 83,
         "covered_segment_count": 43,
+        "total_segment_length_km": 9.565,
         "mean_segment_score": 50.05,
         "mean_greenery_ratio": 0.2748,
-        "max_noise_db": 75
+        "mean_greenery_score": 27.48,
+        "mean_noise_score": 41.08,
+        "mean_rack_score": 97.97,
+        "mean_infrastructure_score": 56.71,
+        "mean_nearest_rack_m": 10.13,
+        "mean_nearest_infra_m": 346.36,
+        "max_noise_db": 75,
+        "air_proxy_score": 33.6,
+        "rack_density_score": 100,
+        "infrastructure_density_score": 50
       }
     },
     {
@@ -126,9 +136,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 92,
         "covered_segment_count": 43,
+        "total_segment_length_km": 9.854,
         "mean_segment_score": 44.23,
         "mean_greenery_ratio": 0.1775,
-        "max_noise_db": 74
+        "mean_greenery_score": 17.75,
+        "mean_noise_score": 47.45,
+        "mean_rack_score": 98.42,
+        "mean_infrastructure_score": 27.35,
+        "mean_nearest_rack_m": 7.91,
+        "mean_nearest_infra_m": 582.52,
+        "max_noise_db": 74,
+        "air_proxy_score": 31.12,
+        "rack_density_score": 82.82,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -191,9 +211,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 110,
         "covered_segment_count": 54,
+        "total_segment_length_km": 13.608,
         "mean_segment_score": 46.86,
         "mean_greenery_ratio": 0.2094,
-        "max_noise_db": 75
+        "mean_greenery_score": 20.94,
+        "mean_noise_score": 44.3,
+        "mean_rack_score": 97.7,
+        "mean_infrastructure_score": 44.68,
+        "mean_nearest_rack_m": 11.52,
+        "mean_nearest_infra_m": 442.55,
+        "max_noise_db": 75,
+        "air_proxy_score": 31.45,
+        "rack_density_score": 73.01,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -256,9 +286,19 @@
         "infrastructure_count": 1,
         "segment_sample_count": 73,
         "covered_segment_count": 37,
+        "total_segment_length_km": 7.135,
         "mean_segment_score": 41.04,
         "mean_greenery_ratio": 0.0616,
-        "max_noise_db": 75
+        "mean_greenery_score": 6.16,
+        "mean_noise_score": 39.76,
+        "mean_rack_score": 97.6,
+        "mean_infrastructure_score": 49.56,
+        "mean_nearest_rack_m": 12.01,
+        "mean_nearest_infra_m": 403.56,
+        "max_noise_db": 75,
+        "air_proxy_score": 21.28,
+        "rack_density_score": 88.34,
+        "infrastructure_density_score": 16.67
       }
     },
     {
@@ -321,9 +361,19 @@
         "infrastructure_count": 1,
         "segment_sample_count": 51,
         "covered_segment_count": 24,
+        "total_segment_length_km": 5.586,
         "mean_segment_score": 46.82,
         "mean_greenery_ratio": 0.1732,
-        "max_noise_db": 75
+        "mean_greenery_score": 17.32,
+        "mean_noise_score": 34.8,
+        "mean_rack_score": 98.24,
+        "mean_infrastructure_score": 71.1,
+        "mean_nearest_rack_m": 8.81,
+        "mean_nearest_infra_m": 231.17,
+        "max_noise_db": 75,
+        "air_proxy_score": 25.19,
+        "rack_density_score": 92.64,
+        "infrastructure_density_score": 16.67
       }
     },
     {
@@ -386,9 +436,19 @@
         "infrastructure_count": 1,
         "segment_sample_count": 87,
         "covered_segment_count": 42,
+        "total_segment_length_km": 10.405,
         "mean_segment_score": 50.52,
         "mean_greenery_ratio": 0.2414,
-        "max_noise_db": 75
+        "mean_greenery_score": 24.14,
+        "mean_noise_score": 44.51,
+        "mean_rack_score": 97.52,
+        "mean_infrastructure_score": 61.4,
+        "mean_nearest_rack_m": 12.38,
+        "mean_nearest_infra_m": 308.78,
+        "max_noise_db": 75,
+        "air_proxy_score": 33.31,
+        "rack_density_score": 63.8,
+        "infrastructure_density_score": 16.67
       }
     },
     {
@@ -451,9 +511,19 @@
         "infrastructure_count": 2,
         "segment_sample_count": 112,
         "covered_segment_count": 54,
+        "total_segment_length_km": 5.327,
         "mean_segment_score": 48.14,
         "mean_greenery_ratio": 0.2586,
-        "max_noise_db": 75
+        "mean_greenery_score": 25.86,
+        "mean_noise_score": 33.39,
+        "mean_rack_score": 91.38,
+        "mean_infrastructure_score": 71.98,
+        "mean_nearest_rack_m": 43.09,
+        "mean_nearest_infra_m": 224.15,
+        "max_noise_db": 75,
+        "air_proxy_score": 29.25,
+        "rack_density_score": 61.35,
+        "infrastructure_density_score": 33.33
       }
     },
     {
@@ -516,9 +586,19 @@
         "infrastructure_count": 2,
         "segment_sample_count": 76,
         "covered_segment_count": 37,
+        "total_segment_length_km": 5.895,
         "mean_segment_score": 49.2,
         "mean_greenery_ratio": 0.2105,
-        "max_noise_db": 75
+        "mean_greenery_score": 21.05,
+        "mean_noise_score": 38.26,
+        "mean_rack_score": 95.9,
+        "mean_infrastructure_score": 74.51,
+        "mean_nearest_rack_m": 20.51,
+        "mean_nearest_infra_m": 203.94,
+        "max_noise_db": 75,
+        "air_proxy_score": 28.79,
+        "rack_density_score": 53.37,
+        "infrastructure_density_score": 33.33
       }
     },
     {
@@ -581,9 +661,19 @@
         "infrastructure_count": 1,
         "segment_sample_count": 99,
         "covered_segment_count": 50,
+        "total_segment_length_km": 6.68,
         "mean_segment_score": 50.06,
         "mean_greenery_ratio": 0.3279,
-        "max_noise_db": 75
+        "mean_greenery_score": 32.79,
+        "mean_noise_score": 26.77,
+        "mean_rack_score": 92.73,
+        "mean_infrastructure_score": 80.02,
+        "mean_nearest_rack_m": 36.33,
+        "mean_nearest_infra_m": 159.85,
+        "max_noise_db": 75,
+        "air_proxy_score": 30.08,
+        "rack_density_score": 39.88,
+        "infrastructure_density_score": 16.67
       }
     },
     {
@@ -646,9 +736,19 @@
         "infrastructure_count": 1,
         "segment_sample_count": 63,
         "covered_segment_count": 31,
+        "total_segment_length_km": 3.78,
         "mean_segment_score": 41.76,
         "mean_greenery_ratio": 0.1222,
-        "max_noise_db": 75
+        "mean_greenery_score": 12.22,
+        "mean_noise_score": 28.69,
+        "mean_rack_score": 93.39,
+        "mean_infrastructure_score": 67.96,
+        "mean_nearest_rack_m": 33.07,
+        "mean_nearest_infra_m": 256.35,
+        "max_noise_db": 75,
+        "air_proxy_score": 19.63,
+        "rack_density_score": 53.37,
+        "infrastructure_density_score": 16.67
       }
     },
     {
@@ -711,9 +811,19 @@
         "infrastructure_count": 2,
         "segment_sample_count": 76,
         "covered_segment_count": 38,
+        "total_segment_length_km": 9.782,
         "mean_segment_score": 57.45,
         "mean_greenery_ratio": 0.3728,
-        "max_noise_db": 75
+        "mean_greenery_score": 37.28,
+        "mean_noise_score": 46.22,
+        "mean_rack_score": 89.5,
+        "mean_infrastructure_score": 84.28,
+        "mean_nearest_rack_m": 52.49,
+        "mean_nearest_infra_m": 125.78,
+        "max_noise_db": 75,
+        "air_proxy_score": 41.3,
+        "rack_density_score": 47.85,
+        "infrastructure_density_score": 33.33
       }
     },
     {
@@ -776,9 +886,19 @@
         "infrastructure_count": 4,
         "segment_sample_count": 135,
         "covered_segment_count": 66,
+        "total_segment_length_km": 3.743,
         "mean_segment_score": 65,
         "mean_greenery_ratio": 0.6414,
-        "max_noise_db": 75
+        "mean_greenery_score": 64.14,
+        "mean_noise_score": 54.98,
+        "mean_rack_score": 69.74,
+        "mean_infrastructure_score": 80.73,
+        "mean_nearest_rack_m": 151.31,
+        "mean_nearest_infra_m": 154.13,
+        "max_noise_db": 75,
+        "air_proxy_score": 60.02,
+        "rack_density_score": 10.43,
+        "infrastructure_density_score": 66.67
       }
     },
     {
@@ -841,9 +961,19 @@
         "infrastructure_count": 1,
         "segment_sample_count": 91,
         "covered_segment_count": 41,
+        "total_segment_length_km": 9.686,
         "mean_segment_score": 61.32,
         "mean_greenery_ratio": 0.5559,
-        "max_noise_db": 75
+        "mean_greenery_score": 55.59,
+        "mean_noise_score": 39.45,
+        "mean_rack_score": 92.57,
+        "mean_infrastructure_score": 76.73,
+        "mean_nearest_rack_m": 37.15,
+        "mean_nearest_infra_m": 186.12,
+        "max_noise_db": 75,
+        "air_proxy_score": 48.33,
+        "rack_density_score": 31.29,
+        "infrastructure_density_score": 16.67
       }
     },
     {
@@ -906,9 +1036,19 @@
         "infrastructure_count": 1,
         "segment_sample_count": 111,
         "covered_segment_count": 54,
+        "total_segment_length_km": 3.053,
         "mean_segment_score": 72.83,
         "mean_greenery_ratio": 0.8617,
-        "max_noise_db": 71
+        "mean_greenery_score": 86.17,
+        "mean_noise_score": 50.52,
+        "mean_rack_score": 84.84,
+        "mean_infrastructure_score": 70.29,
+        "mean_nearest_rack_m": 75.82,
+        "mean_nearest_infra_m": 237.71,
+        "max_noise_db": 71,
+        "air_proxy_score": 70.13,
+        "rack_density_score": 6.13,
+        "infrastructure_density_score": 16.67
       }
     },
     {
@@ -971,9 +1111,19 @@
         "infrastructure_count": 1,
         "segment_sample_count": 46,
         "covered_segment_count": 21,
+        "total_segment_length_km": 4.967,
         "mean_segment_score": 56.72,
         "mean_greenery_ratio": 0.3471,
-        "max_noise_db": 75
+        "mean_greenery_score": 34.71,
+        "mean_noise_score": 49.08,
+        "mean_rack_score": 98.07,
+        "mean_infrastructure_score": 68.24,
+        "mean_nearest_rack_m": 9.66,
+        "mean_nearest_infra_m": 254.06,
+        "max_noise_db": 75,
+        "air_proxy_score": 41.17,
+        "rack_density_score": 41.72,
+        "infrastructure_density_score": 16.67
       }
     },
     {
@@ -1036,9 +1186,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 66,
         "covered_segment_count": 27,
+        "total_segment_length_km": 8.893,
         "mean_segment_score": 46.84,
         "mean_greenery_ratio": 0.2457,
-        "max_noise_db": 75
+        "mean_greenery_score": 24.57,
+        "mean_noise_score": 41.02,
+        "mean_rack_score": 94.56,
+        "mean_infrastructure_score": 46.84,
+        "mean_nearest_rack_m": 27.2,
+        "mean_nearest_infra_m": 425.28,
+        "max_noise_db": 75,
+        "air_proxy_score": 31.97,
+        "rack_density_score": 41.72,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -1101,9 +1261,19 @@
         "infrastructure_count": 4,
         "segment_sample_count": 77,
         "covered_segment_count": 35,
+        "total_segment_length_km": 8.239,
         "mean_segment_score": 47.5,
         "mean_greenery_ratio": 0.1374,
-        "max_noise_db": 75
+        "mean_greenery_score": 13.74,
+        "mean_noise_score": 40.65,
+        "mean_rack_score": 96.34,
+        "mean_infrastructure_score": 74.85,
+        "mean_nearest_rack_m": 18.31,
+        "mean_nearest_infra_m": 201.19,
+        "max_noise_db": 75,
+        "air_proxy_score": 25.85,
+        "rack_density_score": 34.36,
+        "infrastructure_density_score": 66.67
       }
     },
     {
@@ -1166,9 +1336,19 @@
         "infrastructure_count": 1,
         "segment_sample_count": 90,
         "covered_segment_count": 43,
+        "total_segment_length_km": 5.705,
         "mean_segment_score": 51.63,
         "mean_greenery_ratio": 0.3861,
-        "max_noise_db": 75
+        "mean_greenery_score": 38.61,
+        "mean_noise_score": 38.36,
+        "mean_rack_score": 86.9,
+        "mean_infrastructure_score": 61.53,
+        "mean_nearest_rack_m": 65.51,
+        "mean_nearest_infra_m": 307.76,
+        "max_noise_db": 75,
+        "air_proxy_score": 38.5,
+        "rack_density_score": 25.77,
+        "infrastructure_density_score": 16.67
       }
     },
     {
@@ -1231,9 +1411,19 @@
         "infrastructure_count": 1,
         "segment_sample_count": 35,
         "covered_segment_count": 17,
+        "total_segment_length_km": 9.741,
         "mean_segment_score": 57.5,
         "mean_greenery_ratio": 0.3952,
-        "max_noise_db": 75
+        "mean_greenery_score": 39.52,
+        "mean_noise_score": 44.14,
+        "mean_rack_score": 98.46,
+        "mean_infrastructure_score": 71.54,
+        "mean_nearest_rack_m": 7.71,
+        "mean_nearest_infra_m": 227.66,
+        "max_noise_db": 75,
+        "air_proxy_score": 41.6,
+        "rack_density_score": 41.72,
+        "infrastructure_density_score": 16.67
       }
     },
     {
@@ -1296,9 +1486,19 @@
         "infrastructure_count": 4,
         "segment_sample_count": 93,
         "covered_segment_count": 47,
+        "total_segment_length_km": 11.577,
         "mean_segment_score": 50.75,
         "mean_greenery_ratio": 0.2814,
-        "max_noise_db": 75
+        "mean_greenery_score": 28.14,
+        "mean_noise_score": 32.66,
+        "mean_rack_score": 88.16,
+        "mean_infrastructure_score": 89.81,
+        "mean_nearest_rack_m": 59.2,
+        "mean_nearest_infra_m": 81.47,
+        "max_noise_db": 75,
+        "air_proxy_score": 30.17,
+        "rack_density_score": 17.79,
+        "infrastructure_density_score": 66.67
       }
     },
     {
@@ -1361,9 +1561,19 @@
         "infrastructure_count": 5,
         "segment_sample_count": 106,
         "covered_segment_count": 52,
+        "total_segment_length_km": 7.793,
         "mean_segment_score": 56.18,
         "mean_greenery_ratio": 0.4354,
-        "max_noise_db": 75
+        "mean_greenery_score": 43.54,
+        "mean_noise_score": 33.8,
+        "mean_rack_score": 94.07,
+        "mean_infrastructure_score": 79.94,
+        "mean_nearest_rack_m": 29.66,
+        "mean_nearest_infra_m": 160.45,
+        "max_noise_db": 75,
+        "air_proxy_score": 39.15,
+        "rack_density_score": 10.43,
+        "infrastructure_density_score": 83.33
       }
     },
     {
@@ -1426,9 +1636,19 @@
         "infrastructure_count": 2,
         "segment_sample_count": 100,
         "covered_segment_count": 50,
+        "total_segment_length_km": 4.196,
         "mean_segment_score": 41.46,
         "mean_greenery_ratio": 0.0933,
-        "max_noise_db": 75
+        "mean_greenery_score": 9.33,
+        "mean_noise_score": 31.63,
+        "mean_rack_score": 84.97,
+        "mean_infrastructure_score": 78.06,
+        "mean_nearest_rack_m": 75.14,
+        "mean_nearest_infra_m": 175.51,
+        "max_noise_db": 75,
+        "air_proxy_score": 19.36,
+        "rack_density_score": 23.31,
+        "infrastructure_density_score": 33.33
       }
     },
     {
@@ -1491,9 +1711,19 @@
         "infrastructure_count": 1,
         "segment_sample_count": 29,
         "covered_segment_count": 13,
+        "total_segment_length_km": 4.115,
         "mean_segment_score": 39,
         "mean_greenery_ratio": 0.1317,
-        "max_noise_db": 75
+        "mean_greenery_score": 13.17,
+        "mean_noise_score": 31.72,
+        "mean_rack_score": 78.27,
+        "mean_infrastructure_score": 61.49,
+        "mean_nearest_rack_m": 108.63,
+        "mean_nearest_infra_m": 308.08,
+        "max_noise_db": 75,
+        "air_proxy_score": 21.52,
+        "rack_density_score": 46.01,
+        "infrastructure_density_score": 16.67
       }
     },
     {
@@ -1556,9 +1786,19 @@
         "infrastructure_count": 3,
         "segment_sample_count": 73,
         "covered_segment_count": 35,
+        "total_segment_length_km": 4.431,
         "mean_segment_score": 65.4,
         "mean_greenery_ratio": 0.876,
-        "max_noise_db": 75
+        "mean_greenery_score": 87.6,
+        "mean_noise_score": 30.86,
+        "mean_rack_score": 71.37,
+        "mean_infrastructure_score": 74.76,
+        "mean_nearest_rack_m": 143.17,
+        "mean_nearest_infra_m": 201.95,
+        "max_noise_db": 75,
+        "air_proxy_score": 62.07,
+        "rack_density_score": 12.27,
+        "infrastructure_density_score": 50
       }
     },
     {
@@ -1621,9 +1861,19 @@
         "infrastructure_count": 6,
         "segment_sample_count": 85,
         "covered_segment_count": 40,
+        "total_segment_length_km": 4.925,
         "mean_segment_score": 46.86,
         "mean_greenery_ratio": 0.1696,
-        "max_noise_db": 75
+        "mean_greenery_score": 16.96,
+        "mean_noise_score": 30.59,
+        "mean_rack_score": 95.18,
+        "mean_infrastructure_score": 84.75,
+        "mean_nearest_rack_m": 24.12,
+        "mean_nearest_infra_m": 122,
+        "max_noise_db": 75,
+        "air_proxy_score": 23.09,
+        "rack_density_score": 20.25,
+        "infrastructure_density_score": 100
       }
     },
     {
@@ -1686,9 +1936,19 @@
         "infrastructure_count": 1,
         "segment_sample_count": 123,
         "covered_segment_count": 61,
+        "total_segment_length_km": 4.572,
         "mean_segment_score": 40.65,
         "mean_greenery_ratio": 0.1843,
-        "max_noise_db": 75
+        "mean_greenery_score": 18.43,
+        "mean_noise_score": 28.15,
+        "mean_rack_score": 81.93,
+        "mean_infrastructure_score": 62.49,
+        "mean_nearest_rack_m": 90.36,
+        "mean_nearest_infra_m": 300.12,
+        "max_noise_db": 75,
+        "air_proxy_score": 22.8,
+        "rack_density_score": 14.72,
+        "infrastructure_density_score": 16.67
       }
     },
     {
@@ -1751,9 +2011,19 @@
         "infrastructure_count": 1,
         "segment_sample_count": 144,
         "covered_segment_count": 70,
+        "total_segment_length_km": 4.784,
         "mean_segment_score": 51.17,
         "mean_greenery_ratio": 0.5914,
-        "max_noise_db": 75
+        "mean_greenery_score": 59.14,
+        "mean_noise_score": 57.92,
+        "mean_rack_score": 17.78,
+        "mean_infrastructure_score": 63.6,
+        "mean_nearest_rack_m": 420.79,
+        "mean_nearest_infra_m": 291.21,
+        "max_noise_db": 75,
+        "air_proxy_score": 58.59,
+        "rack_density_score": 0.61,
+        "infrastructure_density_score": 16.67
       }
     },
     {
@@ -1816,9 +2086,19 @@
         "infrastructure_count": 4,
         "segment_sample_count": 147,
         "covered_segment_count": 77,
+        "total_segment_length_km": 5.083,
         "mean_segment_score": 42.19,
         "mean_greenery_ratio": 0.1259,
-        "max_noise_db": 75
+        "mean_greenery_score": 12.59,
+        "mean_noise_score": 31,
+        "mean_rack_score": 84.59,
+        "mean_infrastructure_score": 77.1,
+        "mean_nearest_rack_m": 77.05,
+        "mean_nearest_infra_m": 183.23,
+        "max_noise_db": 75,
+        "air_proxy_score": 20.87,
+        "rack_density_score": 4.91,
+        "infrastructure_density_score": 66.67
       }
     },
     {
@@ -1881,9 +2161,19 @@
         "infrastructure_count": 1,
         "segment_sample_count": 49,
         "covered_segment_count": 23,
+        "total_segment_length_km": 2.87,
         "mean_segment_score": 43.04,
         "mean_greenery_ratio": 0.0952,
-        "max_noise_db": 75
+        "mean_greenery_score": 9.52,
+        "mean_noise_score": 30.1,
+        "mean_rack_score": 92.4,
+        "mean_infrastructure_score": 81.29,
+        "mean_nearest_rack_m": 38,
+        "mean_nearest_infra_m": 149.71,
+        "max_noise_db": 75,
+        "air_proxy_score": 18.78,
+        "rack_density_score": 33.74,
+        "infrastructure_density_score": 16.67
       }
     },
     {
@@ -1946,9 +2236,19 @@
         "infrastructure_count": 1,
         "segment_sample_count": 61,
         "covered_segment_count": 27,
+        "total_segment_length_km": 4.312,
         "mean_segment_score": 66.82,
         "mean_greenery_ratio": 0.8366,
-        "max_noise_db": 75
+        "mean_greenery_score": 83.66,
+        "mean_noise_score": 30.41,
+        "mean_rack_score": 80.13,
+        "mean_infrastructure_score": 82.62,
+        "mean_nearest_rack_m": 99.33,
+        "mean_nearest_infra_m": 139.05,
+        "max_noise_db": 75,
+        "air_proxy_score": 59.7,
+        "rack_density_score": 7.36,
+        "infrastructure_density_score": 16.67
       }
     },
     {
@@ -2011,9 +2311,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 111,
         "covered_segment_count": 58,
+        "total_segment_length_km": 4.868,
         "mean_segment_score": 47.8,
         "mean_greenery_ratio": 0.3611,
-        "max_noise_db": 75
+        "mean_greenery_score": 36.11,
+        "mean_noise_score": 34.32,
+        "mean_rack_score": 81.02,
+        "mean_infrastructure_score": 57.77,
+        "mean_nearest_rack_m": 94.92,
+        "mean_nearest_infra_m": 337.87,
+        "max_noise_db": 75,
+        "air_proxy_score": 35.31,
+        "rack_density_score": 13.5,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -2076,9 +2386,19 @@
         "infrastructure_count": 3,
         "segment_sample_count": 75,
         "covered_segment_count": 36,
+        "total_segment_length_km": 3.86,
         "mean_segment_score": 41.72,
         "mean_greenery_ratio": 0.0933,
-        "max_noise_db": 75
+        "mean_greenery_score": 9.33,
+        "mean_noise_score": 33.87,
+        "mean_rack_score": 87.08,
+        "mean_infrastructure_score": 72.49,
+        "mean_nearest_rack_m": 64.6,
+        "mean_nearest_infra_m": 220.04,
+        "max_noise_db": 75,
+        "air_proxy_score": 20.37,
+        "rack_density_score": 19.02,
+        "infrastructure_density_score": 50
       }
     },
     {
@@ -2141,9 +2461,19 @@
         "infrastructure_count": 2,
         "segment_sample_count": 90,
         "covered_segment_count": 41,
+        "total_segment_length_km": 6.176,
         "mean_segment_score": 52.55,
         "mean_greenery_ratio": 0.4056,
-        "max_noise_db": 75
+        "mean_greenery_score": 40.56,
+        "mean_noise_score": 29.5,
+        "mean_rack_score": 85.05,
+        "mean_infrastructure_score": 83.32,
+        "mean_nearest_rack_m": 74.73,
+        "mean_nearest_infra_m": 133.44,
+        "max_noise_db": 75,
+        "air_proxy_score": 35.58,
+        "rack_density_score": 10.43,
+        "infrastructure_density_score": 33.33
       }
     },
     {
@@ -2206,9 +2536,19 @@
         "infrastructure_count": 2,
         "segment_sample_count": 63,
         "covered_segment_count": 33,
+        "total_segment_length_km": 2.187,
         "mean_segment_score": 44.87,
         "mean_greenery_ratio": 0.0926,
-        "max_noise_db": 75
+        "mean_greenery_score": 9.26,
+        "mean_noise_score": 36.67,
+        "mean_rack_score": 87.75,
+        "mean_infrastructure_score": 87.19,
+        "mean_nearest_rack_m": 61.24,
+        "mean_nearest_infra_m": 102.45,
+        "max_noise_db": 75,
+        "air_proxy_score": 21.59,
+        "rack_density_score": 19.63,
+        "infrastructure_density_score": 33.33
       }
     },
     {
@@ -2271,9 +2611,19 @@
         "infrastructure_count": 1,
         "segment_sample_count": 123,
         "covered_segment_count": 61,
+        "total_segment_length_km": 3.723,
         "mean_segment_score": 36.94,
         "mean_greenery_ratio": 0.0257,
-        "max_noise_db": 75
+        "mean_greenery_score": 2.57,
+        "mean_noise_score": 33.6,
+        "mean_rack_score": 77.86,
+        "mean_infrastructure_score": 69.25,
+        "mean_nearest_rack_m": 110.69,
+        "mean_nearest_infra_m": 245.99,
+        "max_noise_db": 75,
+        "air_proxy_score": 16.53,
+        "rack_density_score": 10.43,
+        "infrastructure_density_score": 16.67
       }
     },
     {
@@ -2336,9 +2686,19 @@
         "infrastructure_count": 2,
         "segment_sample_count": 119,
         "covered_segment_count": 57,
+        "total_segment_length_km": 5.468,
         "mean_segment_score": 44.74,
         "mean_greenery_ratio": 0.2527,
-        "max_noise_db": 75
+        "mean_greenery_score": 25.27,
+        "mean_noise_score": 29.26,
+        "mean_rack_score": 74.41,
+        "mean_infrastructure_score": 81.59,
+        "mean_nearest_rack_m": 127.97,
+        "mean_nearest_infra_m": 147.3,
+        "max_noise_db": 75,
+        "air_proxy_score": 27.07,
+        "rack_density_score": 3.68,
+        "infrastructure_density_score": 33.33
       }
     },
     {
@@ -2401,9 +2761,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 22,
         "covered_segment_count": 11,
+        "total_segment_length_km": 3.997,
         "mean_segment_score": 49.61,
         "mean_greenery_ratio": 0.1742,
-        "max_noise_db": 75
+        "mean_greenery_score": 17.42,
+        "mean_noise_score": 42.61,
+        "mean_rack_score": 98.41,
+        "mean_infrastructure_score": 73.65,
+        "mean_nearest_rack_m": 7.94,
+        "mean_nearest_infra_m": 210.8,
+        "max_noise_db": 75,
+        "air_proxy_score": 28.76,
+        "rack_density_score": 34.36,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -2466,9 +2836,19 @@
         "infrastructure_count": 1,
         "segment_sample_count": 88,
         "covered_segment_count": 45,
+        "total_segment_length_km": 4.961,
         "mean_segment_score": 47.19,
         "mean_greenery_ratio": 0.2614,
-        "max_noise_db": 75
+        "mean_greenery_score": 26.14,
+        "mean_noise_score": 29.8,
+        "mean_rack_score": 88.38,
+        "mean_infrastructure_score": 76.14,
+        "mean_nearest_rack_m": 58.1,
+        "mean_nearest_infra_m": 190.85,
+        "max_noise_db": 75,
+        "air_proxy_score": 27.79,
+        "rack_density_score": 13.5,
+        "infrastructure_density_score": 16.67
       }
     },
     {
@@ -2531,9 +2911,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 5,
         "covered_segment_count": 1,
+        "total_segment_length_km": 4.039,
         "mean_segment_score": 91.15,
         "mean_greenery_ratio": 1,
-        "max_noise_db": 45
+        "mean_greenery_score": 100,
+        "mean_noise_score": 100,
+        "mean_rack_score": 62.55,
+        "mean_infrastructure_score": 90.94,
+        "mean_nearest_rack_m": 187.23,
+        "mean_nearest_infra_m": 72.46,
+        "max_noise_db": 45,
+        "air_proxy_score": 100,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -2596,9 +2986,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 107,
         "covered_segment_count": 52,
+        "total_segment_length_km": 4.338,
         "mean_segment_score": 28.53,
         "mean_greenery_ratio": 0.2009,
-        "max_noise_db": 75
+        "mean_greenery_score": 20.09,
+        "mean_noise_score": 25,
+        "mean_rack_score": 57.74,
+        "mean_infrastructure_score": 16.33,
+        "mean_nearest_rack_m": 211.31,
+        "mean_nearest_infra_m": 673.58,
+        "max_noise_db": 75,
+        "air_proxy_score": 22.3,
+        "rack_density_score": 20.25,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -2661,9 +3061,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 2,
         "covered_segment_count": 1,
+        "total_segment_length_km": 0.082,
         "mean_segment_score": 89.04,
         "mean_greenery_ratio": 1,
-        "max_noise_db": 45
+        "mean_greenery_score": 100,
+        "mean_noise_score": 100,
+        "mean_rack_score": 99.35,
+        "mean_infrastructure_score": 27.81,
+        "mean_nearest_rack_m": 3.23,
+        "mean_nearest_infra_m": 577.51,
+        "max_noise_db": 45,
+        "air_proxy_score": 100,
+        "rack_density_score": 0.61,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -2726,9 +3136,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 7,
         "covered_segment_count": 2,
+        "total_segment_length_km": 10.991,
         "mean_segment_score": 87.65,
         "mean_greenery_ratio": 1,
-        "max_noise_db": 72
+        "mean_greenery_score": 100,
+        "mean_noise_score": 90.36,
+        "mean_rack_score": 59.35,
+        "mean_infrastructure_score": 91.19,
+        "mean_nearest_rack_m": 203.25,
+        "mean_nearest_infra_m": 70.47,
+        "max_noise_db": 72,
+        "air_proxy_score": 95.66,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -2791,9 +3211,19 @@
         "infrastructure_count": 1,
         "segment_sample_count": 106,
         "covered_segment_count": 55,
+        "total_segment_length_km": 4.986,
         "mean_segment_score": 38.73,
         "mean_greenery_ratio": 0.1981,
-        "max_noise_db": 75
+        "mean_greenery_score": 19.81,
+        "mean_noise_score": 25.87,
+        "mean_rack_score": 79.52,
+        "mean_infrastructure_score": 54.2,
+        "mean_nearest_rack_m": 102.42,
+        "mean_nearest_infra_m": 366.41,
+        "max_noise_db": 75,
+        "air_proxy_score": 22.54,
+        "rack_density_score": 6.13,
+        "infrastructure_density_score": 16.67
       }
     },
     {
@@ -2856,9 +3286,19 @@
         "infrastructure_count": 2,
         "segment_sample_count": 67,
         "covered_segment_count": 34,
+        "total_segment_length_km": 3.076,
         "mean_segment_score": 43.03,
         "mean_greenery_ratio": 0.4851,
-        "max_noise_db": 75
+        "mean_greenery_score": 48.51,
+        "mean_noise_score": 26.49,
+        "mean_rack_score": 61.11,
+        "mean_infrastructure_score": 39.25,
+        "mean_nearest_rack_m": 194.47,
+        "mean_nearest_infra_m": 486.02,
+        "max_noise_db": 75,
+        "air_proxy_score": 38.6,
+        "rack_density_score": 9.82,
+        "infrastructure_density_score": 33.33
       }
     },
     {
@@ -2921,9 +3361,19 @@
         "infrastructure_count": 1,
         "segment_sample_count": 2,
         "covered_segment_count": 2,
+        "total_segment_length_km": 4.189,
         "mean_segment_score": 82.94,
         "mean_greenery_ratio": 0.75,
-        "max_noise_db": 45
+        "mean_greenery_score": 75,
+        "mean_noise_score": 100,
+        "mean_rack_score": 63.04,
+        "mean_infrastructure_score": 93.9,
+        "mean_nearest_rack_m": 184.8,
+        "mean_nearest_infra_m": 48.84,
+        "max_noise_db": 45,
+        "air_proxy_score": 86.25,
+        "rack_density_score": 1.23,
+        "infrastructure_density_score": 16.67
       }
     },
     {
@@ -2986,9 +3436,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 4,
         "covered_segment_count": 1,
+        "total_segment_length_km": 0.619,
         "mean_segment_score": 84.72,
         "mean_greenery_ratio": 1,
-        "max_noise_db": 45
+        "mean_greenery_score": 100,
+        "mean_noise_score": 100,
+        "mean_rack_score": 47.94,
+        "mean_infrastructure_score": 67.55,
+        "mean_nearest_rack_m": 260.28,
+        "mean_nearest_infra_m": 259.56,
+        "max_noise_db": 45,
+        "air_proxy_score": 100,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -3051,9 +3511,19 @@
         "infrastructure_count": 1,
         "segment_sample_count": 1,
         "covered_segment_count": 1,
+        "total_segment_length_km": 0.619,
         "mean_segment_score": 84.72,
         "mean_greenery_ratio": 1,
-        "max_noise_db": 45
+        "mean_greenery_score": 100,
+        "mean_noise_score": 100,
+        "mean_rack_score": 47.94,
+        "mean_infrastructure_score": 67.55,
+        "mean_nearest_rack_m": 260.28,
+        "mean_nearest_infra_m": 259.56,
+        "max_noise_db": 45,
+        "air_proxy_score": 100,
+        "rack_density_score": 0.61,
+        "infrastructure_density_score": 16.67
       }
     },
     {
@@ -3116,9 +3586,19 @@
         "infrastructure_count": 1,
         "segment_sample_count": 121,
         "covered_segment_count": 60,
+        "total_segment_length_km": 4.788,
         "mean_segment_score": 30.35,
         "mean_greenery_ratio": 0.1346,
-        "max_noise_db": 75
+        "mean_greenery_score": 13.46,
+        "mean_noise_score": 26.1,
+        "mean_rack_score": 30.12,
+        "mean_infrastructure_score": 78.57,
+        "mean_nearest_rack_m": 349.4,
+        "mean_nearest_infra_m": 171.42,
+        "max_noise_db": 75,
+        "air_proxy_score": 19.15,
+        "rack_density_score": 6.13,
+        "infrastructure_density_score": 16.67
       }
     },
     {
@@ -3181,9 +3661,19 @@
         "infrastructure_count": 1,
         "segment_sample_count": 7,
         "covered_segment_count": 3,
+        "total_segment_length_km": 4.69,
         "mean_segment_score": 81.81,
         "mean_greenery_ratio": 1,
-        "max_noise_db": 49
+        "mean_greenery_score": 100,
+        "mean_noise_score": 97.14,
+        "mean_rack_score": 35.18,
+        "mean_infrastructure_score": 70.9,
+        "mean_nearest_rack_m": 382.69,
+        "mean_nearest_infra_m": 232.82,
+        "max_noise_db": 49,
+        "air_proxy_score": 98.71,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 16.67
       }
     },
     {
@@ -3246,9 +3736,19 @@
         "infrastructure_count": 1,
         "segment_sample_count": 44,
         "covered_segment_count": 21,
+        "total_segment_length_km": 5.518,
         "mean_segment_score": 62.8,
         "mean_greenery_ratio": 0.7212,
-        "max_noise_db": 75
+        "mean_greenery_score": 72.12,
+        "mean_noise_score": 29.03,
+        "mean_rack_score": 83.1,
+        "mean_infrastructure_score": 81.5,
+        "mean_nearest_rack_m": 84.51,
+        "mean_nearest_infra_m": 148,
+        "max_noise_db": 75,
+        "air_proxy_score": 52.73,
+        "rack_density_score": 4.91,
+        "infrastructure_density_score": 16.67
       }
     },
     {
@@ -3311,9 +3811,19 @@
         "infrastructure_count": 1,
         "segment_sample_count": 47,
         "covered_segment_count": 22,
+        "total_segment_length_km": 3.957,
         "mean_segment_score": 40.37,
         "mean_greenery_ratio": 0.058,
-        "max_noise_db": 75
+        "mean_greenery_score": 5.8,
+        "mean_noise_score": 25.64,
+        "mean_rack_score": 94.35,
+        "mean_infrastructure_score": 78.5,
+        "mean_nearest_rack_m": 28.25,
+        "mean_nearest_infra_m": 171.97,
+        "max_noise_db": 75,
+        "air_proxy_score": 14.73,
+        "rack_density_score": 22.09,
+        "infrastructure_density_score": 16.67
       }
     },
     {
@@ -3376,9 +3886,19 @@
         "infrastructure_count": 1,
         "segment_sample_count": 79,
         "covered_segment_count": 39,
+        "total_segment_length_km": 3.075,
         "mean_segment_score": 32.86,
         "mean_greenery_ratio": 0.038,
-        "max_noise_db": 75
+        "mean_greenery_score": 3.8,
+        "mean_noise_score": 26.36,
+        "mean_rack_score": 59.39,
+        "mean_infrastructure_score": 78.26,
+        "mean_nearest_rack_m": 203.02,
+        "mean_nearest_infra_m": 173.9,
+        "max_noise_db": 75,
+        "air_proxy_score": 13.95,
+        "rack_density_score": 14.72,
+        "infrastructure_density_score": 16.67
       }
     },
     {
@@ -3441,9 +3961,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 29,
         "covered_segment_count": 9,
+        "total_segment_length_km": 5.133,
         "mean_segment_score": 60.22,
         "mean_greenery_ratio": 0.6503,
-        "max_noise_db": 75
+        "mean_greenery_score": 65.03,
+        "mean_noise_score": 30.78,
+        "mean_rack_score": 94.41,
+        "mean_infrastructure_score": 62.3,
+        "mean_nearest_rack_m": 27.97,
+        "mean_nearest_infra_m": 301.55,
+        "max_noise_db": 75,
+        "air_proxy_score": 49.61,
+        "rack_density_score": 4.91,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -3506,9 +4036,19 @@
         "infrastructure_count": 1,
         "segment_sample_count": 102,
         "covered_segment_count": 51,
+        "total_segment_length_km": 10.28,
         "mean_segment_score": 32.07,
         "mean_greenery_ratio": 0.1231,
-        "max_noise_db": 75
+        "mean_greenery_score": 12.31,
+        "mean_noise_score": 28.87,
+        "mean_rack_score": 37.66,
+        "mean_infrastructure_score": 77.12,
+        "mean_nearest_rack_m": 335.47,
+        "mean_nearest_infra_m": 183.07,
+        "max_noise_db": 75,
+        "air_proxy_score": 19.76,
+        "rack_density_score": 4.91,
+        "infrastructure_density_score": 16.67
       }
     },
     {
@@ -3571,9 +4111,19 @@
         "infrastructure_count": 1,
         "segment_sample_count": 64,
         "covered_segment_count": 31,
+        "total_segment_length_km": 3.085,
         "mean_segment_score": 49.99,
         "mean_greenery_ratio": 0.5313,
-        "max_noise_db": 75
+        "mean_greenery_score": 53.13,
+        "mean_noise_score": 43.87,
+        "mean_rack_score": 56.29,
+        "mean_infrastructure_score": 46.52,
+        "mean_nearest_rack_m": 218.53,
+        "mean_nearest_infra_m": 427.81,
+        "max_noise_db": 75,
+        "air_proxy_score": 48.96,
+        "rack_density_score": 3.07,
+        "infrastructure_density_score": 16.67
       }
     },
     {
@@ -3636,9 +4186,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 35,
         "covered_segment_count": 17,
+        "total_segment_length_km": 1.883,
         "mean_segment_score": 55.48,
         "mean_greenery_ratio": 0.4405,
-        "max_noise_db": 75
+        "mean_greenery_score": 44.05,
+        "mean_noise_score": 40.86,
+        "mean_rack_score": 77.07,
+        "mean_infrastructure_score": 82.6,
+        "mean_nearest_rack_m": 114.67,
+        "mean_nearest_infra_m": 139.24,
+        "max_noise_db": 75,
+        "air_proxy_score": 42.61,
+        "rack_density_score": 3.68,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -3701,9 +4261,19 @@
         "infrastructure_count": 5,
         "segment_sample_count": 70,
         "covered_segment_count": 32,
+        "total_segment_length_km": 4.593,
         "mean_segment_score": 45.83,
         "mean_greenery_ratio": 0.5038,
-        "max_noise_db": 75
+        "mean_greenery_score": 50.38,
+        "mean_noise_score": 25.29,
+        "mean_rack_score": 33.1,
+        "mean_infrastructure_score": 93.29,
+        "mean_nearest_rack_m": 334.48,
+        "mean_nearest_infra_m": 53.65,
+        "max_noise_db": 75,
+        "air_proxy_score": 39.09,
+        "rack_density_score": 3.68,
+        "infrastructure_density_score": 83.33
       }
     },
     {
@@ -3766,9 +4336,19 @@
         "infrastructure_count": 1,
         "segment_sample_count": 49,
         "covered_segment_count": 23,
+        "total_segment_length_km": 3.205,
         "mean_segment_score": 45.04,
         "mean_greenery_ratio": 0.2092,
-        "max_noise_db": 75
+        "mean_greenery_score": 20.92,
+        "mean_noise_score": 30,
+        "mean_rack_score": 89.9,
+        "mean_infrastructure_score": 71.61,
+        "mean_nearest_rack_m": 50.48,
+        "mean_nearest_infra_m": 227.12,
+        "max_noise_db": 75,
+        "air_proxy_score": 25.01,
+        "rack_density_score": 9.82,
+        "infrastructure_density_score": 16.67
       }
     },
     {
@@ -3831,9 +4411,19 @@
         "infrastructure_count": 1,
         "segment_sample_count": 101,
         "covered_segment_count": 49,
+        "total_segment_length_km": 4.605,
         "mean_segment_score": 38.11,
         "mean_greenery_ratio": 0.1683,
-        "max_noise_db": 75
+        "mean_greenery_score": 16.83,
+        "mean_noise_score": 25,
+        "mean_rack_score": 70.76,
+        "mean_infrastructure_score": 70.43,
+        "mean_nearest_rack_m": 146.18,
+        "mean_nearest_infra_m": 236.53,
+        "max_noise_db": 75,
+        "air_proxy_score": 20.51,
+        "rack_density_score": 3.68,
+        "infrastructure_density_score": 16.67
       }
     },
     {
@@ -3896,9 +4486,19 @@
         "infrastructure_count": 2,
         "segment_sample_count": 38,
         "covered_segment_count": 20,
+        "total_segment_length_km": 2.166,
         "mean_segment_score": 44.02,
         "mean_greenery_ratio": 0.2281,
-        "max_noise_db": 75
+        "mean_greenery_score": 22.81,
+        "mean_noise_score": 27.5,
+        "mean_rack_score": 88.31,
+        "mean_infrastructure_score": 67.48,
+        "mean_nearest_rack_m": 58.47,
+        "mean_nearest_infra_m": 260.17,
+        "max_noise_db": 75,
+        "air_proxy_score": 24.92,
+        "rack_density_score": 17.18,
+        "infrastructure_density_score": 33.33
       }
     },
     {
@@ -3961,9 +4561,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 79,
         "covered_segment_count": 40,
+        "total_segment_length_km": 4.424,
         "mean_segment_score": 49.58,
         "mean_greenery_ratio": 0.5472,
-        "max_noise_db": 75
+        "mean_greenery_score": 54.72,
+        "mean_noise_score": 37.18,
+        "mean_rack_score": 60.69,
+        "mean_infrastructure_score": 47.57,
+        "mean_nearest_rack_m": 196.57,
+        "mean_nearest_infra_m": 419.47,
+        "max_noise_db": 75,
+        "air_proxy_score": 46.83,
+        "rack_density_score": 0.61,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -4026,9 +4636,19 @@
         "infrastructure_count": 1,
         "segment_sample_count": 7,
         "covered_segment_count": 3,
+        "total_segment_length_km": 0.892,
         "mean_segment_score": 76.71,
         "mean_greenery_ratio": 0.7143,
-        "max_noise_db": 45
+        "mean_greenery_score": 71.43,
+        "mean_noise_score": 100,
+        "mean_rack_score": 52.05,
+        "mean_infrastructure_score": 75.35,
+        "mean_nearest_rack_m": 239.77,
+        "mean_nearest_infra_m": 197.18,
+        "max_noise_db": 45,
+        "air_proxy_score": 84.29,
+        "rack_density_score": 0.61,
+        "infrastructure_density_score": 16.67
       }
     },
     {
@@ -4091,9 +4711,19 @@
         "infrastructure_count": 1,
         "segment_sample_count": 51,
         "covered_segment_count": 26,
+        "total_segment_length_km": 2.383,
         "mean_segment_score": 44.37,
         "mean_greenery_ratio": 0.1634,
-        "max_noise_db": 74
+        "mean_greenery_score": 16.34,
+        "mean_noise_score": 34.61,
+        "mean_rack_score": 75.43,
+        "mean_infrastructure_score": 87.87,
+        "mean_nearest_rack_m": 122.87,
+        "mean_nearest_infra_m": 97.01,
+        "max_noise_db": 74,
+        "air_proxy_score": 24.56,
+        "rack_density_score": 10.43,
+        "infrastructure_density_score": 16.67
       }
     },
     {
@@ -4156,9 +4786,19 @@
         "infrastructure_count": 2,
         "segment_sample_count": 81,
         "covered_segment_count": 40,
+        "total_segment_length_km": 5.367,
         "mean_segment_score": 41.52,
         "mean_greenery_ratio": 0.0704,
-        "max_noise_db": 75
+        "mean_greenery_score": 7.04,
+        "mean_noise_score": 30.52,
+        "mean_rack_score": 86.47,
+        "mean_infrastructure_score": 84.04,
+        "mean_nearest_rack_m": 67.67,
+        "mean_nearest_infra_m": 127.71,
+        "max_noise_db": 75,
+        "air_proxy_score": 17.61,
+        "rack_density_score": 5.52,
+        "infrastructure_density_score": 33.33
       }
     },
     {
@@ -4221,9 +4861,19 @@
         "infrastructure_count": 1,
         "segment_sample_count": 16,
         "covered_segment_count": 4,
+        "total_segment_length_km": 12.971,
         "mean_segment_score": 72.95,
         "mean_greenery_ratio": 0.95,
-        "max_noise_db": 72
+        "mean_greenery_score": 95,
+        "mean_noise_score": 60.31,
+        "mean_rack_score": 43.2,
+        "mean_infrastructure_score": 86.45,
+        "mean_nearest_rack_m": 336.28,
+        "mean_nearest_infra_m": 108.45,
+        "max_noise_db": 72,
+        "air_proxy_score": 79.39,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 16.67
       }
     },
     {
@@ -4286,9 +4936,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 7,
         "covered_segment_count": 1,
+        "total_segment_length_km": 5.412,
         "mean_segment_score": 76.88,
         "mean_greenery_ratio": 1,
-        "max_noise_db": 73
+        "mean_greenery_score": 100,
+        "mean_noise_score": 30,
+        "mean_rack_score": 89.64,
+        "mean_infrastructure_score": 99.69,
+        "mean_nearest_rack_m": 51.78,
+        "mean_nearest_infra_m": 2.51,
+        "max_noise_db": 73,
+        "air_proxy_score": 68.5,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -4351,9 +5011,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 29,
         "covered_segment_count": 12,
+        "total_segment_length_km": 1.955,
         "mean_segment_score": 66.27,
         "mean_greenery_ratio": 0.6759,
-        "max_noise_db": 63
+        "mean_greenery_score": 67.59,
+        "mean_noise_score": 75.6,
+        "mean_rack_score": 57.59,
+        "mean_infrastructure_score": 56.13,
+        "mean_nearest_rack_m": 212.04,
+        "mean_nearest_infra_m": 350.98,
+        "max_noise_db": 63,
+        "air_proxy_score": 71.19,
+        "rack_density_score": 1.84,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -4416,9 +5086,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 4,
         "covered_segment_count": 1,
+        "total_segment_length_km": 5.412,
         "mean_segment_score": 76.88,
         "mean_greenery_ratio": 1,
-        "max_noise_db": 73
+        "mean_greenery_score": 100,
+        "mean_noise_score": 30,
+        "mean_rack_score": 89.64,
+        "mean_infrastructure_score": 99.69,
+        "mean_nearest_rack_m": 51.78,
+        "mean_nearest_infra_m": 2.51,
+        "max_noise_db": 73,
+        "air_proxy_score": 68.5,
+        "rack_density_score": 0.61,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -4481,9 +5161,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 5,
         "covered_segment_count": 1,
+        "total_segment_length_km": 5.412,
         "mean_segment_score": 76.88,
         "mean_greenery_ratio": 1,
-        "max_noise_db": 73
+        "mean_greenery_score": 100,
+        "mean_noise_score": 30,
+        "mean_rack_score": 89.64,
+        "mean_infrastructure_score": 99.69,
+        "mean_nearest_rack_m": 51.78,
+        "mean_nearest_infra_m": 2.51,
+        "max_noise_db": 73,
+        "air_proxy_score": 68.5,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -4546,9 +5236,19 @@
         "infrastructure_count": 1,
         "segment_sample_count": 48,
         "covered_segment_count": 24,
+        "total_segment_length_km": 3.239,
         "mean_segment_score": 45.92,
         "mean_greenery_ratio": 0.2465,
-        "max_noise_db": 75
+        "mean_greenery_score": 24.65,
+        "mean_noise_score": 28.8,
+        "mean_rack_score": 91.9,
+        "mean_infrastructure_score": 68.51,
+        "mean_nearest_rack_m": 40.52,
+        "mean_nearest_infra_m": 251.91,
+        "max_noise_db": 75,
+        "air_proxy_score": 26.52,
+        "rack_density_score": 14.11,
+        "infrastructure_density_score": 16.67
       }
     },
     {
@@ -4611,9 +5311,19 @@
         "infrastructure_count": 2,
         "segment_sample_count": 89,
         "covered_segment_count": 42,
+        "total_segment_length_km": 4.774,
         "mean_segment_score": 39.22,
         "mean_greenery_ratio": 0.0393,
-        "max_noise_db": 75
+        "mean_greenery_score": 3.93,
+        "mean_noise_score": 29.3,
+        "mean_rack_score": 80.82,
+        "mean_infrastructure_score": 85.92,
+        "mean_nearest_rack_m": 95.89,
+        "mean_nearest_infra_m": 112.67,
+        "max_noise_db": 75,
+        "air_proxy_score": 15.35,
+        "rack_density_score": 3.68,
+        "infrastructure_density_score": 33.33
       }
     },
     {
@@ -4676,9 +5386,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 17,
         "covered_segment_count": 7,
+        "total_segment_length_km": 2.429,
         "mean_segment_score": 59.49,
         "mean_greenery_ratio": 0.6639,
-        "max_noise_db": 75
+        "mean_greenery_score": 66.39,
+        "mean_noise_score": 69.85,
+        "mean_rack_score": 58.21,
+        "mean_infrastructure_score": 24.35,
+        "mean_nearest_rack_m": 224.62,
+        "mean_nearest_infra_m": 608.71,
+        "max_noise_db": 75,
+        "air_proxy_score": 67.95,
+        "rack_density_score": 11.04,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -4741,9 +5461,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 30,
         "covered_segment_count": 15,
+        "total_segment_length_km": 1.2,
         "mean_segment_score": 66.82,
         "mean_greenery_ratio": 0.9333,
-        "max_noise_db": 53
+        "mean_greenery_score": 93.33,
+        "mean_noise_score": 97.33,
+        "mean_rack_score": 0.45,
+        "mean_infrastructure_score": 32.4,
+        "mean_nearest_rack_m": 861.24,
+        "mean_nearest_infra_m": 540.77,
+        "max_noise_db": 53,
+        "air_proxy_score": 95.13,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -4806,9 +5536,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 18,
         "covered_segment_count": 5,
+        "total_segment_length_km": 9.245,
         "mean_segment_score": 71.44,
         "mean_greenery_ratio": 1,
-        "max_noise_db": 72
+        "mean_greenery_score": 100,
+        "mean_noise_score": 82.92,
+        "mean_rack_score": 6.69,
+        "mean_infrastructure_score": 68.18,
+        "mean_nearest_rack_m": 1237.46,
+        "mean_nearest_infra_m": 254.61,
+        "max_noise_db": 72,
+        "air_proxy_score": 92.31,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -4871,9 +5611,19 @@
         "infrastructure_count": 2,
         "segment_sample_count": 21,
         "covered_segment_count": 9,
+        "total_segment_length_km": 1.765,
         "mean_segment_score": 47.38,
         "mean_greenery_ratio": 0.3095,
-        "max_noise_db": 75
+        "mean_greenery_score": 30.95,
+        "mean_noise_score": 41.9,
+        "mean_rack_score": 70.85,
+        "mean_infrastructure_score": 65.36,
+        "mean_nearest_rack_m": 145.77,
+        "mean_nearest_infra_m": 277.12,
+        "max_noise_db": 75,
+        "air_proxy_score": 35.88,
+        "rack_density_score": 16.56,
+        "infrastructure_density_score": 33.33
       }
     },
     {
@@ -4936,9 +5686,19 @@
         "infrastructure_count": 3,
         "segment_sample_count": 71,
         "covered_segment_count": 35,
+        "total_segment_length_km": 4.61,
         "mean_segment_score": 41.36,
         "mean_greenery_ratio": 0.1361,
-        "max_noise_db": 75
+        "mean_greenery_score": 13.61,
+        "mean_noise_score": 26.55,
+        "mean_rack_score": 80.37,
+        "mean_infrastructure_score": 83.73,
+        "mean_nearest_rack_m": 116.57,
+        "mean_nearest_infra_m": 130.16,
+        "max_noise_db": 75,
+        "air_proxy_score": 19.44,
+        "rack_density_score": 7.98,
+        "infrastructure_density_score": 50
       }
     },
     {
@@ -5001,9 +5761,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 23,
         "covered_segment_count": 11,
+        "total_segment_length_km": 0.465,
         "mean_segment_score": 68.06,
         "mean_greenery_ratio": 1,
-        "max_noise_db": 68
+        "mean_greenery_score": 100,
+        "mean_noise_score": 47.07,
+        "mean_rack_score": 67.11,
+        "mean_infrastructure_score": 36.79,
+        "mean_nearest_rack_m": 164.47,
+        "mean_nearest_infra_m": 505.68,
+        "max_noise_db": 68,
+        "air_proxy_score": 76.18,
+        "rack_density_score": 0.61,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -5066,9 +5836,19 @@
         "infrastructure_count": 2,
         "segment_sample_count": 46,
         "covered_segment_count": 21,
+        "total_segment_length_km": 2.543,
         "mean_segment_score": 42.11,
         "mean_greenery_ratio": 0.1685,
-        "max_noise_db": 75
+        "mean_greenery_score": 16.85,
+        "mean_noise_score": 33.32,
+        "mean_rack_score": 73.47,
+        "mean_infrastructure_score": 76.83,
+        "mean_nearest_rack_m": 132.63,
+        "mean_nearest_infra_m": 185.34,
+        "max_noise_db": 75,
+        "air_proxy_score": 24.26,
+        "rack_density_score": 9.82,
+        "infrastructure_density_score": 33.33
       }
     },
     {
@@ -5131,9 +5911,19 @@
         "infrastructure_count": 2,
         "segment_sample_count": 8,
         "covered_segment_count": 3,
+        "total_segment_length_km": 9.555,
         "mean_segment_score": 72.5,
         "mean_greenery_ratio": 0.875,
-        "max_noise_db": 73
+        "mean_greenery_score": 87.5,
+        "mean_noise_score": 30.31,
+        "mean_rack_score": 91.25,
+        "mean_infrastructure_score": 96.85,
+        "mean_nearest_rack_m": 43.75,
+        "mean_nearest_infra_m": 25.18,
+        "max_noise_db": 73,
+        "air_proxy_score": 61.77,
+        "rack_density_score": 1.23,
+        "infrastructure_density_score": 33.33
       }
     },
     {
@@ -5196,9 +5986,19 @@
         "infrastructure_count": 3,
         "segment_sample_count": 66,
         "covered_segment_count": 32,
+        "total_segment_length_km": 4.364,
         "mean_segment_score": 40.89,
         "mean_greenery_ratio": 0.1616,
-        "max_noise_db": 75
+        "mean_greenery_score": 16.16,
+        "mean_noise_score": 32.42,
+        "mean_rack_score": 64.28,
+        "mean_infrastructure_score": 84.37,
+        "mean_nearest_rack_m": 178.59,
+        "mean_nearest_infra_m": 125.05,
+        "max_noise_db": 75,
+        "air_proxy_score": 23.48,
+        "rack_density_score": 3.07,
+        "infrastructure_density_score": 50
       }
     },
     {
@@ -5261,9 +6061,19 @@
         "infrastructure_count": 1,
         "segment_sample_count": 10,
         "covered_segment_count": 3,
+        "total_segment_length_km": 2.564,
         "mean_segment_score": 72.08,
         "mean_greenery_ratio": 1,
-        "max_noise_db": 67
+        "mean_greenery_score": 100,
+        "mean_noise_score": 74,
+        "mean_rack_score": 25.63,
+        "mean_infrastructure_score": 65.04,
+        "mean_nearest_rack_m": 387.76,
+        "mean_nearest_infra_m": 279.65,
+        "max_noise_db": 67,
+        "air_proxy_score": 88.3,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 16.67
       }
     },
     {
@@ -5326,9 +6136,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 14,
         "covered_segment_count": 5,
+        "total_segment_length_km": 9.85,
         "mean_segment_score": 70.8,
         "mean_greenery_ratio": 0.9286,
-        "max_noise_db": 73
+        "mean_greenery_score": 92.86,
+        "mean_noise_score": 39.64,
+        "mean_rack_score": 65.29,
+        "mean_infrastructure_score": 89.01,
+        "mean_nearest_rack_m": 173.55,
+        "mean_nearest_infra_m": 87.95,
+        "max_noise_db": 73,
+        "air_proxy_score": 68.91,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -5391,9 +6211,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 8,
         "covered_segment_count": 2,
+        "total_segment_length_km": 10.991,
         "mean_segment_score": 72.8,
         "mean_greenery_ratio": 1,
-        "max_noise_db": 72
+        "mean_greenery_score": 100,
+        "mean_noise_score": 49.38,
+        "mean_rack_score": 45.73,
+        "mean_infrastructure_score": 92.25,
+        "mean_nearest_rack_m": 271.34,
+        "mean_nearest_infra_m": 62,
+        "max_noise_db": 72,
+        "air_proxy_score": 77.22,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -5456,9 +6286,19 @@
         "infrastructure_count": 1,
         "segment_sample_count": 55,
         "covered_segment_count": 26,
+        "total_segment_length_km": 4.249,
         "mean_segment_score": 40.25,
         "mean_greenery_ratio": 0.0747,
-        "max_noise_db": 75
+        "mean_greenery_score": 7.47,
+        "mean_noise_score": 28.55,
+        "mean_rack_score": 86.89,
+        "mean_infrastructure_score": 77.94,
+        "mean_nearest_rack_m": 65.56,
+        "mean_nearest_infra_m": 176.44,
+        "max_noise_db": 75,
+        "air_proxy_score": 16.96,
+        "rack_density_score": 11.04,
+        "infrastructure_density_score": 16.67
       }
     },
     {
@@ -5521,9 +6361,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 7,
         "covered_segment_count": 1,
+        "total_segment_length_km": 1.296,
         "mean_segment_score": 72.6,
         "mean_greenery_ratio": 1,
-        "max_noise_db": 45
+        "mean_greenery_score": 100,
+        "mean_noise_score": 100,
+        "mean_rack_score": 0,
+        "mean_infrastructure_score": 50.63,
+        "mean_nearest_rack_m": 918.31,
+        "mean_nearest_infra_m": 394.93,
+        "max_noise_db": 45,
+        "air_proxy_score": 100,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -5586,9 +6436,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 5,
         "covered_segment_count": 1,
+        "total_segment_length_km": 2.752,
         "mean_segment_score": 65.8,
         "mean_greenery_ratio": 1,
-        "max_noise_db": 75
+        "mean_greenery_score": 100,
+        "mean_noise_score": 25,
+        "mean_rack_score": 86.94,
+        "mean_infrastructure_score": 39.42,
+        "mean_nearest_rack_m": 65.29,
+        "mean_nearest_infra_m": 484.61,
+        "max_noise_db": 75,
+        "air_proxy_score": 66.25,
+        "rack_density_score": 5.52,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -5651,9 +6511,19 @@
         "infrastructure_count": 2,
         "segment_sample_count": 93,
         "covered_segment_count": 45,
+        "total_segment_length_km": 4.046,
         "mean_segment_score": 35.67,
         "mean_greenery_ratio": 0.0043,
-        "max_noise_db": 75
+        "mean_greenery_score": 0.43,
+        "mean_noise_score": 34.01,
+        "mean_rack_score": 66.67,
+        "mean_infrastructure_score": 79.92,
+        "mean_nearest_rack_m": 166.64,
+        "mean_nearest_infra_m": 160.66,
+        "max_noise_db": 75,
+        "air_proxy_score": 15.54,
+        "rack_density_score": 1.23,
+        "infrastructure_density_score": 33.33
       }
     },
     {
@@ -5716,9 +6586,19 @@
         "infrastructure_count": 1,
         "segment_sample_count": 29,
         "covered_segment_count": 11,
+        "total_segment_length_km": 7.59,
         "mean_segment_score": 58.86,
         "mean_greenery_ratio": 0.7069,
-        "max_noise_db": 75
+        "mean_greenery_score": 70.69,
+        "mean_noise_score": 30.09,
+        "mean_rack_score": 72.06,
+        "mean_infrastructure_score": 71.2,
+        "mean_nearest_rack_m": 139.73,
+        "mean_nearest_infra_m": 230.38,
+        "max_noise_db": 75,
+        "air_proxy_score": 52.42,
+        "rack_density_score": 1.84,
+        "infrastructure_density_score": 16.67
       }
     },
     {
@@ -5781,9 +6661,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 48,
         "covered_segment_count": 26,
+        "total_segment_length_km": 2.419,
         "mean_segment_score": 44.24,
         "mean_greenery_ratio": 0.2153,
-        "max_noise_db": 74
+        "mean_greenery_score": 21.53,
+        "mean_noise_score": 88.44,
+        "mean_rack_score": 46.43,
+        "mean_infrastructure_score": 5.9,
+        "mean_nearest_rack_m": 267.88,
+        "mean_nearest_infra_m": 789.63,
+        "max_noise_db": 74,
+        "air_proxy_score": 51.64,
+        "rack_density_score": 3.07,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -5846,9 +6736,19 @@
         "infrastructure_count": 1,
         "segment_sample_count": 4,
         "covered_segment_count": 1,
+        "total_segment_length_km": 0.566,
         "mean_segment_score": 72.32,
         "mean_greenery_ratio": 1,
-        "max_noise_db": 45
+        "mean_greenery_score": 100,
+        "mean_noise_score": 100,
+        "mean_rack_score": 0,
+        "mean_infrastructure_score": 48.78,
+        "mean_nearest_rack_m": 1587.78,
+        "mean_nearest_infra_m": 409.73,
+        "max_noise_db": 45,
+        "air_proxy_score": 100,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 16.67
       }
     },
     {
@@ -5911,9 +6811,19 @@
         "infrastructure_count": 1,
         "segment_sample_count": 79,
         "covered_segment_count": 36,
+        "total_segment_length_km": 3.308,
         "mean_segment_score": 40.38,
         "mean_greenery_ratio": 0.173,
-        "max_noise_db": 75
+        "mean_greenery_score": 17.3,
+        "mean_noise_score": 40.6,
+        "mean_rack_score": 51.96,
+        "mean_infrastructure_score": 78.33,
+        "mean_nearest_rack_m": 240.18,
+        "mean_nearest_infra_m": 173.33,
+        "max_noise_db": 75,
+        "air_proxy_score": 27.79,
+        "rack_density_score": 2.45,
+        "infrastructure_density_score": 16.67
       }
     },
     {
@@ -5976,9 +6886,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 23,
         "covered_segment_count": 12,
+        "total_segment_length_km": 3.419,
         "mean_segment_score": 43.96,
         "mean_greenery_ratio": 0.1522,
-        "max_noise_db": 71
+        "mean_greenery_score": 15.22,
+        "mean_noise_score": 57.39,
+        "mean_rack_score": 96.91,
+        "mean_infrastructure_score": 13.58,
+        "mean_nearest_rack_m": 15.44,
+        "mean_nearest_infra_m": 701.9,
+        "max_noise_db": 71,
+        "air_proxy_score": 34.2,
+        "rack_density_score": 19.02,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -6041,9 +6961,19 @@
         "infrastructure_count": 3,
         "segment_sample_count": 68,
         "covered_segment_count": 35,
+        "total_segment_length_km": 1.626,
         "mean_segment_score": 38.54,
         "mean_greenery_ratio": 0.0882,
-        "max_noise_db": 75
+        "mean_greenery_score": 8.82,
+        "mean_noise_score": 33.05,
+        "mean_rack_score": 67.26,
+        "mean_infrastructure_score": 80.55,
+        "mean_nearest_rack_m": 163.73,
+        "mean_nearest_infra_m": 155.57,
+        "max_noise_db": 75,
+        "air_proxy_score": 19.73,
+        "rack_density_score": 3.07,
+        "infrastructure_density_score": 50
       }
     },
     {
@@ -6106,9 +7036,19 @@
         "infrastructure_count": 3,
         "segment_sample_count": 59,
         "covered_segment_count": 28,
+        "total_segment_length_km": 6.01,
         "mean_segment_score": 43.81,
         "mean_greenery_ratio": 0.2401,
-        "max_noise_db": 75
+        "mean_greenery_score": 24.01,
+        "mean_noise_score": 36.02,
+        "mean_rack_score": 58.73,
+        "mean_infrastructure_score": 85.73,
+        "mean_nearest_rack_m": 206.34,
+        "mean_nearest_infra_m": 114.16,
+        "max_noise_db": 75,
+        "air_proxy_score": 29.41,
+        "rack_density_score": 3.07,
+        "infrastructure_density_score": 50
       }
     },
     {
@@ -6171,9 +7111,19 @@
         "infrastructure_count": 1,
         "segment_sample_count": 17,
         "covered_segment_count": 6,
+        "total_segment_length_km": 13.063,
         "mean_segment_score": 64.35,
         "mean_greenery_ratio": 0.7443,
-        "max_noise_db": 75
+        "mean_greenery_score": 74.43,
+        "mean_noise_score": 53.68,
+        "mean_rack_score": 47.13,
+        "mean_infrastructure_score": 85.13,
+        "mean_nearest_rack_m": 304.62,
+        "mean_nearest_infra_m": 119,
+        "max_noise_db": 75,
+        "air_proxy_score": 65.09,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 16.67
       }
     },
     {
@@ -6236,9 +7186,19 @@
         "infrastructure_count": 1,
         "segment_sample_count": 22,
         "covered_segment_count": 12,
+        "total_segment_length_km": 2.369,
         "mean_segment_score": 46.72,
         "mean_greenery_ratio": 0.3212,
-        "max_noise_db": 75
+        "mean_greenery_score": 32.12,
+        "mean_noise_score": 31.14,
+        "mean_rack_score": 82.88,
+        "mean_infrastructure_score": 63.73,
+        "mean_nearest_rack_m": 85.62,
+        "mean_nearest_infra_m": 290.14,
+        "max_noise_db": 75,
+        "air_proxy_score": 31.68,
+        "rack_density_score": 11.04,
+        "infrastructure_density_score": 16.67
       }
     },
     {
@@ -6301,9 +7261,19 @@
         "infrastructure_count": 2,
         "segment_sample_count": 52,
         "covered_segment_count": 23,
+        "total_segment_length_km": 12.469,
         "mean_segment_score": 48.95,
         "mean_greenery_ratio": 0.4462,
-        "max_noise_db": 75
+        "mean_greenery_score": 44.62,
+        "mean_noise_score": 29.38,
+        "mean_rack_score": 54.7,
+        "mean_infrastructure_score": 90.57,
+        "mean_nearest_rack_m": 226.49,
+        "mean_nearest_infra_m": 75.43,
+        "max_noise_db": 75,
+        "air_proxy_score": 37.76,
+        "rack_density_score": 0.61,
+        "infrastructure_density_score": 33.33
       }
     },
     {
@@ -6366,9 +7336,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 30,
         "covered_segment_count": 17,
+        "total_segment_length_km": 0.961,
         "mean_segment_score": 37.58,
         "mean_greenery_ratio": 0,
-        "max_noise_db": 71
+        "mean_greenery_score": 0,
+        "mean_noise_score": 41,
+        "mean_rack_score": 75.77,
+        "mean_infrastructure_score": 67.5,
+        "mean_nearest_rack_m": 121.14,
+        "mean_nearest_infra_m": 260.03,
+        "max_noise_db": 71,
+        "air_proxy_score": 18.45,
+        "rack_density_score": 17.18,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -6431,9 +7411,19 @@
         "infrastructure_count": 1,
         "segment_sample_count": 30,
         "covered_segment_count": 15,
+        "total_segment_length_km": 6.475,
         "mean_segment_score": 56.99,
         "mean_greenery_ratio": 0.7,
-        "max_noise_db": 75
+        "mean_greenery_score": 70,
+        "mean_noise_score": 38.92,
+        "mean_rack_score": 52.82,
+        "mean_infrastructure_score": 68.31,
+        "mean_nearest_rack_m": 235.87,
+        "mean_nearest_infra_m": 253.48,
+        "max_noise_db": 75,
+        "air_proxy_score": 56.01,
+        "rack_density_score": 1.84,
+        "infrastructure_density_score": 16.67
       }
     },
     {
@@ -6496,9 +7486,19 @@
         "infrastructure_count": 2,
         "segment_sample_count": 68,
         "covered_segment_count": 34,
+        "total_segment_length_km": 2.212,
         "mean_segment_score": 38.5,
         "mean_greenery_ratio": 0.1569,
-        "max_noise_db": 75
+        "mean_greenery_score": 15.69,
+        "mean_noise_score": 28.82,
+        "mean_rack_score": 70.57,
+        "mean_infrastructure_score": 68.35,
+        "mean_nearest_rack_m": 147.15,
+        "mean_nearest_infra_m": 253.21,
+        "max_noise_db": 75,
+        "air_proxy_score": 21.6,
+        "rack_density_score": 3.68,
+        "infrastructure_density_score": 33.33
       }
     },
     {
@@ -6561,9 +7561,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 39,
         "covered_segment_count": 19,
+        "total_segment_length_km": 3.317,
         "mean_segment_score": 46.11,
         "mean_greenery_ratio": 0.385,
-        "max_noise_db": 75
+        "mean_greenery_score": 38.5,
+        "mean_noise_score": 30.77,
+        "mean_rack_score": 80.5,
+        "mean_infrastructure_score": 48.68,
+        "mean_nearest_rack_m": 97.5,
+        "mean_nearest_infra_m": 410.54,
+        "max_noise_db": 75,
+        "air_proxy_score": 35.02,
+        "rack_density_score": 6.75,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -6626,9 +7636,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 6,
         "covered_segment_count": 1,
+        "total_segment_length_km": 1.365,
         "mean_segment_score": 67.81,
         "mean_greenery_ratio": 1,
-        "max_noise_db": 45
+        "mean_greenery_score": 100,
+        "mean_noise_score": 100,
+        "mean_rack_score": 0,
+        "mean_infrastructure_score": 18.72,
+        "mean_nearest_rack_m": 619.46,
+        "mean_nearest_infra_m": 650.28,
+        "max_noise_db": 45,
+        "air_proxy_score": 100,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -6691,9 +7711,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 36,
         "covered_segment_count": 17,
+        "total_segment_length_km": 2.649,
         "mean_segment_score": 54.42,
         "mean_greenery_ratio": 0.672,
-        "max_noise_db": 75
+        "mean_greenery_score": 67.2,
+        "mean_noise_score": 25.97,
+        "mean_rack_score": 75,
+        "mean_infrastructure_score": 54.1,
+        "mean_nearest_rack_m": 125,
+        "mean_nearest_infra_m": 367.18,
+        "max_noise_db": 75,
+        "air_proxy_score": 48.65,
+        "rack_density_score": 1.23,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -6756,9 +7786,19 @@
         "infrastructure_count": 1,
         "segment_sample_count": 40,
         "covered_segment_count": 18,
+        "total_segment_length_km": 2.148,
         "mean_segment_score": 45.44,
         "mean_greenery_ratio": 0.04,
-        "max_noise_db": 74
+        "mean_greenery_score": 4,
+        "mean_noise_score": 39.38,
+        "mean_rack_score": 92.44,
+        "mean_infrastructure_score": 91.6,
+        "mean_nearest_rack_m": 37.78,
+        "mean_nearest_infra_m": 67.2,
+        "max_noise_db": 74,
+        "air_proxy_score": 19.92,
+        "rack_density_score": 6.75,
+        "infrastructure_density_score": 16.67
       }
     },
     {
@@ -6821,9 +7861,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 39,
         "covered_segment_count": 19,
+        "total_segment_length_km": 1.615,
         "mean_segment_score": 54.63,
         "mean_greenery_ratio": 0.7863,
-        "max_noise_db": 75
+        "mean_greenery_score": 78.63,
+        "mean_noise_score": 84.74,
+        "mean_rack_score": 0,
+        "mean_infrastructure_score": 11.22,
+        "mean_nearest_rack_m": 1242.16,
+        "mean_nearest_infra_m": 825.04,
+        "max_noise_db": 75,
+        "air_proxy_score": 81.38,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -6886,9 +7936,19 @@
         "infrastructure_count": 1,
         "segment_sample_count": 63,
         "covered_segment_count": 32,
+        "total_segment_length_km": 2.465,
         "mean_segment_score": 39.66,
         "mean_greenery_ratio": 0.0992,
-        "max_noise_db": 75
+        "mean_greenery_score": 9.92,
+        "mean_noise_score": 26.9,
+        "mean_rack_score": 80.07,
+        "mean_infrastructure_score": 80.67,
+        "mean_nearest_rack_m": 99.64,
+        "mean_nearest_infra_m": 154.67,
+        "max_noise_db": 75,
+        "air_proxy_score": 17.56,
+        "rack_density_score": 3.07,
+        "infrastructure_density_score": 16.67
       }
     },
     {
@@ -6951,9 +8011,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 15,
         "covered_segment_count": 8,
+        "total_segment_length_km": 6.176,
         "mean_segment_score": 63.86,
         "mean_greenery_ratio": 0.8333,
-        "max_noise_db": 75
+        "mean_greenery_score": 83.33,
+        "mean_noise_score": 38.17,
+        "mean_rack_score": 65.52,
+        "mean_infrastructure_score": 67.58,
+        "mean_nearest_rack_m": 172.38,
+        "mean_nearest_infra_m": 259.37,
+        "max_noise_db": 75,
+        "air_proxy_score": 63.01,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -7016,9 +8086,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 3,
         "covered_segment_count": 1,
+        "total_segment_length_km": 1.365,
         "mean_segment_score": 67.81,
         "mean_greenery_ratio": 1,
-        "max_noise_db": 45
+        "mean_greenery_score": 100,
+        "mean_noise_score": 100,
+        "mean_rack_score": 0,
+        "mean_infrastructure_score": 18.72,
+        "mean_nearest_rack_m": 619.46,
+        "mean_nearest_infra_m": 650.28,
+        "max_noise_db": 45,
+        "air_proxy_score": 100,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -7081,9 +8161,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 12,
         "covered_segment_count": 7,
+        "total_segment_length_km": 1.684,
         "mean_segment_score": 60.12,
         "mean_greenery_ratio": 0.5861,
-        "max_noise_db": 71
+        "mean_greenery_score": 58.61,
+        "mean_noise_score": 41.67,
+        "mean_rack_score": 95.02,
+        "mean_infrastructure_score": 54.05,
+        "mean_nearest_rack_m": 24.9,
+        "mean_nearest_infra_m": 367.61,
+        "max_noise_db": 71,
+        "air_proxy_score": 50.99,
+        "rack_density_score": 2.45,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -7146,9 +8236,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 5,
         "covered_segment_count": 1,
+        "total_segment_length_km": 6.952,
         "mean_segment_score": 66.68,
         "mean_greenery_ratio": 1,
-        "max_noise_db": 72
+        "mean_greenery_score": 100,
+        "mean_noise_score": 32.5,
+        "mean_rack_score": 40.12,
+        "mean_infrastructure_score": 92.69,
+        "mean_nearest_rack_m": 299.38,
+        "mean_nearest_infra_m": 58.51,
+        "max_noise_db": 72,
+        "air_proxy_score": 69.63,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -7211,9 +8311,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 1,
         "covered_segment_count": 1,
+        "total_segment_length_km": 0.843,
         "mean_segment_score": 68.21,
         "mean_greenery_ratio": 1,
-        "max_noise_db": 45
+        "mean_greenery_score": 100,
+        "mean_noise_score": 100,
+        "mean_rack_score": 15.3,
+        "mean_infrastructure_score": 0.98,
+        "mean_nearest_rack_m": 423.52,
+        "mean_nearest_infra_m": 792.14,
+        "max_noise_db": 45,
+        "air_proxy_score": 100,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -7276,9 +8386,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 8,
         "covered_segment_count": 3,
+        "total_segment_length_km": 3.682,
         "mean_segment_score": 65.09,
         "mean_greenery_ratio": 0.9886,
-        "max_noise_db": 56
+        "mean_greenery_score": 98.86,
+        "mean_noise_score": 92.19,
+        "mean_rack_score": 12.29,
+        "mean_infrastructure_score": 2.47,
+        "mean_nearest_rack_m": 628.04,
+        "mean_nearest_infra_m": 807.42,
+        "max_noise_db": 56,
+        "air_proxy_score": 95.86,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -7341,9 +8461,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 6,
         "covered_segment_count": 1,
+        "total_segment_length_km": 2.752,
         "mean_segment_score": 65.8,
         "mean_greenery_ratio": 1,
-        "max_noise_db": 75
+        "mean_greenery_score": 100,
+        "mean_noise_score": 25,
+        "mean_rack_score": 86.94,
+        "mean_infrastructure_score": 39.42,
+        "mean_nearest_rack_m": 65.29,
+        "mean_nearest_infra_m": 484.61,
+        "max_noise_db": 75,
+        "air_proxy_score": 66.25,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -7406,9 +8536,19 @@
         "infrastructure_count": 1,
         "segment_sample_count": 60,
         "covered_segment_count": 30,
+        "total_segment_length_km": 2.518,
         "mean_segment_score": 37.77,
         "mean_greenery_ratio": 0.2111,
-        "max_noise_db": 75
+        "mean_greenery_score": 21.11,
+        "mean_noise_score": 30.54,
+        "mean_rack_score": 59.74,
+        "mean_infrastructure_score": 61.83,
+        "mean_nearest_rack_m": 201.29,
+        "mean_nearest_infra_m": 305.36,
+        "max_noise_db": 75,
+        "air_proxy_score": 25.35,
+        "rack_density_score": 3.68,
+        "infrastructure_density_score": 16.67
       }
     },
     {
@@ -7471,9 +8611,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 4,
         "covered_segment_count": 3,
+        "total_segment_length_km": 0.763,
         "mean_segment_score": 65.57,
         "mean_greenery_ratio": 0.825,
-        "max_noise_db": 75
+        "mean_greenery_score": 82.5,
+        "mean_noise_score": 36.88,
+        "mean_rack_score": 60.18,
+        "mean_infrastructure_score": 90.61,
+        "mean_nearest_rack_m": 199.12,
+        "mean_nearest_infra_m": 75.12,
+        "max_noise_db": 75,
+        "air_proxy_score": 61.97,
+        "rack_density_score": 1.23,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -7536,9 +8686,19 @@
         "infrastructure_count": 1,
         "segment_sample_count": 49,
         "covered_segment_count": 24,
+        "total_segment_length_km": 3.251,
         "mean_segment_score": 48.35,
         "mean_greenery_ratio": 0.5808,
-        "max_noise_db": 75
+        "mean_greenery_score": 58.08,
+        "mean_noise_score": 49.59,
+        "mean_rack_score": 23.9,
+        "mean_infrastructure_score": 55.77,
+        "mean_nearest_rack_m": 429.51,
+        "mean_nearest_infra_m": 353.85,
+        "max_noise_db": 75,
+        "air_proxy_score": 54.26,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 16.67
       }
     },
     {
@@ -7601,9 +8761,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 6,
         "covered_segment_count": 1,
+        "total_segment_length_km": 2.549,
         "mean_segment_score": 65,
         "mean_greenery_ratio": 1,
-        "max_noise_db": 45
+        "mean_greenery_score": 100,
+        "mean_noise_score": 100,
+        "mean_rack_score": 0,
+        "mean_infrastructure_score": 0,
+        "mean_nearest_rack_m": 1363.82,
+        "mean_nearest_infra_m": 2962.96,
+        "max_noise_db": 45,
+        "air_proxy_score": 100,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -7666,9 +8836,19 @@
         "infrastructure_count": 1,
         "segment_sample_count": 21,
         "covered_segment_count": 12,
+        "total_segment_length_km": 0.695,
         "mean_segment_score": 54.89,
         "mean_greenery_ratio": 0.2381,
-        "max_noise_db": 72
+        "mean_greenery_score": 23.81,
+        "mean_noise_score": 45.36,
+        "mean_rack_score": 94.08,
+        "mean_infrastructure_score": 94.25,
+        "mean_nearest_rack_m": 29.61,
+        "mean_nearest_infra_m": 46,
+        "max_noise_db": 72,
+        "air_proxy_score": 33.51,
+        "rack_density_score": 3.68,
+        "infrastructure_density_score": 16.67
       }
     },
     {
@@ -7731,9 +8911,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 4,
         "covered_segment_count": 3,
+        "total_segment_length_km": 0.534,
         "mean_segment_score": 65.71,
         "mean_greenery_ratio": 1,
-        "max_noise_db": 45
+        "mean_greenery_score": 100,
+        "mean_noise_score": 100,
+        "mean_rack_score": 0,
+        "mean_infrastructure_score": 4.75,
+        "mean_nearest_rack_m": 602.76,
+        "mean_nearest_infra_m": 776.97,
+        "max_noise_db": 45,
+        "air_proxy_score": 100,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -7796,9 +8986,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 54,
         "covered_segment_count": 26,
+        "total_segment_length_km": 2.883,
         "mean_segment_score": 34.67,
         "mean_greenery_ratio": 0.0988,
-        "max_noise_db": 72
+        "mean_greenery_score": 9.88,
+        "mean_noise_score": 41.44,
+        "mean_rack_score": 86.11,
+        "mean_infrastructure_score": 10.38,
+        "mean_nearest_rack_m": 69.43,
+        "mean_nearest_infra_m": 826.26,
+        "max_noise_db": 72,
+        "air_proxy_score": 24.08,
+        "rack_density_score": 7.36,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -7861,9 +9061,19 @@
         "infrastructure_count": 3,
         "segment_sample_count": 48,
         "covered_segment_count": 23,
+        "total_segment_length_km": 2.002,
         "mean_segment_score": 41.02,
         "mean_greenery_ratio": 0.274,
-        "max_noise_db": 75
+        "mean_greenery_score": 27.4,
+        "mean_noise_score": 25,
+        "mean_rack_score": 64.35,
+        "mean_infrastructure_score": 73.71,
+        "mean_nearest_rack_m": 178.24,
+        "mean_nearest_infra_m": 210.33,
+        "max_noise_db": 75,
+        "air_proxy_score": 26.32,
+        "rack_density_score": 6.13,
+        "infrastructure_density_score": 50
       }
     },
     {
@@ -7926,9 +9136,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 37,
         "covered_segment_count": 18,
+        "total_segment_length_km": 5.877,
         "mean_segment_score": 48.84,
         "mean_greenery_ratio": 0.5414,
-        "max_noise_db": 75
+        "mean_greenery_score": 54.14,
+        "mean_noise_score": 33.24,
+        "mean_rack_score": 76.64,
+        "mean_infrastructure_score": 30.6,
+        "mean_nearest_rack_m": 116.8,
+        "mean_nearest_infra_m": 555.22,
+        "max_noise_db": 75,
+        "air_proxy_score": 44.74,
+        "rack_density_score": 2.45,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -7991,9 +9211,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 3,
         "covered_segment_count": 1,
+        "total_segment_length_km": 2.549,
         "mean_segment_score": 65,
         "mean_greenery_ratio": 1,
-        "max_noise_db": 45
+        "mean_greenery_score": 100,
+        "mean_noise_score": 100,
+        "mean_rack_score": 0,
+        "mean_infrastructure_score": 0,
+        "mean_nearest_rack_m": 1363.82,
+        "mean_nearest_infra_m": 2962.96,
+        "max_noise_db": 45,
+        "air_proxy_score": 100,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -8056,9 +9286,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 3,
         "covered_segment_count": 1,
+        "total_segment_length_km": 2.549,
         "mean_segment_score": 65,
         "mean_greenery_ratio": 1,
-        "max_noise_db": 45
+        "mean_greenery_score": 100,
+        "mean_noise_score": 100,
+        "mean_rack_score": 0,
+        "mean_infrastructure_score": 0,
+        "mean_nearest_rack_m": 1363.82,
+        "mean_nearest_infra_m": 2962.96,
+        "max_noise_db": 45,
+        "air_proxy_score": 100,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -8121,9 +9361,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 2,
         "covered_segment_count": 1,
+        "total_segment_length_km": 2.549,
         "mean_segment_score": 65,
         "mean_greenery_ratio": 1,
-        "max_noise_db": 45
+        "mean_greenery_score": 100,
+        "mean_noise_score": 100,
+        "mean_rack_score": 0,
+        "mean_infrastructure_score": 0,
+        "mean_nearest_rack_m": 1363.82,
+        "mean_nearest_infra_m": 2962.96,
+        "max_noise_db": 45,
+        "air_proxy_score": 100,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -8186,9 +9436,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 2,
         "covered_segment_count": 1,
+        "total_segment_length_km": 2.549,
         "mean_segment_score": 65,
         "mean_greenery_ratio": 1,
-        "max_noise_db": 45
+        "mean_greenery_score": 100,
+        "mean_noise_score": 100,
+        "mean_rack_score": 0,
+        "mean_infrastructure_score": 0,
+        "mean_nearest_rack_m": 1363.82,
+        "mean_nearest_infra_m": 2962.96,
+        "max_noise_db": 45,
+        "air_proxy_score": 100,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -8251,9 +9511,19 @@
         "infrastructure_count": 1,
         "segment_sample_count": 35,
         "covered_segment_count": 16,
+        "total_segment_length_km": 9.797,
         "mean_segment_score": 51.05,
         "mean_greenery_ratio": 0.8034,
-        "max_noise_db": 75
+        "mean_greenery_score": 80.34,
+        "mean_noise_score": 26.43,
+        "mean_rack_score": 20.63,
+        "mean_infrastructure_score": 72.51,
+        "mean_nearest_rack_m": 430.51,
+        "mean_nearest_infra_m": 219.96,
+        "max_noise_db": 75,
+        "air_proxy_score": 56.08,
+        "rack_density_score": 0.61,
+        "infrastructure_density_score": 16.67
       }
     },
     {
@@ -8316,9 +9586,19 @@
         "infrastructure_count": 1,
         "segment_sample_count": 25,
         "covered_segment_count": 8,
+        "total_segment_length_km": 13.837,
         "mean_segment_score": 55.14,
         "mean_greenery_ratio": 0.925,
-        "max_noise_db": 75
+        "mean_greenery_score": 92.5,
+        "mean_noise_score": 25.8,
+        "mean_rack_score": 28.34,
+        "mean_infrastructure_score": 62.39,
+        "mean_nearest_rack_m": 655.14,
+        "mean_nearest_infra_m": 300.89,
+        "max_noise_db": 75,
+        "air_proxy_score": 62.49,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 16.67
       }
     },
     {
@@ -8381,9 +9661,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 6,
         "covered_segment_count": 3,
+        "total_segment_length_km": 0.703,
         "mean_segment_score": 62.96,
         "mean_greenery_ratio": 0.5667,
-        "max_noise_db": 68
+        "mean_greenery_score": 56.67,
+        "mean_noise_score": 80.83,
+        "mean_rack_score": 54.8,
+        "mean_infrastructure_score": 52.81,
+        "mean_nearest_rack_m": 225.99,
+        "mean_nearest_infra_m": 377.51,
+        "max_noise_db": 68,
+        "air_proxy_score": 67.54,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -8446,9 +9736,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 6,
         "covered_segment_count": 1,
+        "total_segment_length_km": 1.685,
         "mean_segment_score": 62.66,
         "mean_greenery_ratio": 0.9091,
-        "max_noise_db": 56
+        "mean_greenery_score": 90.91,
+        "mean_noise_score": 72.5,
+        "mean_rack_score": 44.77,
+        "mean_infrastructure_score": 0.93,
+        "mean_nearest_rack_m": 276.14,
+        "mean_nearest_infra_m": 792.59,
+        "max_noise_db": 56,
+        "air_proxy_score": 82.63,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -8511,9 +9811,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 19,
         "covered_segment_count": 10,
+        "total_segment_length_km": 0.956,
         "mean_segment_score": 56.72,
         "mean_greenery_ratio": 0.9474,
-        "max_noise_db": 72
+        "mean_greenery_score": 94.74,
+        "mean_noise_score": 78.55,
+        "mean_rack_score": 0,
+        "mean_infrastructure_score": 0,
+        "mean_nearest_rack_m": 844.44,
+        "mean_nearest_infra_m": 4150.53,
+        "max_noise_db": 72,
+        "air_proxy_score": 87.45,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -8576,9 +9886,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 3,
         "covered_segment_count": 1,
+        "total_segment_length_km": 1.685,
         "mean_segment_score": 62.66,
         "mean_greenery_ratio": 0.9091,
-        "max_noise_db": 56
+        "mean_greenery_score": 90.91,
+        "mean_noise_score": 72.5,
+        "mean_rack_score": 44.77,
+        "mean_infrastructure_score": 0.93,
+        "mean_nearest_rack_m": 276.14,
+        "mean_nearest_infra_m": 792.59,
+        "max_noise_db": 56,
+        "air_proxy_score": 82.63,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -8641,9 +9961,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 56,
         "covered_segment_count": 25,
+        "total_segment_length_km": 4.531,
         "mean_segment_score": 36.6,
         "mean_greenery_ratio": 0.0405,
-        "max_noise_db": 75
+        "mean_greenery_score": 4.05,
+        "mean_noise_score": 44.11,
+        "mean_rack_score": 66.09,
+        "mean_infrastructure_score": 58.24,
+        "mean_nearest_rack_m": 169.54,
+        "mean_nearest_infra_m": 334.09,
+        "max_noise_db": 75,
+        "air_proxy_score": 22.07,
+        "rack_density_score": 1.23,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -8706,9 +10036,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 12,
         "covered_segment_count": 3,
+        "total_segment_length_km": 3.101,
         "mean_segment_score": 58.27,
         "mean_greenery_ratio": 0.7917,
-        "max_noise_db": 64
+        "mean_greenery_score": 79.17,
+        "mean_noise_score": 75.63,
+        "mean_rack_score": 20.92,
+        "mean_infrastructure_score": 24.6,
+        "mean_nearest_rack_m": 395.39,
+        "mean_nearest_infra_m": 603.22,
+        "max_noise_db": 64,
+        "air_proxy_score": 77.57,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -8771,9 +10111,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 7,
         "covered_segment_count": 2,
+        "total_segment_length_km": 4.931,
         "mean_segment_score": 58.94,
         "mean_greenery_ratio": 0.8979,
-        "max_noise_db": 75
+        "mean_greenery_score": 89.79,
+        "mean_noise_score": 25,
+        "mean_rack_score": 69.23,
+        "mean_infrastructure_score": 41.14,
+        "mean_nearest_rack_m": 153.86,
+        "mean_nearest_infra_m": 470.83,
+        "max_noise_db": 75,
+        "air_proxy_score": 60.64,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -8836,9 +10186,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 16,
         "covered_segment_count": 7,
+        "total_segment_length_km": 2.983,
         "mean_segment_score": 48.78,
         "mean_greenery_ratio": 0.3465,
-        "max_noise_db": 75
+        "mean_greenery_score": 34.65,
+        "mean_noise_score": 36.56,
+        "mean_rack_score": 79.7,
+        "mean_infrastructure_score": 64.92,
+        "mean_nearest_rack_m": 101.52,
+        "mean_nearest_infra_m": 280.65,
+        "max_noise_db": 75,
+        "air_proxy_score": 35.51,
+        "rack_density_score": 5.52,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -8901,9 +10261,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 26,
         "covered_segment_count": 14,
+        "total_segment_length_km": 1.854,
         "mean_segment_score": 45.8,
         "mean_greenery_ratio": 0.2949,
-        "max_noise_db": 75
+        "mean_greenery_score": 29.49,
+        "mean_noise_score": 30.87,
+        "mean_rack_score": 81.05,
+        "mean_infrastructure_score": 66.73,
+        "mean_nearest_rack_m": 94.76,
+        "mean_nearest_infra_m": 266.13,
+        "max_noise_db": 75,
+        "air_proxy_score": 30.11,
+        "rack_density_score": 3.07,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -8966,9 +10336,19 @@
         "infrastructure_count": 1,
         "segment_sample_count": 49,
         "covered_segment_count": 25,
+        "total_segment_length_km": 1.625,
         "mean_segment_score": 34.89,
         "mean_greenery_ratio": 0.0799,
-        "max_noise_db": 75
+        "mean_greenery_score": 7.99,
+        "mean_noise_score": 40.15,
+        "mean_rack_score": 49.94,
+        "mean_infrastructure_score": 67.08,
+        "mean_nearest_rack_m": 258.31,
+        "mean_nearest_infra_m": 263.38,
+        "max_noise_db": 75,
+        "air_proxy_score": 22.47,
+        "rack_density_score": 2.45,
+        "infrastructure_density_score": 16.67
       }
     },
     {
@@ -9031,9 +10411,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 41,
         "covered_segment_count": 21,
+        "total_segment_length_km": 3.392,
         "mean_segment_score": 40.22,
         "mean_greenery_ratio": 0.2114,
-        "max_noise_db": 75
+        "mean_greenery_score": 21.14,
+        "mean_noise_score": 28.35,
+        "mean_rack_score": 75.76,
+        "mean_infrastructure_score": 61.09,
+        "mean_nearest_rack_m": 121.2,
+        "mean_nearest_infra_m": 311.31,
+        "max_noise_db": 75,
+        "air_proxy_score": 24.39,
+        "rack_density_score": 3.07,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -9096,9 +10486,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 34,
         "covered_segment_count": 18,
+        "total_segment_length_km": 2.676,
         "mean_segment_score": 45.17,
         "mean_greenery_ratio": 0.2647,
-        "max_noise_db": 75
+        "mean_greenery_score": 26.47,
+        "mean_noise_score": 68.46,
+        "mean_rack_score": 64.36,
+        "mean_infrastructure_score": 16.64,
+        "mean_nearest_rack_m": 192.19,
+        "mean_nearest_infra_m": 683.11,
+        "max_noise_db": 75,
+        "air_proxy_score": 45.36,
+        "rack_density_score": 1.84,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -9161,9 +10561,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 33,
         "covered_segment_count": 18,
+        "total_segment_length_km": 2.51,
         "mean_segment_score": 40.34,
         "mean_greenery_ratio": 0.3737,
-        "max_noise_db": 75
+        "mean_greenery_score": 37.37,
+        "mean_noise_score": 31.06,
+        "mean_rack_score": 82.64,
+        "mean_infrastructure_score": 9.4,
+        "mean_nearest_rack_m": 86.79,
+        "mean_nearest_infra_m": 807.8,
+        "max_noise_db": 75,
+        "air_proxy_score": 34.53,
+        "rack_density_score": 5.52,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -9226,9 +10636,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 5,
         "covered_segment_count": 1,
+        "total_segment_length_km": 2.179,
         "mean_segment_score": 56.2,
         "mean_greenery_ratio": 0.8571,
-        "max_noise_db": 75
+        "mean_greenery_score": 85.71,
+        "mean_noise_score": 25,
+        "mean_rack_score": 62.14,
+        "mean_infrastructure_score": 41.83,
+        "mean_nearest_rack_m": 189.29,
+        "mean_nearest_infra_m": 465.32,
+        "max_noise_db": 75,
+        "air_proxy_score": 58.39,
+        "rack_density_score": 2.45,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -9291,9 +10711,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 35,
         "covered_segment_count": 18,
+        "total_segment_length_km": 3.608,
         "mean_segment_score": 39.93,
         "mean_greenery_ratio": 0.1762,
-        "max_noise_db": 75
+        "mean_greenery_score": 17.62,
+        "mean_noise_score": 29.29,
+        "mean_rack_score": 81.88,
+        "mean_infrastructure_score": 57.37,
+        "mean_nearest_rack_m": 94.74,
+        "mean_nearest_infra_m": 341.02,
+        "max_noise_db": 75,
+        "air_proxy_score": 22.87,
+        "rack_density_score": 2.45,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -9356,9 +10786,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 66,
         "covered_segment_count": 31,
+        "total_segment_length_km": 3.471,
         "mean_segment_score": 34.01,
         "mean_greenery_ratio": 0.2354,
-        "max_noise_db": 75
+        "mean_greenery_score": 23.54,
+        "mean_noise_score": 46.21,
+        "mean_rack_score": 25.49,
+        "mean_infrastructure_score": 45.4,
+        "mean_nearest_rack_m": 384.13,
+        "mean_nearest_infra_m": 436.79,
+        "max_noise_db": 75,
+        "air_proxy_score": 33.74,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -9421,9 +10861,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 11,
         "covered_segment_count": 4,
+        "total_segment_length_km": 9.212,
         "mean_segment_score": 55.37,
         "mean_greenery_ratio": 0.7459,
-        "max_noise_db": 75
+        "mean_greenery_score": 74.59,
+        "mean_noise_score": 28.86,
+        "mean_rack_score": 36.93,
+        "mean_infrastructure_score": 88.12,
+        "mean_nearest_rack_m": 351.22,
+        "mean_nearest_infra_m": 95.05,
+        "max_noise_db": 75,
+        "air_proxy_score": 54.01,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -9486,9 +10936,19 @@
         "infrastructure_count": 2,
         "segment_sample_count": 36,
         "covered_segment_count": 18,
+        "total_segment_length_km": 1.606,
         "mean_segment_score": 39.16,
         "mean_greenery_ratio": 0.1944,
-        "max_noise_db": 75
+        "mean_greenery_score": 19.44,
+        "mean_noise_score": 33.13,
+        "mean_rack_score": 65.18,
+        "mean_infrastructure_score": 62.56,
+        "mean_nearest_rack_m": 174.26,
+        "mean_nearest_infra_m": 299.63,
+        "max_noise_db": 75,
+        "air_proxy_score": 25.6,
+        "rack_density_score": 4.29,
+        "infrastructure_density_score": 33.33
       }
     },
     {
@@ -9551,9 +11011,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 32,
         "covered_segment_count": 16,
+        "total_segment_length_km": 2.318,
         "mean_segment_score": 32.8,
         "mean_greenery_ratio": 0.0729,
-        "max_noise_db": 75
+        "mean_greenery_score": 7.29,
+        "mean_noise_score": 31.09,
+        "mean_rack_score": 81,
+        "mean_infrastructure_score": 31.43,
+        "mean_nearest_rack_m": 95.01,
+        "mean_nearest_infra_m": 558.31,
+        "max_noise_db": 75,
+        "air_proxy_score": 18,
+        "rack_density_score": 12.88,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -9616,9 +11086,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 6,
         "covered_segment_count": 4,
+        "total_segment_length_km": 1.58,
         "mean_segment_score": 47.61,
         "mean_greenery_ratio": 0.2857,
-        "max_noise_db": 75
+        "mean_greenery_score": 28.57,
+        "mean_noise_score": 42.08,
+        "mean_rack_score": 73.49,
+        "mean_infrastructure_score": 68.55,
+        "mean_nearest_rack_m": 132.56,
+        "mean_nearest_infra_m": 251.63,
+        "max_noise_db": 75,
+        "air_proxy_score": 34.65,
+        "rack_density_score": 3.07,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -9681,9 +11161,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 8,
         "covered_segment_count": 5,
+        "total_segment_length_km": 1.014,
         "mean_segment_score": 54.67,
         "mean_greenery_ratio": 0.9583,
-        "max_noise_db": 75
+        "mean_greenery_score": 95.83,
+        "mean_noise_score": 38.75,
+        "mean_rack_score": 6.73,
+        "mean_infrastructure_score": 54.4,
+        "mean_nearest_rack_m": 493.23,
+        "mean_nearest_infra_m": 364.78,
+        "max_noise_db": 75,
+        "air_proxy_score": 70.15,
+        "rack_density_score": 1.84,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -9746,9 +11236,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 44,
         "covered_segment_count": 22,
+        "total_segment_length_km": 1.008,
         "mean_segment_score": 41.45,
         "mean_greenery_ratio": 0.4242,
-        "max_noise_db": 75
+        "mean_greenery_score": 42.42,
+        "mean_noise_score": 78.86,
+        "mean_rack_score": 10.35,
+        "mean_infrastructure_score": 5.8,
+        "mean_nearest_rack_m": 566.89,
+        "mean_nearest_infra_m": 808.6,
+        "max_noise_db": 75,
+        "air_proxy_score": 58.82,
+        "rack_density_score": 1.23,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -9811,9 +11311,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 30,
         "covered_segment_count": 13,
+        "total_segment_length_km": 1.765,
         "mean_segment_score": 44.14,
         "mean_greenery_ratio": 0.2667,
-        "max_noise_db": 75
+        "mean_greenery_score": 26.67,
+        "mean_noise_score": 25,
+        "mean_rack_score": 80.74,
+        "mean_infrastructure_score": 74.42,
+        "mean_nearest_rack_m": 96.32,
+        "mean_nearest_infra_m": 204.65,
+        "max_noise_db": 75,
+        "air_proxy_score": 25.92,
+        "rack_density_score": 4.29,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -9876,9 +11386,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 69,
         "covered_segment_count": 36,
+        "total_segment_length_km": 3.205,
         "mean_segment_score": 31.12,
         "mean_greenery_ratio": 0.1256,
-        "max_noise_db": 75
+        "mean_greenery_score": 12.56,
+        "mean_noise_score": 26.99,
+        "mean_rack_score": 65.64,
+        "mean_infrastructure_score": 36.67,
+        "mean_nearest_rack_m": 171.8,
+        "mean_nearest_infra_m": 508.05,
+        "max_noise_db": 75,
+        "air_proxy_score": 19.05,
+        "rack_density_score": 0.61,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -9941,9 +11461,19 @@
         "infrastructure_count": 1,
         "segment_sample_count": 46,
         "covered_segment_count": 23,
+        "total_segment_length_km": 2.403,
         "mean_segment_score": 31.67,
         "mean_greenery_ratio": 0.0435,
-        "max_noise_db": 73
+        "mean_greenery_score": 4.35,
+        "mean_noise_score": 36.96,
+        "mean_rack_score": 64.79,
+        "mean_infrastructure_score": 40.7,
+        "mean_nearest_rack_m": 176.04,
+        "mean_nearest_infra_m": 474.36,
+        "max_noise_db": 73,
+        "air_proxy_score": 19.02,
+        "rack_density_score": 4.29,
+        "infrastructure_density_score": 16.67
       }
     },
     {
@@ -10006,9 +11536,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 18,
         "covered_segment_count": 10,
+        "total_segment_length_km": 2.433,
         "mean_segment_score": 34.51,
         "mean_greenery_ratio": 0.1259,
-        "max_noise_db": 75
+        "mean_greenery_score": 12.59,
+        "mean_noise_score": 27.64,
+        "mean_rack_score": 51.22,
+        "mean_infrastructure_score": 77.11,
+        "mean_nearest_rack_m": 281.17,
+        "mean_nearest_infra_m": 183.14,
+        "max_noise_db": 75,
+        "air_proxy_score": 19.36,
+        "rack_density_score": 3.68,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -10071,9 +11611,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 7,
         "covered_segment_count": 2,
+        "total_segment_length_km": 0.689,
         "mean_segment_score": 54.68,
         "mean_greenery_ratio": 0.2857,
-        "max_noise_db": 58
+        "mean_greenery_score": 28.57,
+        "mean_noise_score": 86.07,
+        "mean_rack_score": 45.97,
+        "mean_infrastructure_score": 64.43,
+        "mean_nearest_rack_m": 270.16,
+        "mean_nearest_infra_m": 284.55,
+        "max_noise_db": 58,
+        "air_proxy_score": 54.45,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -10136,9 +11686,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 26,
         "covered_segment_count": 13,
+        "total_segment_length_km": 1.757,
         "mean_segment_score": 38.15,
         "mean_greenery_ratio": 0.241,
-        "max_noise_db": 75
+        "mean_greenery_score": 24.1,
+        "mean_noise_score": 29.81,
+        "mean_rack_score": 67.54,
+        "mean_infrastructure_score": 48.43,
+        "mean_nearest_rack_m": 162.32,
+        "mean_nearest_infra_m": 412.53,
+        "max_noise_db": 75,
+        "air_proxy_score": 26.67,
+        "rack_density_score": 4.29,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -10201,9 +11761,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 6,
         "covered_segment_count": 1,
+        "total_segment_length_km": 1.39,
         "mean_segment_score": 54.38,
         "mean_greenery_ratio": 0.8889,
-        "max_noise_db": 74
+        "mean_greenery_score": 88.89,
+        "mean_noise_score": 27.5,
+        "mean_rack_score": 68.94,
+        "mean_infrastructure_score": 8.18,
+        "mean_nearest_rack_m": 155.28,
+        "mean_nearest_infra_m": 734.57,
+        "max_noise_db": 74,
+        "air_proxy_score": 61.26,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -10266,9 +11836,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 5,
         "covered_segment_count": 3,
+        "total_segment_length_km": 0.767,
         "mean_segment_score": 53.68,
         "mean_greenery_ratio": 0.36,
-        "max_noise_db": 69
+        "mean_greenery_score": 36,
+        "mean_noise_score": 46,
+        "mean_rack_score": 96.34,
+        "mean_infrastructure_score": 53.44,
+        "mean_nearest_rack_m": 18.31,
+        "mean_nearest_infra_m": 372.47,
+        "max_noise_db": 69,
+        "air_proxy_score": 40.5,
+        "rack_density_score": 1.23,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -10331,9 +11911,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 32,
         "covered_segment_count": 15,
+        "total_segment_length_km": 3.09,
         "mean_segment_score": 40.6,
         "mean_greenery_ratio": 0.5906,
-        "max_noise_db": 75
+        "mean_greenery_score": 59.06,
+        "mean_noise_score": 41.02,
+        "mean_rack_score": 38.11,
+        "mean_infrastructure_score": 0,
+        "mean_nearest_rack_m": 371.34,
+        "mean_nearest_infra_m": 3844.31,
+        "max_noise_db": 75,
+        "air_proxy_score": 50.94,
+        "rack_density_score": 1.23,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -10396,9 +11986,19 @@
         "infrastructure_count": 1,
         "segment_sample_count": 29,
         "covered_segment_count": 13,
+        "total_segment_length_km": 1.317,
         "mean_segment_score": 43.6,
         "mean_greenery_ratio": 0.1379,
-        "max_noise_db": 55
+        "mean_greenery_score": 13.79,
+        "mean_noise_score": 89.14,
+        "mean_rack_score": 0,
+        "mean_infrastructure_score": 80.18,
+        "mean_nearest_rack_m": 694.59,
+        "mean_nearest_infra_m": 158.59,
+        "max_noise_db": 55,
+        "air_proxy_score": 47.7,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 16.67
       }
     },
     {
@@ -10461,9 +12061,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 12,
         "covered_segment_count": 6,
+        "total_segment_length_km": 7.583,
         "mean_segment_score": 49.59,
         "mean_greenery_ratio": 0.875,
-        "max_noise_db": 74
+        "mean_greenery_score": 87.5,
+        "mean_noise_score": 36.25,
+        "mean_rack_score": 11.98,
+        "mean_infrastructure_score": 37.95,
+        "mean_nearest_rack_m": 663.73,
+        "mean_nearest_infra_m": 496.44,
+        "max_noise_db": 74,
+        "air_proxy_score": 64.44,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -10526,9 +12136,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 5,
         "covered_segment_count": 1,
+        "total_segment_length_km": 0.702,
         "mean_segment_score": 51.63,
         "mean_greenery_ratio": 1,
-        "max_noise_db": 72
+        "mean_greenery_score": 100,
+        "mean_noise_score": 32.5,
+        "mean_rack_score": 0,
+        "mean_infrastructure_score": 45.87,
+        "mean_nearest_rack_m": 1035.8,
+        "mean_nearest_infra_m": 433.06,
+        "max_noise_db": 72,
+        "air_proxy_score": 69.63,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -10591,9 +12211,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 62,
         "covered_segment_count": 31,
+        "total_segment_length_km": 2.795,
         "mean_segment_score": 29.43,
         "mean_greenery_ratio": 0.3616,
-        "max_noise_db": 75
+        "mean_greenery_score": 36.16,
+        "mean_noise_score": 45.65,
+        "mean_rack_score": 6.15,
+        "mean_infrastructure_score": 12.35,
+        "mean_nearest_rack_m": 622.73,
+        "mean_nearest_infra_m": 728.37,
+        "max_noise_db": 75,
+        "air_proxy_score": 40.43,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -10656,9 +12286,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 5,
         "covered_segment_count": 3,
+        "total_segment_length_km": 0.617,
         "mean_segment_score": 49.38,
         "mean_greenery_ratio": 0.2667,
-        "max_noise_db": 72
+        "mean_greenery_score": 26.67,
+        "mean_noise_score": 73,
+        "mean_rack_score": 90.74,
+        "mean_infrastructure_score": 0,
+        "mean_nearest_rack_m": 46.29,
+        "mean_nearest_infra_m": 1247.63,
+        "max_noise_db": 72,
+        "air_proxy_score": 47.52,
+        "rack_density_score": 2.45,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -10721,9 +12361,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 17,
         "covered_segment_count": 7,
+        "total_segment_length_km": 3.523,
         "mean_segment_score": 44.47,
         "mean_greenery_ratio": 0.6051,
-        "max_noise_db": 75
+        "mean_greenery_score": 60.51,
+        "mean_noise_score": 34.12,
+        "mean_rack_score": 23.29,
+        "mean_infrastructure_score": 55.98,
+        "mean_nearest_rack_m": 461.64,
+        "mean_nearest_infra_m": 352.12,
+        "max_noise_db": 75,
+        "air_proxy_score": 48.63,
+        "rack_density_score": 1.23,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -10786,9 +12436,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 4,
         "covered_segment_count": 1,
+        "total_segment_length_km": 3.416,
         "mean_segment_score": 47.2,
         "mean_greenery_ratio": 1,
-        "max_noise_db": 75
+        "mean_greenery_score": 100,
+        "mean_noise_score": 25,
+        "mean_rack_score": 2.13,
+        "mean_infrastructure_score": 28.51,
+        "mean_nearest_rack_m": 489.33,
+        "mean_nearest_infra_m": 571.96,
+        "max_noise_db": 75,
+        "air_proxy_score": 66.25,
+        "rack_density_score": 1.84,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -10851,9 +12511,19 @@
         "infrastructure_count": 1,
         "segment_sample_count": 5,
         "covered_segment_count": 2,
+        "total_segment_length_km": 0.657,
         "mean_segment_score": 47.83,
         "mean_greenery_ratio": 0.4,
-        "max_noise_db": 75
+        "mean_greenery_score": 40,
+        "mean_noise_score": 39,
+        "mean_rack_score": 58.89,
+        "mean_infrastructure_score": 69.04,
+        "mean_nearest_rack_m": 207.04,
+        "mean_nearest_infra_m": 247.68,
+        "max_noise_db": 75,
+        "air_proxy_score": 39.55,
+        "rack_density_score": 2.45,
+        "infrastructure_density_score": 16.67
       }
     },
     {
@@ -10916,9 +12586,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 29,
         "covered_segment_count": 15,
+        "total_segment_length_km": 1.124,
         "mean_segment_score": 41.47,
         "mean_greenery_ratio": 0.1839,
-        "max_noise_db": 46
+        "mean_greenery_score": 18.39,
+        "mean_noise_score": 99.57,
+        "mean_rack_score": 0,
+        "mean_infrastructure_score": 34.42,
+        "mean_nearest_rack_m": 1159.37,
+        "mean_nearest_infra_m": 532.64,
+        "max_noise_db": 46,
+        "air_proxy_score": 54.92,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -10981,9 +12661,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 23,
         "covered_segment_count": 10,
+        "total_segment_length_km": 2.697,
         "mean_segment_score": 39.34,
         "mean_greenery_ratio": 0.0217,
-        "max_noise_db": 72
+        "mean_greenery_score": 2.17,
+        "mean_noise_score": 56.96,
+        "mean_rack_score": 92.5,
+        "mean_infrastructure_score": 19.94,
+        "mean_nearest_rack_m": 37.51,
+        "mean_nearest_infra_m": 640.52,
+        "max_noise_db": 72,
+        "air_proxy_score": 26.83,
+        "rack_density_score": 4.29,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -11046,9 +12736,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 6,
         "covered_segment_count": 2,
+        "total_segment_length_km": 1.961,
         "mean_segment_score": 49.48,
         "mean_greenery_ratio": 0.9815,
-        "max_noise_db": 74
+        "mean_greenery_score": 98.15,
+        "mean_noise_score": 42.08,
+        "mean_rack_score": 11.49,
+        "mean_infrastructure_score": 1.36,
+        "mean_nearest_rack_m": 808.31,
+        "mean_nearest_infra_m": 1165.17,
+        "max_noise_db": 74,
+        "air_proxy_score": 72.92,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -11111,9 +12811,19 @@
         "infrastructure_count": 1,
         "segment_sample_count": 35,
         "covered_segment_count": 17,
+        "total_segment_length_km": 2.547,
         "mean_segment_score": 26.24,
         "mean_greenery_ratio": 0.2,
-        "max_noise_db": 75
+        "mean_greenery_score": 20,
+        "mean_noise_score": 31.43,
+        "mean_rack_score": 19.91,
+        "mean_infrastructure_score": 38.84,
+        "mean_nearest_rack_m": 414.04,
+        "mean_nearest_infra_m": 489.3,
+        "max_noise_db": 75,
+        "air_proxy_score": 25.14,
+        "rack_density_score": 4.91,
+        "infrastructure_density_score": 16.67
       }
     },
     {
@@ -11176,9 +12886,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 22,
         "covered_segment_count": 11,
+        "total_segment_length_km": 0.76,
         "mean_segment_score": 42.33,
         "mean_greenery_ratio": 0.7576,
-        "max_noise_db": 75
+        "mean_greenery_score": 75.76,
+        "mean_noise_score": 27.5,
+        "mean_rack_score": 0.47,
+        "mean_infrastructure_score": 49.78,
+        "mean_nearest_rack_m": 670.42,
+        "mean_nearest_infra_m": 401.77,
+        "max_noise_db": 75,
+        "air_proxy_score": 54.04,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -11241,9 +12961,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 6,
         "covered_segment_count": 1,
+        "total_segment_length_km": 1.983,
         "mean_segment_score": 47.87,
         "mean_greenery_ratio": 0.3846,
-        "max_noise_db": 75
+        "mean_greenery_score": 38.46,
+        "mean_noise_score": 25,
+        "mean_rack_score": 59.91,
+        "mean_infrastructure_score": 99.51,
+        "mean_nearest_rack_m": 200.47,
+        "mean_nearest_infra_m": 3.93,
+        "max_noise_db": 75,
+        "air_proxy_score": 32.4,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -11306,9 +13036,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 29,
         "covered_segment_count": 13,
+        "total_segment_length_km": 1.075,
         "mean_segment_score": 38.83,
         "mean_greenery_ratio": 0.7103,
-        "max_noise_db": 75
+        "mean_greenery_score": 71.03,
+        "mean_noise_score": 38.1,
+        "mean_rack_score": 0.92,
+        "mean_infrastructure_score": 15.69,
+        "mean_nearest_rack_m": 666.4,
+        "mean_nearest_infra_m": 674.5,
+        "max_noise_db": 75,
+        "air_proxy_score": 56.22,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -11371,9 +13111,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 40,
         "covered_segment_count": 20,
+        "total_segment_length_km": 0.308,
         "mean_segment_score": 34.5,
         "mean_greenery_ratio": 0.7,
-        "max_noise_db": 75
+        "mean_greenery_score": 70,
+        "mean_noise_score": 32.75,
+        "mean_rack_score": 0,
+        "mean_infrastructure_score": 1.18,
+        "mean_nearest_rack_m": 607.94,
+        "mean_nearest_infra_m": 799.41,
+        "max_noise_db": 75,
+        "air_proxy_score": 53.24,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -11436,9 +13186,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 6,
         "covered_segment_count": 1,
+        "total_segment_length_km": 3.416,
         "mean_segment_score": 47.2,
         "mean_greenery_ratio": 1,
-        "max_noise_db": 75
+        "mean_greenery_score": 100,
+        "mean_noise_score": 25,
+        "mean_rack_score": 2.13,
+        "mean_infrastructure_score": 28.51,
+        "mean_nearest_rack_m": 489.33,
+        "mean_nearest_infra_m": 571.96,
+        "max_noise_db": 75,
+        "air_proxy_score": 66.25,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -11501,9 +13261,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 3,
         "covered_segment_count": 2,
+        "total_segment_length_km": 1.846,
         "mean_segment_score": 43.31,
         "mean_greenery_ratio": 0.303,
-        "max_noise_db": 66
+        "mean_greenery_score": 30.3,
+        "mean_noise_score": 55.83,
+        "mean_rack_score": 79.56,
+        "mean_infrastructure_score": 0.31,
+        "mean_nearest_rack_m": 102.21,
+        "mean_nearest_infra_m": 851.09,
+        "max_noise_db": 66,
+        "air_proxy_score": 41.79,
+        "rack_density_score": 2.45,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -11566,9 +13336,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 4,
         "covered_segment_count": 1,
+        "total_segment_length_km": 3.416,
         "mean_segment_score": 47.2,
         "mean_greenery_ratio": 1,
-        "max_noise_db": 75
+        "mean_greenery_score": 100,
+        "mean_noise_score": 25,
+        "mean_rack_score": 2.13,
+        "mean_infrastructure_score": 28.51,
+        "mean_nearest_rack_m": 489.33,
+        "mean_nearest_infra_m": 571.96,
+        "max_noise_db": 75,
+        "air_proxy_score": 66.25,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -11631,9 +13411,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 4,
         "covered_segment_count": 1,
+        "total_segment_length_km": 3.416,
         "mean_segment_score": 47.2,
         "mean_greenery_ratio": 1,
-        "max_noise_db": 75
+        "mean_greenery_score": 100,
+        "mean_noise_score": 25,
+        "mean_rack_score": 2.13,
+        "mean_infrastructure_score": 28.51,
+        "mean_nearest_rack_m": 489.33,
+        "mean_nearest_infra_m": 571.96,
+        "max_noise_db": 75,
+        "air_proxy_score": 66.25,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -11696,9 +13486,19 @@
         "infrastructure_count": 1,
         "segment_sample_count": 26,
         "covered_segment_count": 10,
+        "total_segment_length_km": 3.62,
         "mean_segment_score": 37.89,
         "mean_greenery_ratio": 0.1713,
-        "max_noise_db": 75
+        "mean_greenery_score": 17.13,
+        "mean_noise_score": 34.52,
+        "mean_rack_score": 38.11,
+        "mean_infrastructure_score": 92.77,
+        "mean_nearest_rack_m": 388.68,
+        "mean_nearest_infra_m": 57.88,
+        "max_noise_db": 75,
+        "air_proxy_score": 24.96,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 16.67
       }
     },
     {
@@ -11761,9 +13561,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 6,
         "covered_segment_count": 3,
+        "total_segment_length_km": 0.052,
         "mean_segment_score": 45.5,
         "mean_greenery_ratio": 1,
-        "max_noise_db": 75
+        "mean_greenery_score": 100,
+        "mean_noise_score": 35,
+        "mean_rack_score": 0,
+        "mean_infrastructure_score": 0,
+        "mean_nearest_rack_m": 742.12,
+        "mean_nearest_infra_m": 824.21,
+        "max_noise_db": 75,
+        "air_proxy_score": 70.75,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -11826,9 +13636,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 42,
         "covered_segment_count": 19,
+        "total_segment_length_km": 2.964,
         "mean_segment_score": 28.06,
         "mean_greenery_ratio": 0.0317,
-        "max_noise_db": 75
+        "mean_greenery_score": 3.17,
+        "mean_noise_score": 28.93,
+        "mean_rack_score": 56.66,
+        "mean_infrastructure_score": 46.29,
+        "mean_nearest_rack_m": 216.72,
+        "mean_nearest_infra_m": 429.68,
+        "max_noise_db": 75,
+        "air_proxy_score": 14.76,
+        "rack_density_score": 1.23,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -11891,9 +13711,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 1,
         "covered_segment_count": 1,
+        "total_segment_length_km": 3.416,
         "mean_segment_score": 47.2,
         "mean_greenery_ratio": 1,
-        "max_noise_db": 75
+        "mean_greenery_score": 100,
+        "mean_noise_score": 25,
+        "mean_rack_score": 2.13,
+        "mean_infrastructure_score": 28.51,
+        "mean_nearest_rack_m": 489.33,
+        "mean_nearest_infra_m": 571.96,
+        "max_noise_db": 75,
+        "air_proxy_score": 66.25,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -11956,9 +13786,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 6,
         "covered_segment_count": 2,
+        "total_segment_length_km": 2.226,
         "mean_segment_score": 45.01,
         "mean_greenery_ratio": 0.8125,
-        "max_noise_db": 75
+        "mean_greenery_score": 81.25,
+        "mean_noise_score": 25,
+        "mean_rack_score": 0,
+        "mean_infrastructure_score": 60.54,
+        "mean_nearest_rack_m": 837.3,
+        "mean_nearest_infra_m": 315.71,
+        "max_noise_db": 75,
+        "air_proxy_score": 55.94,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -12021,9 +13861,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 1,
         "covered_segment_count": 1,
+        "total_segment_length_km": 0.515,
         "mean_segment_score": 40.71,
         "mean_greenery_ratio": 0,
-        "max_noise_db": 75
+        "mean_greenery_score": 0,
+        "mean_noise_score": 25,
+        "mean_rack_score": 98.15,
+        "mean_infrastructure_score": 90.55,
+        "mean_nearest_rack_m": 9.25,
+        "mean_nearest_infra_m": 75.58,
+        "max_noise_db": 75,
+        "air_proxy_score": 11.25,
+        "rack_density_score": 3.68,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -12086,9 +13936,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 18,
         "covered_segment_count": 8,
+        "total_segment_length_km": 2.658,
         "mean_segment_score": 35,
         "mean_greenery_ratio": 0.1543,
-        "max_noise_db": 75
+        "mean_greenery_score": 15.43,
+        "mean_noise_score": 25.56,
+        "mean_rack_score": 76.78,
+        "mean_infrastructure_score": 43.88,
+        "mean_nearest_rack_m": 116.12,
+        "mean_nearest_infra_m": 448.94,
+        "max_noise_db": 75,
+        "air_proxy_score": 19.99,
+        "rack_density_score": 3.68,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -12151,9 +14011,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 8,
         "covered_segment_count": 4,
+        "total_segment_length_km": 0.937,
         "mean_segment_score": 43.44,
         "mean_greenery_ratio": 0.875,
-        "max_noise_db": 71
+        "mean_greenery_score": 87.5,
+        "mean_noise_score": 41.56,
+        "mean_rack_score": 0,
+        "mean_infrastructure_score": 2.29,
+        "mean_nearest_rack_m": 983.02,
+        "mean_nearest_infra_m": 892.05,
+        "max_noise_db": 71,
+        "air_proxy_score": 66.83,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -12216,9 +14086,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 26,
         "covered_segment_count": 14,
+        "total_segment_length_km": 0.422,
         "mean_segment_score": 35.62,
         "mean_greenery_ratio": 0,
-        "max_noise_db": 72
+        "mean_greenery_score": 0,
+        "mean_noise_score": 46.15,
+        "mean_rack_score": 57.39,
+        "mean_infrastructure_score": 68.61,
+        "mean_nearest_rack_m": 213.07,
+        "mean_nearest_infra_m": 251.14,
+        "max_noise_db": 72,
+        "air_proxy_score": 20.77,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -12281,9 +14161,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 3,
         "covered_segment_count": 1,
+        "total_segment_length_km": 0.829,
         "mean_segment_score": 44.05,
         "mean_greenery_ratio": 0.5,
-        "max_noise_db": 72
+        "mean_greenery_score": 50,
+        "mean_noise_score": 32.5,
+        "mean_rack_score": 84.02,
+        "mean_infrastructure_score": 0,
+        "mean_nearest_rack_m": 79.89,
+        "mean_nearest_infra_m": 1136.98,
+        "max_noise_db": 72,
+        "air_proxy_score": 42.13,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -12346,9 +14236,19 @@
         "infrastructure_count": 3,
         "segment_sample_count": 32,
         "covered_segment_count": 17,
+        "total_segment_length_km": 8.062,
         "mean_segment_score": 31,
         "mean_greenery_ratio": 0.0965,
-        "max_noise_db": 75
+        "mean_greenery_score": 9.65,
+        "mean_noise_score": 25.16,
+        "mean_rack_score": 28.65,
+        "mean_infrastructure_score": 95.61,
+        "mean_nearest_rack_m": 362,
+        "mean_nearest_infra_m": 35.08,
+        "max_noise_db": 75,
+        "air_proxy_score": 16.63,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 50
       }
     },
     {
@@ -12411,9 +14311,19 @@
         "infrastructure_count": 1,
         "segment_sample_count": 34,
         "covered_segment_count": 17,
+        "total_segment_length_km": 2.414,
         "mean_segment_score": 29.01,
         "mean_greenery_ratio": 0.1098,
-        "max_noise_db": 75
+        "mean_greenery_score": 10.98,
+        "mean_noise_score": 27.65,
+        "mean_rack_score": 43.23,
+        "mean_infrastructure_score": 54.87,
+        "mean_nearest_rack_m": 292.92,
+        "mean_nearest_infra_m": 361.02,
+        "max_noise_db": 75,
+        "air_proxy_score": 18.48,
+        "rack_density_score": 1.23,
+        "infrastructure_density_score": 16.67
       }
     },
     {
@@ -12476,9 +14386,19 @@
         "infrastructure_count": 1,
         "segment_sample_count": 3,
         "covered_segment_count": 2,
+        "total_segment_length_km": 0.478,
         "mean_segment_score": 40.51,
         "mean_greenery_ratio": 0,
-        "max_noise_db": 73
+        "mean_greenery_score": 0,
+        "mean_noise_score": 30,
+        "mean_rack_score": 94.99,
+        "mean_infrastructure_score": 83.41,
+        "mean_nearest_rack_m": 25.04,
+        "mean_nearest_infra_m": 132.69,
+        "max_noise_db": 73,
+        "air_proxy_score": 13.5,
+        "rack_density_score": 1.23,
+        "infrastructure_density_score": 16.67
       }
     },
     {
@@ -12541,9 +14461,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 9,
         "covered_segment_count": 3,
+        "total_segment_length_km": 1.446,
         "mean_segment_score": 35.24,
         "mean_greenery_ratio": 0.3889,
-        "max_noise_db": 72
+        "mean_greenery_score": 38.89,
+        "mean_noise_score": 35,
+        "mean_rack_score": 55.68,
+        "mean_infrastructure_score": 0,
+        "mean_nearest_rack_m": 221.61,
+        "mean_nearest_infra_m": 1366.24,
+        "max_noise_db": 72,
+        "air_proxy_score": 37.14,
+        "rack_density_score": 1.23,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -12606,9 +14536,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 11,
         "covered_segment_count": 8,
+        "total_segment_length_km": 1.676,
         "mean_segment_score": 32.37,
         "mean_greenery_ratio": 0.1636,
-        "max_noise_db": 75
+        "mean_greenery_score": 16.36,
+        "mean_noise_score": 41.14,
+        "mean_rack_score": 68.13,
+        "mean_infrastructure_score": 4.48,
+        "mean_nearest_rack_m": 159.34,
+        "mean_nearest_infra_m": 841.1,
+        "max_noise_db": 75,
+        "air_proxy_score": 27.51,
+        "rack_density_score": 3.68,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -12671,9 +14611,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 2,
         "covered_segment_count": 1,
+        "total_segment_length_km": 0.292,
         "mean_segment_score": 41.67,
         "mean_greenery_ratio": 0.3333,
-        "max_noise_db": 45
+        "mean_greenery_score": 33.33,
+        "mean_noise_score": 100,
+        "mean_rack_score": 0,
+        "mean_infrastructure_score": 0,
+        "mean_nearest_rack_m": 1131.42,
+        "mean_nearest_infra_m": 1115.28,
+        "max_noise_db": 45,
+        "air_proxy_score": 63.33,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -12736,9 +14686,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 20,
         "covered_segment_count": 9,
+        "total_segment_length_km": 2.421,
         "mean_segment_score": 34.38,
         "mean_greenery_ratio": 0.1,
-        "max_noise_db": 73
+        "mean_greenery_score": 10,
+        "mean_noise_score": 40.38,
+        "mean_rack_score": 80.52,
+        "mean_infrastructure_score": 17.79,
+        "mean_nearest_rack_m": 97.42,
+        "mean_nearest_infra_m": 700.18,
+        "max_noise_db": 73,
+        "air_proxy_score": 23.67,
+        "rack_density_score": 0.61,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -12801,9 +14761,19 @@
         "infrastructure_count": 1,
         "segment_sample_count": 52,
         "covered_segment_count": 24,
+        "total_segment_length_km": 3.249,
         "mean_segment_score": 21.45,
         "mean_greenery_ratio": 0.0192,
-        "max_noise_db": 75
+        "mean_greenery_score": 1.92,
+        "mean_noise_score": 26.3,
+        "mean_rack_score": 1.02,
+        "mean_infrastructure_score": 84.54,
+        "mean_nearest_rack_m": 708.5,
+        "mean_nearest_infra_m": 123.65,
+        "max_noise_db": 75,
+        "air_proxy_score": 12.89,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 16.67
       }
     },
     {
@@ -12866,9 +14836,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 1,
         "covered_segment_count": 1,
+        "total_segment_length_km": 0.171,
         "mean_segment_score": 41.58,
         "mean_greenery_ratio": 0,
-        "max_noise_db": 63
+        "mean_greenery_score": 0,
+        "mean_noise_score": 55,
+        "mean_rack_score": 98.14,
+        "mean_infrastructure_score": 36.31,
+        "mean_nearest_rack_m": 9.28,
+        "mean_nearest_infra_m": 509.52,
+        "max_noise_db": 63,
+        "air_proxy_score": 24.75,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -12931,9 +14911,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 8,
         "covered_segment_count": 3,
+        "total_segment_length_km": 1.881,
         "mean_segment_score": 38.78,
         "mean_greenery_ratio": 0.5,
-        "max_noise_db": 72
+        "mean_greenery_score": 50,
+        "mean_noise_score": 47.81,
+        "mean_rack_score": 20.31,
+        "mean_infrastructure_score": 19.21,
+        "mean_nearest_rack_m": 432.97,
+        "mean_nearest_infra_m": 728.66,
+        "max_noise_db": 72,
+        "air_proxy_score": 49.02,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -12996,9 +14986,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 14,
         "covered_segment_count": 8,
+        "total_segment_length_km": 0.998,
         "mean_segment_score": 36.26,
         "mean_greenery_ratio": 0.2083,
-        "max_noise_db": 75
+        "mean_greenery_score": 20.83,
+        "mean_noise_score": 25,
+        "mean_rack_score": 54.5,
+        "mean_infrastructure_score": 70.48,
+        "mean_nearest_rack_m": 227.52,
+        "mean_nearest_infra_m": 236.21,
+        "max_noise_db": 75,
+        "air_proxy_score": 22.71,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -13061,9 +15061,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 55,
         "covered_segment_count": 27,
+        "total_segment_length_km": 2.851,
         "mean_segment_score": 20.27,
         "mean_greenery_ratio": 0.1909,
-        "max_noise_db": 75
+        "mean_greenery_score": 19.09,
+        "mean_noise_score": 29.09,
+        "mean_rack_score": 16.88,
+        "mean_infrastructure_score": 9.9,
+        "mean_nearest_rack_m": 439.23,
+        "mean_nearest_infra_m": 731.52,
+        "max_noise_db": 75,
+        "air_proxy_score": 23.59,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -13126,9 +15136,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 11,
         "covered_segment_count": 8,
+        "total_segment_length_km": 0.624,
         "mean_segment_score": 31.73,
         "mean_greenery_ratio": 0,
-        "max_noise_db": 74
+        "mean_greenery_score": 0,
+        "mean_noise_score": 39.32,
+        "mean_rack_score": 49.2,
+        "mean_infrastructure_score": 67.26,
+        "mean_nearest_rack_m": 254,
+        "mean_nearest_infra_m": 261.89,
+        "max_noise_db": 74,
+        "air_proxy_score": 17.69,
+        "rack_density_score": 3.07,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -13191,9 +15211,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 27,
         "covered_segment_count": 14,
+        "total_segment_length_km": 1.615,
         "mean_segment_score": 30.18,
         "mean_greenery_ratio": 0.6482,
-        "max_noise_db": 75
+        "mean_greenery_score": 64.82,
+        "mean_noise_score": 25,
+        "mean_rack_score": 0,
+        "mean_infrastructure_score": 0,
+        "mean_nearest_rack_m": 816.96,
+        "mean_nearest_infra_m": 4618.12,
+        "max_noise_db": 75,
+        "air_proxy_score": 46.9,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -13256,9 +15286,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 1,
         "covered_segment_count": 1,
+        "total_segment_length_km": 0.069,
         "mean_segment_score": 38.11,
         "mean_greenery_ratio": 0,
-        "max_noise_db": 45
+        "mean_greenery_score": 0,
+        "mean_noise_score": 100,
+        "mean_rack_score": 40.46,
+        "mean_infrastructure_score": 0.15,
+        "mean_nearest_rack_m": 297.7,
+        "mean_nearest_infra_m": 798.78,
+        "max_noise_db": 45,
+        "air_proxy_score": 45,
+        "rack_density_score": 1.23,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -13321,9 +15361,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 10,
         "covered_segment_count": 6,
+        "total_segment_length_km": 0.741,
         "mean_segment_score": 36.71,
         "mean_greenery_ratio": 0.7,
-        "max_noise_db": 75
+        "mean_greenery_score": 70,
+        "mean_noise_score": 25.5,
+        "mean_rack_score": 0.29,
+        "mean_infrastructure_score": 30,
+        "mean_nearest_rack_m": 555.69,
+        "mean_nearest_infra_m": 560,
+        "max_noise_db": 75,
+        "air_proxy_score": 49.97,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -13386,9 +15436,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 3,
         "covered_segment_count": 1,
+        "total_segment_length_km": 0.54,
         "mean_segment_score": 38.83,
         "mean_greenery_ratio": 0.6,
-        "max_noise_db": 63
+        "mean_greenery_score": 60,
+        "mean_noise_score": 55,
+        "mean_rack_score": 0,
+        "mean_infrastructure_score": 8.84,
+        "mean_nearest_rack_m": 606.33,
+        "mean_nearest_infra_m": 729.27,
+        "max_noise_db": 63,
+        "air_proxy_score": 57.75,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -13451,9 +15511,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 30,
         "covered_segment_count": 13,
+        "total_segment_length_km": 2.008,
         "mean_segment_score": 28.07,
         "mean_greenery_ratio": 0.5833,
-        "max_noise_db": 75
+        "mean_greenery_score": 58.33,
+        "mean_noise_score": 25.5,
+        "mean_rack_score": 0,
+        "mean_infrastructure_score": 0,
+        "mean_nearest_rack_m": 1111.44,
+        "mean_nearest_infra_m": 4187.9,
+        "max_noise_db": 75,
+        "air_proxy_score": 43.56,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -13516,9 +15586,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 14,
         "covered_segment_count": 7,
+        "total_segment_length_km": 1.278,
         "mean_segment_score": 33.95,
         "mean_greenery_ratio": 0.7143,
-        "max_noise_db": 75
+        "mean_greenery_score": 71.43,
+        "mean_noise_score": 29.82,
+        "mean_rack_score": 0,
+        "mean_infrastructure_score": 0,
+        "mean_nearest_rack_m": 959.53,
+        "mean_nearest_infra_m": 3964.35,
+        "max_noise_db": 75,
+        "air_proxy_score": 52.71,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -13581,9 +15661,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 1,
         "covered_segment_count": 1,
+        "total_segment_length_km": 0.54,
         "mean_segment_score": 38.83,
         "mean_greenery_ratio": 0.6,
-        "max_noise_db": 63
+        "mean_greenery_score": 60,
+        "mean_noise_score": 55,
+        "mean_rack_score": 0,
+        "mean_infrastructure_score": 8.84,
+        "mean_nearest_rack_m": 606.33,
+        "mean_nearest_infra_m": 729.27,
+        "max_noise_db": 63,
+        "air_proxy_score": 57.75,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -13646,9 +15736,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 13,
         "covered_segment_count": 5,
+        "total_segment_length_km": 1.945,
         "mean_segment_score": 34.09,
         "mean_greenery_ratio": 0.7564,
-        "max_noise_db": 75
+        "mean_greenery_score": 75.64,
+        "mean_noise_score": 25.38,
+        "mean_rack_score": 0,
+        "mean_infrastructure_score": 0,
+        "mean_nearest_rack_m": 1160.12,
+        "mean_nearest_infra_m": 2361.49,
+        "max_noise_db": 75,
+        "air_proxy_score": 53.03,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -13711,9 +15811,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 19,
         "covered_segment_count": 11,
+        "total_segment_length_km": 0.947,
         "mean_segment_score": 29.11,
         "mean_greenery_ratio": 0.421,
-        "max_noise_db": 75
+        "mean_greenery_score": 42.1,
+        "mean_noise_score": 27.11,
+        "mean_rack_score": 15.16,
+        "mean_infrastructure_score": 21.38,
+        "mean_nearest_rack_m": 424.22,
+        "mean_nearest_infra_m": 637.68,
+        "max_noise_db": 75,
+        "air_proxy_score": 35.35,
+        "rack_density_score": 3.07,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -13776,9 +15886,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 7,
         "covered_segment_count": 3,
+        "total_segment_length_km": 1.472,
         "mean_segment_score": 34.87,
         "mean_greenery_ratio": 0.7483,
-        "max_noise_db": 74
+        "mean_greenery_score": 74.83,
+        "mean_noise_score": 28.93,
+        "mean_rack_score": 0,
+        "mean_infrastructure_score": 0,
+        "mean_nearest_rack_m": 1191.64,
+        "mean_nearest_infra_m": 1869.64,
+        "max_noise_db": 74,
+        "air_proxy_score": 54.17,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -13841,9 +15961,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 5,
         "covered_segment_count": 2,
+        "total_segment_length_km": 1.333,
         "mean_segment_score": 35.32,
         "mean_greenery_ratio": 0.7523,
-        "max_noise_db": 74
+        "mean_greenery_score": 75.23,
+        "mean_noise_score": 28,
+        "mean_rack_score": 2.92,
+        "mean_infrastructure_score": 0,
+        "mean_nearest_rack_m": 709.83,
+        "mean_nearest_infra_m": 1374.87,
+        "max_noise_db": 74,
+        "air_proxy_score": 53.98,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -13906,9 +16036,19 @@
         "infrastructure_count": 1,
         "segment_sample_count": 6,
         "covered_segment_count": 2,
+        "total_segment_length_km": 1.074,
         "mean_segment_score": 32.33,
         "mean_greenery_ratio": 0.0833,
-        "max_noise_db": 68
+        "mean_greenery_score": 8.33,
+        "mean_noise_score": 43.33,
+        "mean_rack_score": 36.84,
+        "mean_infrastructure_score": 60.35,
+        "mean_nearest_rack_m": 315.81,
+        "mean_nearest_infra_m": 317.2,
+        "max_noise_db": 68,
+        "air_proxy_score": 24.08,
+        "rack_density_score": 1.23,
+        "infrastructure_density_score": 16.67
       }
     },
     {
@@ -13971,9 +16111,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 17,
         "covered_segment_count": 8,
+        "total_segment_length_km": 1.287,
         "mean_segment_score": 29.54,
         "mean_greenery_ratio": 0.4863,
-        "max_noise_db": 75
+        "mean_greenery_score": 48.63,
+        "mean_noise_score": 25.88,
+        "mean_rack_score": 23.77,
+        "mean_infrastructure_score": 0,
+        "mean_nearest_rack_m": 614.41,
+        "mean_nearest_infra_m": 2922.63,
+        "max_noise_db": 75,
+        "air_proxy_score": 38.39,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -14036,9 +16186,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 61,
         "covered_segment_count": 30,
+        "total_segment_length_km": 2.948,
         "mean_segment_score": 12.26,
         "mean_greenery_ratio": 0.0246,
-        "max_noise_db": 74
+        "mean_greenery_score": 2.46,
+        "mean_noise_score": 35.82,
+        "mean_rack_score": 0.26,
+        "mean_infrastructure_score": 4.01,
+        "mean_nearest_rack_m": 768.32,
+        "mean_nearest_infra_m": 1115.64,
+        "max_noise_db": 74,
+        "air_proxy_score": 17.47,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -14101,9 +16261,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 23,
         "covered_segment_count": 11,
+        "total_segment_length_km": 0.951,
         "mean_segment_score": 18.08,
         "mean_greenery_ratio": 0,
-        "max_noise_db": 75
+        "mean_greenery_score": 0,
+        "mean_noise_score": 25,
+        "mean_rack_score": 46.29,
+        "mean_infrastructure_score": 8.81,
+        "mean_nearest_rack_m": 268.54,
+        "mean_nearest_infra_m": 743.65,
+        "max_noise_db": 75,
+        "air_proxy_score": 11.25,
+        "rack_density_score": 5.52,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -14166,9 +16336,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 33,
         "covered_segment_count": 18,
+        "total_segment_length_km": 1.382,
         "mean_segment_score": 19.72,
         "mean_greenery_ratio": 0.1061,
-        "max_noise_db": 73
+        "mean_greenery_score": 10.61,
+        "mean_noise_score": 35.61,
+        "mean_rack_score": 26.63,
+        "mean_infrastructure_score": 0,
+        "mean_nearest_rack_m": 369.99,
+        "mean_nearest_infra_m": 1035.81,
+        "max_noise_db": 73,
+        "air_proxy_score": 21.86,
+        "rack_density_score": 1.84,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -14231,9 +16411,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 6,
         "covered_segment_count": 4,
+        "total_segment_length_km": 0.722,
         "mean_segment_score": 32.35,
         "mean_greenery_ratio": 0.0833,
-        "max_noise_db": 73
+        "mean_greenery_score": 8.33,
+        "mean_noise_score": 36.25,
+        "mean_rack_score": 44.3,
+        "mean_infrastructure_score": 64.64,
+        "mean_nearest_rack_m": 278.47,
+        "mean_nearest_infra_m": 282.9,
+        "max_noise_db": 73,
+        "air_proxy_score": 20.9,
+        "rack_density_score": 0.61,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -14296,9 +16486,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 39,
         "covered_segment_count": 17,
+        "total_segment_length_km": 2.773,
         "mean_segment_score": 19.71,
         "mean_greenery_ratio": 0.1231,
-        "max_noise_db": 75
+        "mean_greenery_score": 12.31,
+        "mean_noise_score": 25,
+        "mean_rack_score": 20.13,
+        "mean_infrastructure_score": 25.87,
+        "mean_nearest_rack_m": 406.09,
+        "mean_nearest_infra_m": 610.41,
+        "max_noise_db": 75,
+        "air_proxy_score": 18.02,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -14361,9 +16561,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 59,
         "covered_segment_count": 28,
+        "total_segment_length_km": 3.1,
         "mean_segment_score": 11.14,
         "mean_greenery_ratio": 0.0085,
-        "max_noise_db": 75
+        "mean_greenery_score": 0.85,
+        "mean_noise_score": 30.51,
+        "mean_rack_score": 3.85,
+        "mean_infrastructure_score": 6.13,
+        "mean_nearest_rack_m": 1038.07,
+        "mean_nearest_infra_m": 1123.9,
+        "max_noise_db": 75,
+        "air_proxy_score": 14.19,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -14426,9 +16636,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 5,
         "covered_segment_count": 1,
+        "total_segment_length_km": 1.566,
         "mean_segment_score": 32,
         "mean_greenery_ratio": 0.7,
-        "max_noise_db": 75
+        "mean_greenery_score": 70,
+        "mean_noise_score": 25,
+        "mean_rack_score": 0,
+        "mean_infrastructure_score": 0,
+        "mean_nearest_rack_m": 1157.89,
+        "mean_nearest_infra_m": 1971.67,
+        "max_noise_db": 75,
+        "air_proxy_score": 49.75,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -14491,9 +16711,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 9,
         "covered_segment_count": 4,
+        "total_segment_length_km": 0.817,
         "mean_segment_score": 28.68,
         "mean_greenery_ratio": 0.0556,
-        "max_noise_db": 73
+        "mean_greenery_score": 5.56,
+        "mean_noise_score": 43.61,
+        "mean_rack_score": 55.08,
+        "mean_infrastructure_score": 17.55,
+        "mean_nearest_rack_m": 228.02,
+        "mean_nearest_infra_m": 674.05,
+        "max_noise_db": 73,
+        "air_proxy_score": 22.68,
+        "rack_density_score": 1.84,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -14556,9 +16786,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 15,
         "covered_segment_count": 7,
+        "total_segment_length_km": 1.051,
         "mean_segment_score": 26.38,
         "mean_greenery_ratio": 0.1778,
-        "max_noise_db": 75
+        "mean_greenery_score": 17.78,
+        "mean_noise_score": 27,
+        "mean_rack_score": 58.69,
+        "mean_infrastructure_score": 2.1,
+        "mean_nearest_rack_m": 206.54,
+        "mean_nearest_infra_m": 1007.35,
+        "max_noise_db": 75,
+        "air_proxy_score": 21.93,
+        "rack_density_score": 1.23,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -14621,9 +16861,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 6,
         "covered_segment_count": 3,
+        "total_segment_length_km": 0.913,
         "mean_segment_score": 27.64,
         "mean_greenery_ratio": 0.1111,
-        "max_noise_db": 75
+        "mean_greenery_score": 11.11,
+        "mean_noise_score": 38.75,
+        "mean_rack_score": 60.63,
+        "mean_infrastructure_score": 0,
+        "mean_nearest_rack_m": 196.87,
+        "mean_nearest_infra_m": 1448.7,
+        "max_noise_db": 75,
+        "air_proxy_score": 23.55,
+        "rack_density_score": 1.84,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -14686,9 +16936,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 3,
         "covered_segment_count": 1,
+        "total_segment_length_km": 0.379,
         "mean_segment_score": 27.52,
         "mean_greenery_ratio": 0,
-        "max_noise_db": 75
+        "mean_greenery_score": 0,
+        "mean_noise_score": 25,
+        "mean_rack_score": 80.26,
+        "mean_infrastructure_score": 26.43,
+        "mean_nearest_rack_m": 98.68,
+        "mean_nearest_infra_m": 588.53,
+        "max_noise_db": 75,
+        "air_proxy_score": 11.25,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -14751,9 +17011,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 9,
         "covered_segment_count": 5,
+        "total_segment_length_km": 0.22,
         "mean_segment_score": 22.92,
         "mean_greenery_ratio": 0.3333,
-        "max_noise_db": 74
+        "mean_greenery_score": 33.33,
+        "mean_noise_score": 37.5,
+        "mean_rack_score": 0,
+        "mean_infrastructure_score": 0,
+        "mean_nearest_rack_m": 995.73,
+        "mean_nearest_infra_m": 1532.46,
+        "max_noise_db": 74,
+        "air_proxy_score": 35.21,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -14816,9 +17086,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 20,
         "covered_segment_count": 11,
+        "total_segment_length_km": 0.761,
         "mean_segment_score": 18.62,
         "mean_greenery_ratio": 0.15,
-        "max_noise_db": 75
+        "mean_greenery_score": 15,
+        "mean_noise_score": 28.25,
+        "mean_rack_score": 18.22,
+        "mean_infrastructure_score": 8.32,
+        "mean_nearest_rack_m": 408.91,
+        "mean_nearest_infra_m": 735.68,
+        "max_noise_db": 75,
+        "air_proxy_score": 20.96,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -14881,9 +17161,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 6,
         "covered_segment_count": 2,
+        "total_segment_length_km": 1.162,
         "mean_segment_score": 24.03,
         "mean_greenery_ratio": 0.4722,
-        "max_noise_db": 75
+        "mean_greenery_score": 47.22,
+        "mean_noise_score": 25,
+        "mean_rack_score": 0,
+        "mean_infrastructure_score": 0,
+        "mean_nearest_rack_m": 926.74,
+        "mean_nearest_infra_m": 4828.97,
+        "max_noise_db": 75,
+        "air_proxy_score": 37.22,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -14946,9 +17236,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 2,
         "covered_segment_count": 1,
+        "total_segment_length_km": 0.063,
         "mean_segment_score": 25.5,
         "mean_greenery_ratio": 0,
-        "max_noise_db": 51
+        "mean_greenery_score": 0,
+        "mean_noise_score": 85,
+        "mean_rack_score": 0,
+        "mean_infrastructure_score": 0,
+        "mean_nearest_rack_m": 1456.35,
+        "mean_nearest_infra_m": 1447.26,
+        "max_noise_db": 51,
+        "air_proxy_score": 38.25,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -15011,9 +17311,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 9,
         "covered_segment_count": 3,
+        "total_segment_length_km": 1.338,
         "mean_segment_score": 22.54,
         "mean_greenery_ratio": 0.037,
-        "max_noise_db": 71
+        "mean_greenery_score": 3.7,
+        "mean_noise_score": 56.67,
+        "mean_rack_score": 0,
+        "mean_infrastructure_score": 28.3,
+        "mean_nearest_rack_m": 714.59,
+        "mean_nearest_infra_m": 678.3,
+        "max_noise_db": 71,
+        "air_proxy_score": 27.54,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -15076,9 +17386,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 1,
         "covered_segment_count": 1,
+        "total_segment_length_km": 0.6,
         "mean_segment_score": 25.52,
         "mean_greenery_ratio": 0,
-        "max_noise_db": 68
+        "mean_greenery_score": 0,
+        "mean_noise_score": 42.5,
+        "mean_rack_score": 24.41,
+        "mean_infrastructure_score": 52.61,
+        "mean_nearest_rack_m": 377.97,
+        "mean_nearest_infra_m": 379.13,
+        "max_noise_db": 68,
+        "air_proxy_score": 19.13,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -15141,9 +17461,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 2,
         "covered_segment_count": 1,
+        "total_segment_length_km": 0.133,
         "mean_segment_score": 25,
         "mean_greenery_ratio": 0.5,
-        "max_noise_db": 75
+        "mean_greenery_score": 50,
+        "mean_noise_score": 25,
+        "mean_rack_score": 0,
+        "mean_infrastructure_score": 0,
+        "mean_nearest_rack_m": 1696.7,
+        "mean_nearest_infra_m": 1694.87,
+        "max_noise_db": 75,
+        "air_proxy_score": 38.75,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -15206,9 +17536,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 12,
         "covered_segment_count": 6,
+        "total_segment_length_km": 1.148,
         "mean_segment_score": 18.19,
         "mean_greenery_ratio": 0.3056,
-        "max_noise_db": 75
+        "mean_greenery_score": 30.56,
+        "mean_noise_score": 25,
+        "mean_rack_score": 0,
+        "mean_infrastructure_score": 0,
+        "mean_nearest_rack_m": 1786.98,
+        "mean_nearest_infra_m": 5638.13,
+        "max_noise_db": 75,
+        "air_proxy_score": 28.06,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -15271,9 +17611,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 9,
         "covered_segment_count": 4,
+        "total_segment_length_km": 0.685,
         "mean_segment_score": 19.17,
         "mean_greenery_ratio": 0.3333,
-        "max_noise_db": 75
+        "mean_greenery_score": 33.33,
+        "mean_noise_score": 25,
+        "mean_rack_score": 0,
+        "mean_infrastructure_score": 0,
+        "mean_nearest_rack_m": 2095.2,
+        "mean_nearest_infra_m": 6076.6,
+        "max_noise_db": 75,
+        "air_proxy_score": 29.58,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -15336,9 +17686,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 1,
         "covered_segment_count": 1,
+        "total_segment_length_km": 0.018,
         "mean_segment_score": 21.78,
         "mean_greenery_ratio": 0,
-        "max_noise_db": 74
+        "mean_greenery_score": 0,
+        "mean_noise_score": 27.5,
+        "mean_rack_score": 0,
+        "mean_infrastructure_score": 90.19,
+        "mean_nearest_rack_m": 665.26,
+        "mean_nearest_infra_m": 78.46,
+        "max_noise_db": 74,
+        "air_proxy_score": 12.38,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -15401,9 +17761,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 16,
         "covered_segment_count": 8,
+        "total_segment_length_km": 1.107,
         "mean_segment_score": 15.91,
         "mean_greenery_ratio": 0.2125,
-        "max_noise_db": 75
+        "mean_greenery_score": 21.25,
+        "mean_noise_score": 27.97,
+        "mean_rack_score": 0,
+        "mean_infrastructure_score": 0.53,
+        "mean_nearest_rack_m": 860.07,
+        "mean_nearest_infra_m": 963.42,
+        "max_noise_db": 75,
+        "air_proxy_score": 24.27,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -15466,9 +17836,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 1,
         "covered_segment_count": 1,
+        "total_segment_length_km": 0.339,
         "mean_segment_score": 21.42,
         "mean_greenery_ratio": 0.3333,
-        "max_noise_db": 72
+        "mean_greenery_score": 33.33,
+        "mean_noise_score": 32.5,
+        "mean_rack_score": 0,
+        "mean_infrastructure_score": 0,
+        "mean_nearest_rack_m": 1527.07,
+        "mean_nearest_infra_m": 2290.28,
+        "max_noise_db": 72,
+        "air_proxy_score": 32.96,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -15531,9 +17911,19 @@
         "infrastructure_count": 1,
         "segment_sample_count": 14,
         "covered_segment_count": 7,
+        "total_segment_length_km": 1.91,
         "mean_segment_score": 13.85,
         "mean_greenery_ratio": 0,
-        "max_noise_db": 75
+        "mean_greenery_score": 0,
+        "mean_noise_score": 26.79,
+        "mean_rack_score": 0,
+        "mean_infrastructure_score": 38.73,
+        "mean_nearest_rack_m": 534.36,
+        "mean_nearest_infra_m": 490.21,
+        "max_noise_db": 75,
+        "air_proxy_score": 12.05,
+        "rack_density_score": 0.61,
+        "infrastructure_density_score": 16.67
       }
     },
     {
@@ -15596,9 +17986,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 4,
         "covered_segment_count": 2,
+        "total_segment_length_km": 1.158,
         "mean_segment_score": 18,
         "mean_greenery_ratio": 0.3,
-        "max_noise_db": 75
+        "mean_greenery_score": 30,
+        "mean_noise_score": 25,
+        "mean_rack_score": 0,
+        "mean_infrastructure_score": 0,
+        "mean_nearest_rack_m": 522.88,
+        "mean_nearest_infra_m": 856.59,
+        "max_noise_db": 75,
+        "air_proxy_score": 27.75,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -15661,9 +18061,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 12,
         "covered_segment_count": 5,
+        "total_segment_length_km": 0.829,
         "mean_segment_score": 13.33,
         "mean_greenery_ratio": 0.1667,
-        "max_noise_db": 75
+        "mean_greenery_score": 16.67,
+        "mean_noise_score": 25,
+        "mean_rack_score": 0,
+        "mean_infrastructure_score": 0,
+        "mean_nearest_rack_m": 870.27,
+        "mean_nearest_infra_m": 888.05,
+        "max_noise_db": 75,
+        "air_proxy_score": 20.42,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -15726,9 +18136,19 @@
         "infrastructure_count": 2,
         "segment_sample_count": 0,
         "covered_segment_count": 0,
+        "total_segment_length_km": 0,
         "mean_segment_score": 0,
         "mean_greenery_ratio": 0,
-        "max_noise_db": null
+        "mean_greenery_score": 0,
+        "mean_noise_score": 0,
+        "mean_rack_score": 0,
+        "mean_infrastructure_score": 0,
+        "mean_nearest_rack_m": null,
+        "mean_nearest_infra_m": null,
+        "max_noise_db": null,
+        "air_proxy_score": 0,
+        "rack_density_score": 6.13,
+        "infrastructure_density_score": 33.33
       }
     },
     {
@@ -15791,9 +18211,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 0,
         "covered_segment_count": 0,
+        "total_segment_length_km": 0,
         "mean_segment_score": 0,
         "mean_greenery_ratio": 0,
-        "max_noise_db": null
+        "mean_greenery_score": 0,
+        "mean_noise_score": 0,
+        "mean_rack_score": 0,
+        "mean_infrastructure_score": 0,
+        "mean_nearest_rack_m": null,
+        "mean_nearest_infra_m": null,
+        "max_noise_db": null,
+        "air_proxy_score": 0,
+        "rack_density_score": 12.88,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -15856,9 +18286,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 0,
         "covered_segment_count": 0,
+        "total_segment_length_km": 0,
         "mean_segment_score": 0,
         "mean_greenery_ratio": 0,
-        "max_noise_db": null
+        "mean_greenery_score": 0,
+        "mean_noise_score": 0,
+        "mean_rack_score": 0,
+        "mean_infrastructure_score": 0,
+        "mean_nearest_rack_m": null,
+        "mean_nearest_infra_m": null,
+        "max_noise_db": null,
+        "air_proxy_score": 0,
+        "rack_density_score": 4.91,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -15921,9 +18361,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 3,
         "covered_segment_count": 1,
+        "total_segment_length_km": 0.254,
         "mean_segment_score": 7.5,
         "mean_greenery_ratio": 0,
-        "max_noise_db": 75
+        "mean_greenery_score": 0,
+        "mean_noise_score": 25,
+        "mean_rack_score": 0,
+        "mean_infrastructure_score": 0,
+        "mean_nearest_rack_m": 1378.36,
+        "mean_nearest_infra_m": 1299.23,
+        "max_noise_db": 75,
+        "air_proxy_score": 11.25,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -15986,9 +18436,19 @@
         "infrastructure_count": 1,
         "segment_sample_count": 0,
         "covered_segment_count": 0,
+        "total_segment_length_km": 0,
         "mean_segment_score": 0,
         "mean_greenery_ratio": 0,
-        "max_noise_db": null
+        "mean_greenery_score": 0,
+        "mean_noise_score": 0,
+        "mean_rack_score": 0,
+        "mean_infrastructure_score": 0,
+        "mean_nearest_rack_m": null,
+        "mean_nearest_infra_m": null,
+        "max_noise_db": null,
+        "air_proxy_score": 0,
+        "rack_density_score": 5.52,
+        "infrastructure_density_score": 16.67
       }
     },
     {
@@ -16051,9 +18511,19 @@
         "infrastructure_count": 1,
         "segment_sample_count": 0,
         "covered_segment_count": 0,
+        "total_segment_length_km": 0,
         "mean_segment_score": 0,
         "mean_greenery_ratio": 0,
-        "max_noise_db": null
+        "mean_greenery_score": 0,
+        "mean_noise_score": 0,
+        "mean_rack_score": 0,
+        "mean_infrastructure_score": 0,
+        "mean_nearest_rack_m": null,
+        "mean_nearest_infra_m": null,
+        "max_noise_db": null,
+        "air_proxy_score": 0,
+        "rack_density_score": 4.91,
+        "infrastructure_density_score": 16.67
       }
     },
     {
@@ -16116,9 +18586,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 0,
         "covered_segment_count": 0,
+        "total_segment_length_km": 0,
         "mean_segment_score": 0,
         "mean_greenery_ratio": 0,
-        "max_noise_db": null
+        "mean_greenery_score": 0,
+        "mean_noise_score": 0,
+        "mean_rack_score": 0,
+        "mean_infrastructure_score": 0,
+        "mean_nearest_rack_m": null,
+        "mean_nearest_infra_m": null,
+        "max_noise_db": null,
+        "air_proxy_score": 0,
+        "rack_density_score": 3.07,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -16181,9 +18661,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 0,
         "covered_segment_count": 0,
+        "total_segment_length_km": 0,
         "mean_segment_score": 0,
         "mean_greenery_ratio": 0,
-        "max_noise_db": null
+        "mean_greenery_score": 0,
+        "mean_noise_score": 0,
+        "mean_rack_score": 0,
+        "mean_infrastructure_score": 0,
+        "mean_nearest_rack_m": null,
+        "mean_nearest_infra_m": null,
+        "max_noise_db": null,
+        "air_proxy_score": 0,
+        "rack_density_score": 4.29,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -16246,9 +18736,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 0,
         "covered_segment_count": 0,
+        "total_segment_length_km": 0,
         "mean_segment_score": 0,
         "mean_greenery_ratio": 0,
-        "max_noise_db": null
+        "mean_greenery_score": 0,
+        "mean_noise_score": 0,
+        "mean_rack_score": 0,
+        "mean_infrastructure_score": 0,
+        "mean_nearest_rack_m": null,
+        "mean_nearest_infra_m": null,
+        "max_noise_db": null,
+        "air_proxy_score": 0,
+        "rack_density_score": 0.61,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -16311,9 +18811,19 @@
         "infrastructure_count": 1,
         "segment_sample_count": 0,
         "covered_segment_count": 0,
+        "total_segment_length_km": 0,
         "mean_segment_score": 0,
         "mean_greenery_ratio": 0,
-        "max_noise_db": null
+        "mean_greenery_score": 0,
+        "mean_noise_score": 0,
+        "mean_rack_score": 0,
+        "mean_infrastructure_score": 0,
+        "mean_nearest_rack_m": null,
+        "mean_nearest_infra_m": null,
+        "max_noise_db": null,
+        "air_proxy_score": 0,
+        "rack_density_score": 4.29,
+        "infrastructure_density_score": 16.67
       }
     },
     {
@@ -16376,9 +18886,19 @@
         "infrastructure_count": 1,
         "segment_sample_count": 0,
         "covered_segment_count": 0,
+        "total_segment_length_km": 0,
         "mean_segment_score": 0,
         "mean_greenery_ratio": 0,
-        "max_noise_db": null
+        "mean_greenery_score": 0,
+        "mean_noise_score": 0,
+        "mean_rack_score": 0,
+        "mean_infrastructure_score": 0,
+        "mean_nearest_rack_m": null,
+        "mean_nearest_infra_m": null,
+        "max_noise_db": null,
+        "air_proxy_score": 0,
+        "rack_density_score": 3.07,
+        "infrastructure_density_score": 16.67
       }
     },
     {
@@ -16441,9 +18961,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 0,
         "covered_segment_count": 0,
+        "total_segment_length_km": 0,
         "mean_segment_score": 0,
         "mean_greenery_ratio": 0,
-        "max_noise_db": null
+        "mean_greenery_score": 0,
+        "mean_noise_score": 0,
+        "mean_rack_score": 0,
+        "mean_infrastructure_score": 0,
+        "mean_nearest_rack_m": null,
+        "mean_nearest_infra_m": null,
+        "max_noise_db": null,
+        "air_proxy_score": 0,
+        "rack_density_score": 1.84,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -16506,9 +19036,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 0,
         "covered_segment_count": 0,
+        "total_segment_length_km": 0,
         "mean_segment_score": 0,
         "mean_greenery_ratio": 0,
-        "max_noise_db": null
+        "mean_greenery_score": 0,
+        "mean_noise_score": 0,
+        "mean_rack_score": 0,
+        "mean_infrastructure_score": 0,
+        "mean_nearest_rack_m": null,
+        "mean_nearest_infra_m": null,
+        "max_noise_db": null,
+        "air_proxy_score": 0,
+        "rack_density_score": 0.61,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -16571,9 +19111,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 0,
         "covered_segment_count": 0,
+        "total_segment_length_km": 0,
         "mean_segment_score": 0,
         "mean_greenery_ratio": 0,
-        "max_noise_db": null
+        "mean_greenery_score": 0,
+        "mean_noise_score": 0,
+        "mean_rack_score": 0,
+        "mean_infrastructure_score": 0,
+        "mean_nearest_rack_m": null,
+        "mean_nearest_infra_m": null,
+        "max_noise_db": null,
+        "air_proxy_score": 0,
+        "rack_density_score": 2.45,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -16636,9 +19186,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 0,
         "covered_segment_count": 0,
+        "total_segment_length_km": 0,
         "mean_segment_score": 0,
         "mean_greenery_ratio": 0,
-        "max_noise_db": null
+        "mean_greenery_score": 0,
+        "mean_noise_score": 0,
+        "mean_rack_score": 0,
+        "mean_infrastructure_score": 0,
+        "mean_nearest_rack_m": null,
+        "mean_nearest_infra_m": null,
+        "max_noise_db": null,
+        "air_proxy_score": 0,
+        "rack_density_score": 2.45,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -16701,9 +19261,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 0,
         "covered_segment_count": 0,
+        "total_segment_length_km": 0,
         "mean_segment_score": 0,
         "mean_greenery_ratio": 0,
-        "max_noise_db": null
+        "mean_greenery_score": 0,
+        "mean_noise_score": 0,
+        "mean_rack_score": 0,
+        "mean_infrastructure_score": 0,
+        "mean_nearest_rack_m": null,
+        "mean_nearest_infra_m": null,
+        "max_noise_db": null,
+        "air_proxy_score": 0,
+        "rack_density_score": 1.84,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -16766,9 +19336,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 0,
         "covered_segment_count": 0,
+        "total_segment_length_km": 0,
         "mean_segment_score": 0,
         "mean_greenery_ratio": 0,
-        "max_noise_db": null
+        "mean_greenery_score": 0,
+        "mean_noise_score": 0,
+        "mean_rack_score": 0,
+        "mean_infrastructure_score": 0,
+        "mean_nearest_rack_m": null,
+        "mean_nearest_infra_m": null,
+        "max_noise_db": null,
+        "air_proxy_score": 0,
+        "rack_density_score": 0.61,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -16831,9 +19411,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 0,
         "covered_segment_count": 0,
+        "total_segment_length_km": 0,
         "mean_segment_score": 0,
         "mean_greenery_ratio": 0,
-        "max_noise_db": null
+        "mean_greenery_score": 0,
+        "mean_noise_score": 0,
+        "mean_rack_score": 0,
+        "mean_infrastructure_score": 0,
+        "mean_nearest_rack_m": null,
+        "mean_nearest_infra_m": null,
+        "max_noise_db": null,
+        "air_proxy_score": 0,
+        "rack_density_score": 1.84,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -16896,9 +19486,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 0,
         "covered_segment_count": 0,
+        "total_segment_length_km": 0,
         "mean_segment_score": 0,
         "mean_greenery_ratio": 0,
-        "max_noise_db": null
+        "mean_greenery_score": 0,
+        "mean_noise_score": 0,
+        "mean_rack_score": 0,
+        "mean_infrastructure_score": 0,
+        "mean_nearest_rack_m": null,
+        "mean_nearest_infra_m": null,
+        "max_noise_db": null,
+        "air_proxy_score": 0,
+        "rack_density_score": 2.45,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -16961,9 +19561,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 0,
         "covered_segment_count": 0,
+        "total_segment_length_km": 0,
         "mean_segment_score": 0,
         "mean_greenery_ratio": 0,
-        "max_noise_db": null
+        "mean_greenery_score": 0,
+        "mean_noise_score": 0,
+        "mean_rack_score": 0,
+        "mean_infrastructure_score": 0,
+        "mean_nearest_rack_m": null,
+        "mean_nearest_infra_m": null,
+        "max_noise_db": null,
+        "air_proxy_score": 0,
+        "rack_density_score": 3.07,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -17026,9 +19636,19 @@
         "infrastructure_count": 1,
         "segment_sample_count": 0,
         "covered_segment_count": 0,
+        "total_segment_length_km": 0,
         "mean_segment_score": 0,
         "mean_greenery_ratio": 0,
-        "max_noise_db": null
+        "mean_greenery_score": 0,
+        "mean_noise_score": 0,
+        "mean_rack_score": 0,
+        "mean_infrastructure_score": 0,
+        "mean_nearest_rack_m": null,
+        "mean_nearest_infra_m": null,
+        "max_noise_db": null,
+        "air_proxy_score": 0,
+        "rack_density_score": 1.84,
+        "infrastructure_density_score": 16.67
       }
     },
     {
@@ -17091,9 +19711,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 0,
         "covered_segment_count": 0,
+        "total_segment_length_km": 0,
         "mean_segment_score": 0,
         "mean_greenery_ratio": 0,
-        "max_noise_db": null
+        "mean_greenery_score": 0,
+        "mean_noise_score": 0,
+        "mean_rack_score": 0,
+        "mean_infrastructure_score": 0,
+        "mean_nearest_rack_m": null,
+        "mean_nearest_infra_m": null,
+        "max_noise_db": null,
+        "air_proxy_score": 0,
+        "rack_density_score": 1.23,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -17156,9 +19786,19 @@
         "infrastructure_count": 2,
         "segment_sample_count": 0,
         "covered_segment_count": 0,
+        "total_segment_length_km": 0,
         "mean_segment_score": 0,
         "mean_greenery_ratio": 0,
-        "max_noise_db": null
+        "mean_greenery_score": 0,
+        "mean_noise_score": 0,
+        "mean_rack_score": 0,
+        "mean_infrastructure_score": 0,
+        "mean_nearest_rack_m": null,
+        "mean_nearest_infra_m": null,
+        "max_noise_db": null,
+        "air_proxy_score": 0,
+        "rack_density_score": 1.84,
+        "infrastructure_density_score": 33.33
       }
     },
     {
@@ -17221,9 +19861,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 0,
         "covered_segment_count": 0,
+        "total_segment_length_km": 0,
         "mean_segment_score": 0,
         "mean_greenery_ratio": 0,
-        "max_noise_db": null
+        "mean_greenery_score": 0,
+        "mean_noise_score": 0,
+        "mean_rack_score": 0,
+        "mean_infrastructure_score": 0,
+        "mean_nearest_rack_m": null,
+        "mean_nearest_infra_m": null,
+        "max_noise_db": null,
+        "air_proxy_score": 0,
+        "rack_density_score": 0.61,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -17286,9 +19936,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 0,
         "covered_segment_count": 0,
+        "total_segment_length_km": 0,
         "mean_segment_score": 0,
         "mean_greenery_ratio": 0,
-        "max_noise_db": null
+        "mean_greenery_score": 0,
+        "mean_noise_score": 0,
+        "mean_rack_score": 0,
+        "mean_infrastructure_score": 0,
+        "mean_nearest_rack_m": null,
+        "mean_nearest_infra_m": null,
+        "max_noise_db": null,
+        "air_proxy_score": 0,
+        "rack_density_score": 0.61,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -17351,9 +20011,19 @@
         "infrastructure_count": 1,
         "segment_sample_count": 0,
         "covered_segment_count": 0,
+        "total_segment_length_km": 0,
         "mean_segment_score": 0,
         "mean_greenery_ratio": 0,
-        "max_noise_db": null
+        "mean_greenery_score": 0,
+        "mean_noise_score": 0,
+        "mean_rack_score": 0,
+        "mean_infrastructure_score": 0,
+        "mean_nearest_rack_m": null,
+        "mean_nearest_infra_m": null,
+        "max_noise_db": null,
+        "air_proxy_score": 0,
+        "rack_density_score": 1.84,
+        "infrastructure_density_score": 16.67
       }
     },
     {
@@ -17416,9 +20086,19 @@
         "infrastructure_count": 1,
         "segment_sample_count": 0,
         "covered_segment_count": 0,
+        "total_segment_length_km": 0,
         "mean_segment_score": 0,
         "mean_greenery_ratio": 0,
-        "max_noise_db": null
+        "mean_greenery_score": 0,
+        "mean_noise_score": 0,
+        "mean_rack_score": 0,
+        "mean_infrastructure_score": 0,
+        "mean_nearest_rack_m": null,
+        "mean_nearest_infra_m": null,
+        "max_noise_db": null,
+        "air_proxy_score": 0,
+        "rack_density_score": 0.61,
+        "infrastructure_density_score": 16.67
       }
     },
     {
@@ -17481,9 +20161,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 0,
         "covered_segment_count": 0,
+        "total_segment_length_km": 0,
         "mean_segment_score": 0,
         "mean_greenery_ratio": 0,
-        "max_noise_db": null
+        "mean_greenery_score": 0,
+        "mean_noise_score": 0,
+        "mean_rack_score": 0,
+        "mean_infrastructure_score": 0,
+        "mean_nearest_rack_m": null,
+        "mean_nearest_infra_m": null,
+        "max_noise_db": null,
+        "air_proxy_score": 0,
+        "rack_density_score": 1.23,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -17546,9 +20236,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 0,
         "covered_segment_count": 0,
+        "total_segment_length_km": 0,
         "mean_segment_score": 0,
         "mean_greenery_ratio": 0,
-        "max_noise_db": null
+        "mean_greenery_score": 0,
+        "mean_noise_score": 0,
+        "mean_rack_score": 0,
+        "mean_infrastructure_score": 0,
+        "mean_nearest_rack_m": null,
+        "mean_nearest_infra_m": null,
+        "max_noise_db": null,
+        "air_proxy_score": 0,
+        "rack_density_score": 1.84,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -17611,9 +20311,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 0,
         "covered_segment_count": 0,
+        "total_segment_length_km": 0,
         "mean_segment_score": 0,
         "mean_greenery_ratio": 0,
-        "max_noise_db": null
+        "mean_greenery_score": 0,
+        "mean_noise_score": 0,
+        "mean_rack_score": 0,
+        "mean_infrastructure_score": 0,
+        "mean_nearest_rack_m": null,
+        "mean_nearest_infra_m": null,
+        "max_noise_db": null,
+        "air_proxy_score": 0,
+        "rack_density_score": 1.23,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -17676,9 +20386,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 0,
         "covered_segment_count": 0,
+        "total_segment_length_km": 0,
         "mean_segment_score": 0,
         "mean_greenery_ratio": 0,
-        "max_noise_db": null
+        "mean_greenery_score": 0,
+        "mean_noise_score": 0,
+        "mean_rack_score": 0,
+        "mean_infrastructure_score": 0,
+        "mean_nearest_rack_m": null,
+        "mean_nearest_infra_m": null,
+        "max_noise_db": null,
+        "air_proxy_score": 0,
+        "rack_density_score": 1.23,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -17741,9 +20461,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 0,
         "covered_segment_count": 0,
+        "total_segment_length_km": 0,
         "mean_segment_score": 0,
         "mean_greenery_ratio": 0,
-        "max_noise_db": null
+        "mean_greenery_score": 0,
+        "mean_noise_score": 0,
+        "mean_rack_score": 0,
+        "mean_infrastructure_score": 0,
+        "mean_nearest_rack_m": null,
+        "mean_nearest_infra_m": null,
+        "max_noise_db": null,
+        "air_proxy_score": 0,
+        "rack_density_score": 1.84,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -17806,9 +20536,19 @@
         "infrastructure_count": 2,
         "segment_sample_count": 0,
         "covered_segment_count": 0,
+        "total_segment_length_km": 0,
         "mean_segment_score": 0,
         "mean_greenery_ratio": 0,
-        "max_noise_db": null
+        "mean_greenery_score": 0,
+        "mean_noise_score": 0,
+        "mean_rack_score": 0,
+        "mean_infrastructure_score": 0,
+        "mean_nearest_rack_m": null,
+        "mean_nearest_infra_m": null,
+        "max_noise_db": null,
+        "air_proxy_score": 0,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 33.33
       }
     },
     {
@@ -17871,9 +20611,19 @@
         "infrastructure_count": 2,
         "segment_sample_count": 0,
         "covered_segment_count": 0,
+        "total_segment_length_km": 0,
         "mean_segment_score": 0,
         "mean_greenery_ratio": 0,
-        "max_noise_db": null
+        "mean_greenery_score": 0,
+        "mean_noise_score": 0,
+        "mean_rack_score": 0,
+        "mean_infrastructure_score": 0,
+        "mean_nearest_rack_m": null,
+        "mean_nearest_infra_m": null,
+        "max_noise_db": null,
+        "air_proxy_score": 0,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 33.33
       }
     },
     {
@@ -17936,9 +20686,19 @@
         "infrastructure_count": 1,
         "segment_sample_count": 0,
         "covered_segment_count": 0,
+        "total_segment_length_km": 0,
         "mean_segment_score": 0,
         "mean_greenery_ratio": 0,
-        "max_noise_db": null
+        "mean_greenery_score": 0,
+        "mean_noise_score": 0,
+        "mean_rack_score": 0,
+        "mean_infrastructure_score": 0,
+        "mean_nearest_rack_m": null,
+        "mean_nearest_infra_m": null,
+        "max_noise_db": null,
+        "air_proxy_score": 0,
+        "rack_density_score": 0.61,
+        "infrastructure_density_score": 16.67
       }
     },
     {
@@ -18001,9 +20761,19 @@
         "infrastructure_count": 1,
         "segment_sample_count": 0,
         "covered_segment_count": 0,
+        "total_segment_length_km": 0,
         "mean_segment_score": 0,
         "mean_greenery_ratio": 0,
-        "max_noise_db": null
+        "mean_greenery_score": 0,
+        "mean_noise_score": 0,
+        "mean_rack_score": 0,
+        "mean_infrastructure_score": 0,
+        "mean_nearest_rack_m": null,
+        "mean_nearest_infra_m": null,
+        "max_noise_db": null,
+        "air_proxy_score": 0,
+        "rack_density_score": 0.61,
+        "infrastructure_density_score": 16.67
       }
     },
     {
@@ -18066,9 +20836,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 0,
         "covered_segment_count": 0,
+        "total_segment_length_km": 0,
         "mean_segment_score": 0,
         "mean_greenery_ratio": 0,
-        "max_noise_db": null
+        "mean_greenery_score": 0,
+        "mean_noise_score": 0,
+        "mean_rack_score": 0,
+        "mean_infrastructure_score": 0,
+        "mean_nearest_rack_m": null,
+        "mean_nearest_infra_m": null,
+        "max_noise_db": null,
+        "air_proxy_score": 0,
+        "rack_density_score": 1.23,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -18131,9 +20911,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 0,
         "covered_segment_count": 0,
+        "total_segment_length_km": 0,
         "mean_segment_score": 0,
         "mean_greenery_ratio": 0,
-        "max_noise_db": null
+        "mean_greenery_score": 0,
+        "mean_noise_score": 0,
+        "mean_rack_score": 0,
+        "mean_infrastructure_score": 0,
+        "mean_nearest_rack_m": null,
+        "mean_nearest_infra_m": null,
+        "max_noise_db": null,
+        "air_proxy_score": 0,
+        "rack_density_score": 0.61,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -18196,9 +20986,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 0,
         "covered_segment_count": 0,
+        "total_segment_length_km": 0,
         "mean_segment_score": 0,
         "mean_greenery_ratio": 0,
-        "max_noise_db": null
+        "mean_greenery_score": 0,
+        "mean_noise_score": 0,
+        "mean_rack_score": 0,
+        "mean_infrastructure_score": 0,
+        "mean_nearest_rack_m": null,
+        "mean_nearest_infra_m": null,
+        "max_noise_db": null,
+        "air_proxy_score": 0,
+        "rack_density_score": 1.23,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -18261,9 +21061,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 0,
         "covered_segment_count": 0,
+        "total_segment_length_km": 0,
         "mean_segment_score": 0,
         "mean_greenery_ratio": 0,
-        "max_noise_db": null
+        "mean_greenery_score": 0,
+        "mean_noise_score": 0,
+        "mean_rack_score": 0,
+        "mean_infrastructure_score": 0,
+        "mean_nearest_rack_m": null,
+        "mean_nearest_infra_m": null,
+        "max_noise_db": null,
+        "air_proxy_score": 0,
+        "rack_density_score": 0.61,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -18326,9 +21136,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 0,
         "covered_segment_count": 0,
+        "total_segment_length_km": 0,
         "mean_segment_score": 0,
         "mean_greenery_ratio": 0,
-        "max_noise_db": null
+        "mean_greenery_score": 0,
+        "mean_noise_score": 0,
+        "mean_rack_score": 0,
+        "mean_infrastructure_score": 0,
+        "mean_nearest_rack_m": null,
+        "mean_nearest_infra_m": null,
+        "max_noise_db": null,
+        "air_proxy_score": 0,
+        "rack_density_score": 0.61,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -18391,9 +21211,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 0,
         "covered_segment_count": 0,
+        "total_segment_length_km": 0,
         "mean_segment_score": 0,
         "mean_greenery_ratio": 0,
-        "max_noise_db": null
+        "mean_greenery_score": 0,
+        "mean_noise_score": 0,
+        "mean_rack_score": 0,
+        "mean_infrastructure_score": 0,
+        "mean_nearest_rack_m": null,
+        "mean_nearest_infra_m": null,
+        "max_noise_db": null,
+        "air_proxy_score": 0,
+        "rack_density_score": 0.61,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -18456,9 +21286,19 @@
         "infrastructure_count": 1,
         "segment_sample_count": 0,
         "covered_segment_count": 0,
+        "total_segment_length_km": 0,
         "mean_segment_score": 0,
         "mean_greenery_ratio": 0,
-        "max_noise_db": null
+        "mean_greenery_score": 0,
+        "mean_noise_score": 0,
+        "mean_rack_score": 0,
+        "mean_infrastructure_score": 0,
+        "mean_nearest_rack_m": null,
+        "mean_nearest_infra_m": null,
+        "max_noise_db": null,
+        "air_proxy_score": 0,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 16.67
       }
     },
     {
@@ -18521,9 +21361,19 @@
         "infrastructure_count": 1,
         "segment_sample_count": 0,
         "covered_segment_count": 0,
+        "total_segment_length_km": 0,
         "mean_segment_score": 0,
         "mean_greenery_ratio": 0,
-        "max_noise_db": null
+        "mean_greenery_score": 0,
+        "mean_noise_score": 0,
+        "mean_rack_score": 0,
+        "mean_infrastructure_score": 0,
+        "mean_nearest_rack_m": null,
+        "mean_nearest_infra_m": null,
+        "max_noise_db": null,
+        "air_proxy_score": 0,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 16.67
       }
     },
     {
@@ -18586,9 +21436,19 @@
         "infrastructure_count": 1,
         "segment_sample_count": 0,
         "covered_segment_count": 0,
+        "total_segment_length_km": 0,
         "mean_segment_score": 0,
         "mean_greenery_ratio": 0,
-        "max_noise_db": null
+        "mean_greenery_score": 0,
+        "mean_noise_score": 0,
+        "mean_rack_score": 0,
+        "mean_infrastructure_score": 0,
+        "mean_nearest_rack_m": null,
+        "mean_nearest_infra_m": null,
+        "max_noise_db": null,
+        "air_proxy_score": 0,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 16.67
       }
     },
     {
@@ -18651,9 +21511,19 @@
         "infrastructure_count": 1,
         "segment_sample_count": 0,
         "covered_segment_count": 0,
+        "total_segment_length_km": 0,
         "mean_segment_score": 0,
         "mean_greenery_ratio": 0,
-        "max_noise_db": null
+        "mean_greenery_score": 0,
+        "mean_noise_score": 0,
+        "mean_rack_score": 0,
+        "mean_infrastructure_score": 0,
+        "mean_nearest_rack_m": null,
+        "mean_nearest_infra_m": null,
+        "max_noise_db": null,
+        "air_proxy_score": 0,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 16.67
       }
     },
     {
@@ -18716,9 +21586,19 @@
         "infrastructure_count": 1,
         "segment_sample_count": 0,
         "covered_segment_count": 0,
+        "total_segment_length_km": 0,
         "mean_segment_score": 0,
         "mean_greenery_ratio": 0,
-        "max_noise_db": null
+        "mean_greenery_score": 0,
+        "mean_noise_score": 0,
+        "mean_rack_score": 0,
+        "mean_infrastructure_score": 0,
+        "mean_nearest_rack_m": null,
+        "mean_nearest_infra_m": null,
+        "max_noise_db": null,
+        "air_proxy_score": 0,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 16.67
       }
     },
     {
@@ -18781,9 +21661,19 @@
         "infrastructure_count": 1,
         "segment_sample_count": 0,
         "covered_segment_count": 0,
+        "total_segment_length_km": 0,
         "mean_segment_score": 0,
         "mean_greenery_ratio": 0,
-        "max_noise_db": null
+        "mean_greenery_score": 0,
+        "mean_noise_score": 0,
+        "mean_rack_score": 0,
+        "mean_infrastructure_score": 0,
+        "mean_nearest_rack_m": null,
+        "mean_nearest_infra_m": null,
+        "max_noise_db": null,
+        "air_proxy_score": 0,
+        "rack_density_score": 0,
+        "infrastructure_density_score": 16.67
       }
     },
     {
@@ -18846,9 +21736,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 0,
         "covered_segment_count": 0,
+        "total_segment_length_km": 0,
         "mean_segment_score": 0,
         "mean_greenery_ratio": 0,
-        "max_noise_db": null
+        "mean_greenery_score": 0,
+        "mean_noise_score": 0,
+        "mean_rack_score": 0,
+        "mean_infrastructure_score": 0,
+        "mean_nearest_rack_m": null,
+        "mean_nearest_infra_m": null,
+        "max_noise_db": null,
+        "air_proxy_score": 0,
+        "rack_density_score": 0.61,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -18911,9 +21811,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 0,
         "covered_segment_count": 0,
+        "total_segment_length_km": 0,
         "mean_segment_score": 0,
         "mean_greenery_ratio": 0,
-        "max_noise_db": null
+        "mean_greenery_score": 0,
+        "mean_noise_score": 0,
+        "mean_rack_score": 0,
+        "mean_infrastructure_score": 0,
+        "mean_nearest_rack_m": null,
+        "mean_nearest_infra_m": null,
+        "max_noise_db": null,
+        "air_proxy_score": 0,
+        "rack_density_score": 0.61,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -18976,9 +21886,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 0,
         "covered_segment_count": 0,
+        "total_segment_length_km": 0,
         "mean_segment_score": 0,
         "mean_greenery_ratio": 0,
-        "max_noise_db": null
+        "mean_greenery_score": 0,
+        "mean_noise_score": 0,
+        "mean_rack_score": 0,
+        "mean_infrastructure_score": 0,
+        "mean_nearest_rack_m": null,
+        "mean_nearest_infra_m": null,
+        "max_noise_db": null,
+        "air_proxy_score": 0,
+        "rack_density_score": 0.61,
+        "infrastructure_density_score": 0
       }
     },
     {
@@ -19041,9 +21961,19 @@
         "infrastructure_count": 0,
         "segment_sample_count": 0,
         "covered_segment_count": 0,
+        "total_segment_length_km": 0,
         "mean_segment_score": 0,
         "mean_greenery_ratio": 0,
-        "max_noise_db": null
+        "mean_greenery_score": 0,
+        "mean_noise_score": 0,
+        "mean_rack_score": 0,
+        "mean_infrastructure_score": 0,
+        "mean_nearest_rack_m": null,
+        "mean_nearest_infra_m": null,
+        "max_noise_db": null,
+        "air_proxy_score": 0,
+        "rack_density_score": 0.61,
+        "infrastructure_density_score": 0
       }
     }
   ]

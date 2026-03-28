@@ -1,6 +1,11 @@
 <script lang="ts">
   import { afterUpdate, onDestroy, onMount } from 'svelte'
-  import type { Map as MapLibreMap, MapGeoJSONFeature, Popup as MapLibrePopup } from 'maplibre-gl'
+  import type {
+    GeoJSONSource,
+    Map as MapLibreMap,
+    MapGeoJSONFeature,
+    Popup as MapLibrePopup,
+  } from 'maplibre-gl'
   import {
     KRAKOW_CENTER,
     MAP_STYLE,
@@ -13,12 +18,25 @@
     formatScore,
     scoreColor,
     type H3CellSummary,
+    type HexFeatureCollection,
     type HotspotSummary,
     type RecommendedConnector,
     type RecommendedCorridor,
+    type RouteMarker,
+    type RouteResult,
+    type RoutingGraph,
+    type SegmentFeatureCollection,
     type Summary,
     type TopSegment,
   } from './lib/smart-city'
+  import {
+    buildRoutingGraph,
+    findNearestNode,
+    astar,
+    buildVibeEdgeCosts,
+    preloadH3,
+    type VibeWeights,
+  } from './lib/routing'
 
   const SUMMARY_URL = '/generated/cycling-smart-city/summary.json'
   const SEGMENTS_URL = '/generated/cycling-smart-city/segments.geojson'
@@ -34,6 +52,7 @@
   let popup: MapLibrePopup | null = null
 
   let summary: Summary | null = null
+  let rawHexes: HexFeatureCollection | null = null
   let selectedSegment: TopSegment | null = null
   let selectedCorridor: RecommendedCorridor | null = null
   let selectedConnector: RecommendedConnector | null = null
@@ -50,6 +69,17 @@
   let showConnectors = true
   let onlyTopSegments = false
 
+  // --- Routing A→B state ---
+  let routingGraph: RoutingGraph | null = null
+  let routingMode: 'idle' | 'selectStart' | 'selectEnd' = 'idle'
+  let routeStart: RouteMarker | null = null
+  let routeEnd: RouteMarker | null = null
+  let routeResult: RouteResult | null = null
+  let routeError: string | null = null
+  let isGraphBuilding = false
+  let routeVibeAlpha = 0.5
+  let showRoute = true
+
   const scoreLegend = [
     { label: '80-100', color: '#166534' },
     { label: '65-79', color: '#65a30d' },
@@ -64,17 +94,382 @@
     },
     noise: {
       label: 'Halas',
-      note: 'Im mniejszy halas, tym wyzszy subscore.',
+      note: 'Im mniejszy halas, tym wyzszy wynik czastkowy.',
     },
     rack: {
       label: 'Stojaki',
-      note: 'Im blizej stojaka, tym wyzszy subscore.',
+      note: 'Im blizej stojaka, tym wyzszy wynik czastkowy.',
     },
     infrastructure: {
       label: 'Infrastruktura',
-      note: 'Im blizej punktowej infrastruktury, tym wyzszy subscore.',
+      note: 'Im blizej punktowej infrastruktury, tym wyzszy wynik czastkowy.',
     },
   } as const
+
+  type VibeMetricKey =
+    | 'air_proxy'
+    | 'demand'
+    | 'greenery'
+    | 'infrastructure_access'
+    | 'infrastructure_density'
+    | 'network'
+    | 'quality'
+    | 'quietness'
+    | 'rack_access'
+    | 'rack_density'
+
+  type VibeDefinition = {
+    color: string
+    formula: string
+    id: string
+    isCustom: boolean
+    label: string
+    weights: Record<VibeMetricKey, number>
+  }
+
+  type VibeAnalysis = {
+    color: string
+    dominant: { label: string; score: number } | null
+    opacity: number
+    scores: Array<{
+      color: string
+      contributions: Array<{
+        affinity: number
+        key: VibeMetricKey
+        label: string
+        raw: number
+        weight: number
+      }>
+      formula: string
+      id: string
+      isCustom: boolean
+      label: string
+      score: number
+    }>
+  }
+
+  type LegendDoc = {
+    formula: string
+    kind: string
+    label: string
+    meaning: string
+    source: string
+  }
+
+  type DataDocItem = {
+    code?: string
+    formula: string
+    label: string
+    note?: string
+    source: string
+    usage: string
+    valueType: string
+  }
+
+  type DataDocSection = {
+    intro: string
+    items: DataDocItem[]
+    title: string
+  }
+
+  const emptyHexFeatureCollection: HexFeatureCollection = {
+    type: 'FeatureCollection',
+    features: [],
+  }
+
+  const vibeMetricMeta: Array<{ key: VibeMetricKey; label: string; note: string }> = [
+    {
+      key: 'air_proxy',
+      label: 'Jakość powietrza (przybliżenie)',
+      note: 'Przybliżenie jakości powietrza liczone z zieleni i spokoju akustycznego: 55% score zieleni + 45% score ciszy. To przybliżenie, bo w paczce nie ma osobnej warstwy jakości powietrza.',
+    },
+    {
+      key: 'greenery',
+      label: 'Zieleń otoczenia',
+      note: 'Średni score zieleni segmentów w heksie.',
+    },
+    {
+      key: 'quietness',
+      label: 'Spokój akustyczny',
+      note: 'Średni score hałasu segmentów; wyżej = ciszej.',
+    },
+    {
+      key: 'rack_access',
+      label: 'Dostep do stojakow',
+      note: 'Średni score dostępu do stojaków; wyżej = łatwiejszy dostęp.',
+    },
+    {
+      key: 'infrastructure_access',
+      label: 'Dostep do infrastruktury',
+      note: 'Średni score dostępu do infrastruktury; wyżej = lepszy dostęp.',
+    },
+    {
+      key: 'rack_density',
+      label: 'Gęstość stojaków',
+      note: 'Znormalizowana liczba stojaków w heksie.',
+    },
+    {
+      key: 'infrastructure_density',
+      label: 'Gęstość infrastruktury',
+      note: 'Znormalizowana liczba punktów infrastruktury w heksie.',
+    },
+    {
+      key: 'demand',
+      label: 'Popyt',
+      note: 'Znormalizowany popyt z punktów i wag: stojak = 1, punkt infrastruktury = 2.5.',
+    },
+    {
+      key: 'network',
+      label: 'Obecność sieci rowerowej',
+      note: 'Znormalizowana liczba próbek segmentów wpadających do heksa.',
+    },
+    {
+      key: 'quality',
+      label: 'Ogólna jakość segmentów',
+      note: 'Średni końcowy score segmentów w heksie. To nie jest pojedyncza warstwa, tylko średnia jakości już policzonych segmentów.',
+    },
+  ]
+
+  const pureMetricColorByKey: Record<VibeMetricKey, string> = {
+    air_proxy: '#0f766e',
+    demand: '#ea580c',
+    greenery: '#16a34a',
+    infrastructure_access: '#2563eb',
+    infrastructure_density: '#1d4ed8',
+    network: '#4f46e5',
+    quality: '#7c3aed',
+    quietness: '#0891b2',
+    rack_access: '#0284c7',
+    rack_density: '#14b8a6',
+  }
+
+  const mixedVibes: VibeDefinition[] = [
+    {
+      id: 'health',
+      label: 'Zdrowie',
+      color: '#16a34a',
+      isCustom: false,
+      formula:
+        'jakość powietrza (+45) + zieleń otoczenia (+20) + spokój akustyczny (+15) + ogólna jakość segmentów (+10) + dostęp do infrastruktury (+10)',
+      weights: {
+        air_proxy: 45,
+        demand: 0,
+        greenery: 20,
+        infrastructure_access: 10,
+        infrastructure_density: 0,
+        network: 0,
+        quality: 10,
+        quietness: 15,
+        rack_access: 0,
+        rack_density: 0,
+      },
+    },
+    {
+      id: 'slow',
+      label: 'Slow',
+      color: '#38bdf8',
+      isCustom: false,
+      formula:
+        'dostęp do stojaków (+30) + gęstość stojaków (+25) + zieleń otoczenia (+20) + spokój akustyczny (+15) + popyt (-10)',
+      weights: {
+        air_proxy: 0,
+        demand: -10,
+        greenery: 20,
+        infrastructure_access: 0,
+        infrastructure_density: 0,
+        network: 0,
+        quality: 0,
+        quietness: 15,
+        rack_access: 30,
+        rack_density: 25,
+      },
+    },
+    {
+      id: 'urban_flow',
+      label: 'Miejski przeplyw',
+      color: '#2563eb',
+      isCustom: false,
+      formula:
+        'popyt (+35) + obecność sieci rowerowej (+25) + gęstość infrastruktury (+20) + dostęp do infrastruktury (+10) + ogólna jakość segmentów (+10)',
+      weights: {
+        air_proxy: 0,
+        demand: 35,
+        greenery: 0,
+        infrastructure_access: 10,
+        infrastructure_density: 20,
+        network: 25,
+        quality: 10,
+        quietness: 0,
+        rack_access: 0,
+        rack_density: 0,
+      },
+    },
+    {
+      id: 'post_apo',
+      label: 'Post-apo',
+      color: '#ef4444',
+      isCustom: false,
+      formula:
+        'jakość powietrza (-35) + spokój akustyczny (-20) + zieleń otoczenia (-15) + dostęp do infrastruktury (-15) + ogólna jakość segmentów (-15)',
+      weights: {
+        air_proxy: -35,
+        demand: 0,
+        greenery: -15,
+        infrastructure_access: -15,
+        infrastructure_density: 0,
+        network: 0,
+        quality: -15,
+        quietness: -20,
+        rack_access: 0,
+        rack_density: 0,
+      },
+    },
+  ]
+
+  const pureMetricVibes: VibeDefinition[] = vibeMetricMeta.map((metric) => ({
+    id: `pure_${metric.key}`,
+    label: `${metric.label} 100%`,
+    color: pureMetricColorByKey[metric.key],
+    isCustom: false,
+    formula: `${metric.label.toLowerCase()} (+100)`,
+    weights: {
+      ...createEmptyVibeWeights(),
+      [metric.key]: 100,
+    },
+  }))
+
+  const metricLegendSections: Array<{
+    title: string
+    items: Array<{ code?: string; label: string; note: string }>
+  }> = [
+    {
+      title: 'Segment',
+      items: [
+        {
+          code: 'score',
+          label: 'Score segmentu',
+          note: 'Finalna ocena segmentu 0-100. To wazona suma score zieleni, halasu, stojakow i infrastruktury.',
+        },
+        {
+          code: 'greenery_ratio',
+          label: 'Pokrycie zieleni',
+          note: 'Procent probek segmentu, ktore wpadaja w poligony zieleni.',
+        },
+        {
+          code: 'max_noise_db',
+          label: 'Maksymalny halas',
+          note: 'Najwyzszy odczyt halasu przypisany do probek segmentu.',
+        },
+        {
+          code: 'nearest_rack_m',
+          label: 'Najblizszy stojak',
+          note: 'Odleglosc segmentu do najblizszego stojaka rowerowego.',
+        },
+        {
+          code: 'nearest_infra_m',
+          label: 'Najblizszy punkt infrastruktury',
+          note: 'Odleglosc segmentu do najblizszego punktu infrastruktury rowerowej.',
+        },
+      ],
+    },
+    {
+      title: 'H3',
+      items: [
+        {
+          code: 'hex_score',
+          label: 'Score heksa',
+          note: 'Jawna ocena komorki H3. Wzor: popyt 45% + siec 20% + jakosc segmentow 35%.',
+        },
+        {
+          code: 'demand_score',
+          label: 'Score popytu',
+          note: 'Znormalizowana sila popytu z punktow w danym heksie.',
+        },
+        {
+          code: 'network_score',
+          label: 'Score sieci',
+          note: 'Znormalizowana liczba probek segmentow wpadajacych do heksa.',
+        },
+        {
+          code: 'quality_score',
+          label: 'Ogólna jakość segmentów',
+          note: 'Średni końcowy score segmentów przypisanych do heksa.',
+        },
+        {
+          code: 'point_count',
+          label: 'Liczba punktow',
+          note: 'Suma punktow popytu w heksie: stojaki + punktowa infrastruktura.',
+        },
+        {
+          code: 'segment_sample_count',
+          label: 'Liczba probek segmentow',
+          note: 'Ile probek z geometrii segmentow wpada do danego heksa.',
+        },
+        {
+          code: 'covered_segment_count',
+          label: 'Liczba segmentow pokrytych',
+          note: 'Ile unikalnych segmentow przechodzi przez dany heks.',
+        },
+        {
+          code: 'total_segment_length_km',
+          label: 'Laczna dlugosc segmentow',
+          note: 'Suma dlugosci segmentow przypisanych do heksa.',
+        },
+        ...vibeMetricMeta.map((metric) => ({
+          code: metric.key,
+          label: metric.label,
+          note: metric.note,
+        })),
+      ],
+    },
+    {
+      title: 'Korytarze i łączniki',
+      items: [
+        {
+          code: 'path_cost',
+          label: 'Koszt trasy',
+          note: 'Koszt przejscia po grafie Dijkstra; im nizszy, tym latwiejszy przejazd wg wybranego scenariusza.',
+        },
+        {
+          code: 'pair_priority',
+          label: 'Priorytet pary hubow',
+          note: 'Sila kandydatury pary hubow przed uruchomieniem trasowania.',
+        },
+        {
+          code: 'priority_score',
+          label: 'Priorytet łącznika',
+          note: 'Finalna punktacja kandydata nowego łącznika między komponentami.',
+        },
+        {
+          code: 'demand_gain_points',
+          label: 'Zysk popytu',
+          note: 'Ile punktów łącznik zyskuje za dołączenie komponentu z popytem.',
+        },
+        {
+          code: 'network_gain_points',
+          label: 'Zysk sieci',
+          note: 'Ile punktów łącznik zyskuje za poprawienie spójności sieci.',
+        },
+        {
+          code: 'distance_points',
+          label: 'Punkty za dystans',
+          note: 'Premia za krótszy łącznik w dopuszczalnym przedziale odległości.',
+        },
+        {
+          code: 'crossing_penalty_points',
+          label: 'Kara za przeciecia',
+          note: 'Odjeta liczba punktow za przeciecia z istniejacymi segmentami sieci.',
+        },
+      ],
+    },
+  ]
+
+  let customVibes: VibeDefinition[] = []
+  let enabledVibeIds = mixedVibes.map((vibe) => vibe.id)
+  let customVibeLabel = 'Wlasny vibe'
+  let customVibeColor = '#7c3aed'
+  let customVibeWeights = createEmptyVibeWeights()
+  let selectedCorridorScenarioId: string | null = null
 
   onMount(() => {
     void initialize()
@@ -89,6 +484,7 @@
   })
 
   afterUpdate(() => {
+    syncHexData()
     syncHexVisibility()
     syncPointVisibility()
     syncHotspotVisibility()
@@ -106,11 +502,21 @@
     error = null
 
     try {
-      summary = await fetchJson<Summary>(SUMMARY_URL)
+      const [summaryResponse, hexesResponse, segmentsResponse] = await Promise.all([
+        fetchJson<Summary>(SUMMARY_URL),
+        fetchJson<HexFeatureCollection>(HEXES_URL),
+        fetchJson<SegmentFeatureCollection>(SEGMENTS_URL),
+      ])
+      summary = summaryResponse
+      rawHexes = hexesResponse
+
+      // Build routing graph in background (non-blocking for map load)
+      buildGraphAsync(segmentsResponse, hexesResponse)
+      selectedCorridorScenarioId = summary.corridor_recommendations.scenario.id
       selectedSegment = summary.top_segments[0] ?? null
-      selectedCorridor = summary.corridor_recommendations.recommended[0] ?? null
+      selectedCorridor = selectedCorridorScenario()?.recommended[0] ?? null
       selectedConnector = summary.off_network_connectors.recommended[0] ?? null
-      selectedHex = summary.h3_grid.top_cells[0] ?? null
+      selectedHex = getHexByIndex(summary.h3_grid.top_cells[0]?.h3_index) ?? summary.h3_grid.top_cells[0] ?? null
 
       maplibreModule = await import('maplibre-gl')
 
@@ -156,7 +562,7 @@
   function addSources(currentMap: MapLibreMap) {
     currentMap.addSource('hexes', {
       type: 'geojson',
-      data: HEXES_URL,
+      data: buildRenderedHexCollection(),
     })
 
     currentMap.addSource('segments', {
@@ -194,23 +600,9 @@
       type: 'fill',
       source: 'hexes',
       paint: {
-        'fill-color': [
-          'interpolate',
-          ['linear'],
-          ['coalesce', ['get', 'hex_score'], 0],
-          0,
-          '#f5f5f4',
-          40,
-          '#fde68a',
-          60,
-          '#fb923c',
-          80,
-          '#f97316',
-          100,
-          '#dc2626',
-        ],
-        'fill-opacity': 0.2,
-        'fill-outline-color': '#a8a29e',
+        'fill-color': ['coalesce', ['get', 'display_color'], '#60a5fa'],
+        'fill-opacity': ['coalesce', ['get', 'display_opacity'], 0.3],
+        'fill-outline-color': ['coalesce', ['get', 'display_outline_color'], '#1d4ed8'],
       },
     })
 
@@ -424,7 +816,8 @@
         return
       }
 
-      const hex = toH3CellSummary(feature)
+      const clickedIndex = toNullableString(feature.properties?.h3_index)
+      const hex = (clickedIndex ? getHexByIndex(clickedIndex) : null) ?? toH3CellSummary(feature)
       selectedHex = hex
       renderPopup(event.lngLat, buildHexPopup(hex))
     })
@@ -513,6 +906,19 @@
       .addTo(map!)
   }
 
+  function syncHexData() {
+    if (!map || !isMapReady) {
+      return
+    }
+
+    const source = map.getSource('hexes') as GeoJSONSource | undefined
+    if (!source) {
+      return
+    }
+
+    source.setData(buildRenderedHexCollection())
+  }
+
   function syncPointVisibility() {
     if (!map || !isMapReady) {
       return
@@ -527,6 +933,10 @@
       return
     }
 
+    map.setFilter(
+      'hotspots',
+      selectedCorridorScenarioId ? ['==', 'scenario_id', selectedCorridorScenarioId] : null,
+    )
     setLayerVisibility('hotspots', showHotspots)
   }
 
@@ -538,11 +948,355 @@
     setLayerVisibility('hexes-fill', showHexes)
   }
 
+  function buildRenderedHexCollection(): HexFeatureCollection {
+    if (!rawHexes) {
+      return emptyHexFeatureCollection
+    }
+
+    return {
+      type: 'FeatureCollection',
+      features: rawHexes.features.map((feature) => {
+        const vibe = analyzeHexVibes(feature.properties)
+
+        return {
+          ...feature,
+          properties: {
+            ...feature.properties,
+            display_color: vibe.color,
+            display_outline_color: darkenHexColor(vibe.color, 0.28),
+            display_opacity: vibe.opacity,
+            dominant_vibe: vibe.dominant?.label ?? null,
+          },
+        }
+      }),
+    }
+  }
+
+  function getHexByIndex(h3Index: string | null | undefined) {
+    if (!h3Index || !rawHexes) {
+      return null
+    }
+
+    const feature = rawHexes.features.find((candidate) => candidate.properties.h3_index === h3Index)
+    return feature?.properties ?? null
+  }
+
+  function analyzeHexVibes(hex: H3CellSummary): VibeAnalysis {
+    const metrics = buildHexMetricVector(hex)
+    const scores = activeVibes().map((definition) => {
+      const contributions = vibeMetricMeta
+        .filter(({ key }) => Math.abs(definition.weights[key]) > 0)
+        .map(({ key, label }) => {
+          const raw = metrics[key]
+          const weight = definition.weights[key]
+          const affinity = weight >= 0 ? raw : 100 - raw
+
+          return {
+            key,
+            label,
+            raw,
+            weight,
+            affinity,
+          }
+        })
+
+      const totalWeight = contributions.reduce((total, item) => total + Math.abs(item.weight), 0)
+      const weightedScore =
+        totalWeight === 0
+          ? 0
+          : contributions.reduce((total, item) => total + item.affinity * Math.abs(item.weight), 0) /
+            totalWeight
+
+      return {
+        id: definition.id,
+        label: definition.label,
+        color: definition.color,
+        formula: definition.formula,
+        isCustom: definition.isCustom,
+        score: weightedScore,
+        contributions,
+      }
+    })
+
+    const dominant = [...scores]
+      .sort((left, right) => right.score - left.score || left.label.localeCompare(right.label))[0]
+
+    const color = mixVibeColors(scores)
+    const opacity = 0.2 + ((dominant?.score ?? 0) / 100) * 0.24
+
+    return {
+      scores,
+      dominant: dominant ? { label: dominant.label, score: dominant.score } : null,
+      color,
+      opacity: clamp(opacity, 0.2, 0.44),
+    }
+  }
+
+  function buildHexMetricVector(hex: H3CellSummary): Record<VibeMetricKey, number> {
+    const rackDensityMax = Math.max(1, ...(rawHexes?.features.map((feature) => feature.properties.rack_count) ?? [1]))
+    const infrastructureDensityMax = Math.max(
+      1,
+      ...(rawHexes?.features.map((feature) => feature.properties.infrastructure_count) ?? [1]),
+    )
+
+    const rackDensity = clamp(hex.rack_density_score ?? (hex.rack_count / rackDensityMax) * 100, 0, 100)
+    const infrastructureDensity = clamp(
+      hex.infrastructure_density_score ?? (hex.infrastructure_count / infrastructureDensityMax) * 100,
+      0,
+      100,
+    )
+    const airProxy = clamp(
+      hex.air_proxy_score ?? hex.mean_greenery_score * 0.55 + hex.mean_noise_score * 0.45,
+      0,
+      100,
+    )
+
+    return {
+      air_proxy: airProxy,
+      demand: clamp(hex.demand_score, 0, 100),
+      greenery: clamp(hex.mean_greenery_score, 0, 100),
+      infrastructure_access: clamp(hex.mean_infrastructure_score, 0, 100),
+      infrastructure_density: infrastructureDensity,
+      network: clamp(hex.network_score, 0, 100),
+      quality: clamp(hex.quality_score, 0, 100),
+      quietness: clamp(hex.mean_noise_score, 0, 100),
+      rack_access: clamp(hex.mean_rack_score, 0, 100),
+      rack_density: rackDensity,
+    }
+  }
+
+  function catalogVibes() {
+    return [...mixedVibes, ...pureMetricVibes, ...customVibes]
+  }
+
+  function activeVibes() {
+    return catalogVibes().filter((vibe) => enabledVibeIds.includes(vibe.id))
+  }
+
+  function isVibeEnabled(vibeId: string) {
+    return enabledVibeIds.includes(vibeId)
+  }
+
+  function toggleVibe(vibeId: string) {
+    enabledVibeIds = isVibeEnabled(vibeId)
+      ? enabledVibeIds.filter((id) => id !== vibeId)
+      : [...enabledVibeIds, vibeId]
+  }
+
+  function corridorScenarioList() {
+    if (!summary) {
+      return []
+    }
+
+    if (summary.corridor_recommendations.scenarios?.length) {
+      return summary.corridor_recommendations.scenarios
+    }
+
+    return [
+      {
+        scenario: summary.corridor_recommendations.scenario,
+        hotspots: summary.corridor_recommendations.hotspots,
+        recommended: summary.corridor_recommendations.recommended,
+      },
+    ]
+  }
+
+  function selectedCorridorScenario() {
+    const scenarios = corridorScenarioList()
+    return (
+      scenarios.find((item) => item.scenario.id === selectedCorridorScenarioId) ??
+      scenarios[0] ??
+      null
+    )
+  }
+
+  const vibeMetricDocCodeByKey: Record<VibeMetricKey, string> = {
+    air_proxy: 'air_proxy_score',
+    demand: 'demand_score',
+    greenery: 'mean_greenery_score',
+    infrastructure_access: 'mean_infrastructure_score',
+    infrastructure_density: 'infrastructure_density_score',
+    network: 'network_score',
+    quality: 'quality_score',
+    quietness: 'mean_noise_score',
+    rack_access: 'mean_rack_score',
+    rack_density: 'rack_density_score',
+  }
+
+  function vibeMetricByKey(key: VibeMetricKey) {
+    return vibeMetricMeta.find((metric) => metric.key === key) ?? null
+  }
+
+  function scenarioDisplayLabel(
+    scenario: { label: string; metric_key?: string | null },
+  ) {
+    if (!scenario.metric_key) {
+      return 'Zbalansowany wynik obszaru H3'
+    }
+
+    const metric = vibeMetricByKey(scenario.metric_key as VibeMetricKey)
+    return metric ? `${metric.label} 100%` : scenario.label
+  }
+
+  function scenarioDisplayNote(
+    scenario: { label: string; metric_key?: string | null },
+    currentSummary: Summary,
+  ) {
+    if (!scenario.metric_key) {
+      return `Koszt trasy liczony z wyniku obszaru H3: ${currentSummary.explainability.h3_indexing.scenario.cell_score_formula}`
+    }
+
+    const metric = vibeMetricByKey(scenario.metric_key as VibeMetricKey)
+    const doc = dataDocByCode(currentSummary, vibeMetricDocCodeByKey[scenario.metric_key as VibeMetricKey])
+
+    if (!metric) {
+      return 'Czysty scenariusz liczony tylko z jednej metryki H3.'
+    }
+
+    return `Trasa optymalizowana tylko pod metrykę „${metric.label}”. ${doc?.formula ?? ''}`
+  }
+
+  function dataDocByCode(currentSummary: Summary, code: string | undefined) {
+    if (!code) {
+      return null
+    }
+
+    for (const section of dataDocumentationSections(currentSummary)) {
+      const found = section.items.find((item) => item.code === code)
+      if (found) {
+        return found
+      }
+    }
+
+    return null
+  }
+
+  function selectCorridorScenario(scenarioId: string) {
+    const scenarios = corridorScenarioList()
+    const nextScenario =
+      scenarios.find((item) => item.scenario.id === scenarioId) ?? scenarios[0] ?? null
+
+    selectedCorridorScenarioId = nextScenario?.scenario.id ?? null
+    selectedCorridor =
+      nextScenario?.recommended.find(
+        (corridor) =>
+          corridor.corridor_id === selectedCorridor?.corridor_id &&
+          corridor.scenario_id === selectedCorridor?.scenario_id,
+      ) ??
+      nextScenario?.recommended[0] ??
+      null
+  }
+
+  function mixVibeColors(scores: VibeAnalysis['scores']) {
+    const total = scores.reduce((sum, item) => sum + item.score, 0)
+    if (total <= 0) {
+      return '#94a3b8'
+    }
+
+    const mixed = scores.reduce(
+      (accumulator, item) => {
+        const rgb = hexToRgb(item.color)
+        const weight = item.score / total
+        return {
+          red: accumulator.red + rgb.red * weight,
+          green: accumulator.green + rgb.green * weight,
+          blue: accumulator.blue + rgb.blue * weight,
+        }
+      },
+      { red: 0, green: 0, blue: 0 },
+    )
+
+    return rgbToHex(mixed.red, mixed.green, mixed.blue)
+  }
+
+  function hexToRgb(color: string) {
+    const normalized = color.replace('#', '')
+    const value = normalized.length === 3 ? normalized.split('').map((part) => `${part}${part}`).join('') : normalized
+
+    return {
+      red: Number.parseInt(value.slice(0, 2), 16),
+      green: Number.parseInt(value.slice(2, 4), 16),
+      blue: Number.parseInt(value.slice(4, 6), 16),
+    }
+  }
+
+  function rgbToHex(red: number, green: number, blue: number) {
+    return `#${[red, green, blue]
+      .map((value) => clamp(Math.round(value), 0, 255).toString(16).padStart(2, '0'))
+      .join('')}`
+  }
+
+  function darkenHexColor(color: string, amount: number) {
+    const rgb = hexToRgb(color)
+
+    return rgbToHex(rgb.red * (1 - amount), rgb.green * (1 - amount), rgb.blue * (1 - amount))
+  }
+
+  function createEmptyVibeWeights(): Record<VibeMetricKey, number> {
+    return {
+      air_proxy: 0,
+      demand: 0,
+      greenery: 0,
+      infrastructure_access: 0,
+      infrastructure_density: 0,
+      network: 0,
+      quality: 0,
+      quietness: 0,
+      rack_access: 0,
+      rack_density: 0,
+    }
+  }
+
+  function resetCustomVibeDraft() {
+    customVibeLabel = 'Wlasny vibe'
+    customVibeColor = '#7c3aed'
+    customVibeWeights = createEmptyVibeWeights()
+  }
+
+  function addCustomVibe() {
+    const totalWeight = Object.values(customVibeWeights).reduce(
+      (sum, value) => sum + Math.abs(value),
+      0,
+    )
+
+    if (totalWeight === 0) {
+      return
+    }
+
+    const nextIndex = customVibes.length + 1
+    customVibes = [
+      ...customVibes,
+      {
+        id: `custom_${nextIndex}`,
+        label: customVibeLabel.trim() || `Wlasny vibe ${nextIndex}`,
+        color: customVibeColor,
+        isCustom: true,
+        formula:
+          'score = srednia wazona wybranych metryk; ujemna waga odwraca metryke do 100 - metric',
+        weights: { ...customVibeWeights },
+      },
+    ]
+    enabledVibeIds = [...enabledVibeIds, `custom_${nextIndex}`]
+
+    resetCustomVibeDraft()
+  }
+
+  function removeCustomVibe(vibeId: string) {
+    customVibes = customVibes.filter((vibe) => vibe.id !== vibeId)
+    enabledVibeIds = enabledVibeIds.filter((id) => id !== vibeId)
+  }
+
   function syncCorridorVisibility() {
     if (!map || !isMapReady) {
       return
     }
 
+    const scenarioFilter: ['==', string, string] | null = selectedCorridorScenarioId
+      ? ['==', 'scenario_id', selectedCorridorScenarioId]
+      : null
+
+    map.setFilter('corridors-base', scenarioFilter)
+    map.setFilter('corridors-fill', scenarioFilter)
     setLayerVisibility('corridors-base', showCorridors)
     setLayerVisibility('corridors-fill', showCorridors)
     setLayerVisibility('corridors-selected', showCorridors)
@@ -589,9 +1343,9 @@
     }
 
     map.setFilter('corridors-selected', [
-      '==',
-      ['get', 'corridor_id'],
-      selectedCorridor?.corridor_id ?? -1,
+      'all',
+      ['==', ['get', 'scenario_id'], selectedCorridor?.scenario_id ?? '__brak__'],
+      ['==', ['get', 'corridor_id'], selectedCorridor?.corridor_id ?? -1],
     ])
   }
 
@@ -696,7 +1450,7 @@
   }
 
   function focusHex(hex: H3CellSummary) {
-    selectedHex = hex
+    selectedHex = getHexByIndex(hex.h3_index) ?? hex
 
     if (!map) {
       return
@@ -784,6 +1538,7 @@
     return {
       bounds: parseBounds(properties.bounds),
       center: parseCoordinate(properties.center),
+      corridor_key: toNullableString(properties.corridor_key) ?? undefined,
       corridor_id: toNumber(properties.corridor_id),
       corridor_rank: toNumber(properties.corridor_rank),
       direct_distance_km: toNumber(properties.direct_distance_km),
@@ -802,6 +1557,10 @@
       pair_priority: toNumber(properties.pair_priority),
       path_cost: toNumber(properties.path_cost),
       path_length_km: toNumber(properties.path_length_km),
+      route_metric_key: toNullableString(properties.route_metric_key),
+      route_metric_label: toNullableString(properties.route_metric_label),
+      scenario_id: toNullableString(properties.scenario_id),
+      scenario_label: toNullableString(properties.scenario_label),
       segment_count: toNumber(properties.segment_count),
       to_h3_index: toNullableString(properties.to_h3_index) ?? 'brak',
       to_hub_id: toNumber(properties.to_hub_id),
@@ -847,8 +1606,10 @@
     properties: Record<string, unknown> | undefined,
   ): HotspotSummary {
     return {
+      air_proxy_score: toNumber(properties?.air_proxy_score),
       center: parseCoordinate(properties?.center) ?? KRAKOW_CENTER,
       cell_id: toNullableString(properties?.cell_id) ?? 'brak',
+      component_id: toNullableNumber(properties?.component_id),
       density_score: toNumber(properties?.density_score),
       graph_node_id: toNumber(properties?.graph_node_id),
       h3_index: toNullableString(properties?.h3_index) ?? 'brak',
@@ -856,12 +1617,19 @@
       hex_score: toNumber(properties?.hex_score),
       hub_id: toNumber(properties?.hub_id),
       infrastructure_count: toNumber(properties?.infrastructure_count),
+      infrastructure_density_score: toNumber(properties?.infrastructure_density_score),
       label: toNullableString(properties?.label) ?? 'brak',
       mean_segment_score: toNumber(properties?.mean_segment_score),
       network_score: toNumber(properties?.network_score),
       point_count: toNumber(properties?.point_count),
       quality_score: toNumber(properties?.quality_score),
       rack_count: toNumber(properties?.rack_count),
+      rack_density_score: toNumber(properties?.rack_density_score),
+      route_metric_key: toNullableString(properties?.route_metric_key),
+      route_metric_label: toNullableString(properties?.route_metric_label),
+      route_score: toNullableNumber(properties?.route_score) ?? 0,
+      scenario_id: toNullableString(properties?.scenario_id),
+      scenario_label: toNullableString(properties?.scenario_label),
       snap_distance_m: toNumber(properties?.snap_distance_m),
       demand_score: toNumber(properties?.demand_score),
       total_weight: toNumber(properties?.total_weight),
@@ -872,6 +1640,7 @@
     const properties = feature.properties ?? {}
 
     return {
+      air_proxy_score: toNumber(properties.air_proxy_score),
       bounds: parseBounds(properties.bounds),
       center: parseCoordinate(properties.center) ?? KRAKOW_CENTER,
       covered_segment_count: toNumber(properties.covered_segment_count),
@@ -883,12 +1652,21 @@
       infrastructure_count: toNumber(properties.infrastructure_count),
       max_noise_db: toNullableNumber(properties.max_noise_db),
       mean_greenery_ratio: toNumber(properties.mean_greenery_ratio),
+      mean_greenery_score: toNumber(properties.mean_greenery_score),
+      mean_infrastructure_score: toNumber(properties.mean_infrastructure_score),
+      mean_nearest_infra_m: toNullableNumber(properties.mean_nearest_infra_m),
+      mean_nearest_rack_m: toNullableNumber(properties.mean_nearest_rack_m),
+      mean_noise_score: toNumber(properties.mean_noise_score),
+      mean_rack_score: toNumber(properties.mean_rack_score),
       mean_segment_score: toNumber(properties.mean_segment_score),
       network_score: toNumber(properties.network_score),
       point_count: toNumber(properties.point_count),
       quality_score: toNumber(properties.quality_score),
       rack_count: toNumber(properties.rack_count),
+      rack_density_score: toNumber(properties.rack_density_score),
       segment_sample_count: toNumber(properties.segment_sample_count),
+      infrastructure_density_score: toNumber(properties.infrastructure_density_score),
+      total_segment_length_km: toNumber(properties.total_segment_length_km),
     }
   }
 
@@ -951,6 +1729,616 @@
     return value == null || !Number.isFinite(value) ? 'brak' : value.toFixed(digits)
   }
 
+  function clamp(value: number, min: number, max: number) {
+    return Math.max(min, Math.min(max, value))
+  }
+
+  function connectorEvidenceRows(connector: RecommendedConnector) {
+    const connectorMeta = summary?.explainability.connector_optimization
+    if (!connectorMeta) {
+      return []
+    }
+
+    const { scenario } = connectorMeta
+    const withinLengthWindow =
+      connector.length_m >= scenario.min_connector_length_meters &&
+      connector.length_m <= scenario.max_connector_length_meters
+
+    const crossingDetail =
+      connector.network_crossings_count === 0
+        ? 'Łącznik nie przecina istniejącej sieci poza końcami, więc nie dostaje kary za przecięcia.'
+        : `Łącznik przecina istniejącą sieć ${formatCount(connector.network_crossings_count)} razy poza strefą końców, więc dostaje karę ${formatPoints(connector.crossing_penalty_points)}.`
+
+    return [
+      {
+        title: 'Łączy dwa rozłączne komponenty sieci',
+        detail: `${connector.source_component_label} i ${connector.target_component_label} to dwa różne komponenty grafu zbudowanego z istniejących ciągów rowerowych. Ten kandydat ma domknąć lukę między nimi, a nie powielać już istniejący odcinek.`,
+      },
+      {
+        title: withinLengthWindow ? 'Spełnia warunek długości' : 'Nie spełnia warunku długości',
+        detail: `Ma ${formatDistance(connector.length_m)} i ${withinLengthWindow ? 'mieści się' : 'nie mieści się'} w dopuszczalnym przedziale ${scenario.min_connector_length_meters}-${scenario.max_connector_length_meters} m.`,
+      },
+      {
+        title: 'Ma policzony zysk popytu',
+        detail: `Komponent docelowy ma wagę popytu ${formatFixed(connector.target_component_demand_weight, 1)}, co daje ${formatPoints(connector.demand_gain_points)} w priorytecie.`,
+      },
+      {
+        title: 'Ma policzony zysk sieci',
+        detail: `Komponent docelowy ma ${formatCount(connector.target_component_nodes)} węzłów i ${formatCount(connector.target_component_edges)} krawędzi, co daje ${formatPoints(connector.network_gain_points)} za poprawę spójności sieci.`,
+      },
+      {
+        title: 'Warunki środowiskowe są mierzone, nie zgadywane',
+        detail: `Na próbkach łącznika policzono zieleń ${formatPercent(connector.greenery_ratio)} i hałas ${formatNoise(connector.max_noise_db)}. To składa się na ${formatPoints(connector.environment_points)} punktów środowiskowych.`,
+      },
+      {
+        title: 'Kara za przecięcia jest jawna',
+        detail: crossingDetail,
+      },
+      {
+        title: 'Priorytet wynika z jawnej formuły',
+        detail: `Priorytet ${formatScore(connector.priority_score)} = popyt ${formatPoints(connector.demand_gain_points)} + sieć ${formatPoints(connector.network_gain_points)} + dystans ${formatPoints(connector.distance_points)} + środowisko ${formatPoints(connector.environment_points)} - przecięcia ${formatPoints(connector.crossing_penalty_points)}.`,
+      },
+    ]
+  }
+
+  function mapLegendDocs(currentSummary: Summary): LegendDoc[] {
+    const currentScenario =
+      selectedCorridorScenario()?.scenario ?? currentSummary.corridor_recommendations.scenario
+
+    return [
+      {
+        label: '80-100 / 65-79 / 50-64 / 0-49',
+        kind: 'Progi koloru segmentów',
+        source: 'segments.geojson -> properties.score',
+        formula:
+          'najpierw liczony jest score segmentu = zieleń 35% + hałas 30% + stojaki 20% + infrastruktura 15%, a dopiero potem ten wynik wpada do progu koloru: 0-49, 50-64, 65-79, 80-100',
+        meaning:
+          'To nie są osobne punkty ani warstwy i nie są liczone osobno. To tylko 4 przedziały koloru końcowego score segmentu. Dotyczą wyłącznie warstwy segmentów i listy Top 20.',
+      },
+      {
+        label: 'Kraków / OSM',
+        kind: 'Podkład mapy',
+        source: 'OpenStreetMap raster',
+        formula: 'Brak obliczeń. Podkład nie wchodzi do score ani do routingu.',
+        meaning:
+          'Warstwa orientacyjna pokazująca ulice i kontekst miasta. Jest tylko tłem przestrzennym dla danych z challenge.',
+      },
+      {
+        label: 'Siatka H3 / vibe',
+        kind: 'Warstwa analityczna',
+        source: 'hexes.geojson -> metryki H3 + klientowy mix vibe',
+        formula: `hex_score: ${currentSummary.explainability.h3_indexing.scenario.cell_score_formula}; kolor: miks RGB aktywnych vibe`,
+        meaning:
+          'To są poligony heksów H3. Geometria heksów pochodzi z preprocessingu. Liczbowy hex_score jest osobną metryką 0-100, ale kolor heksa na mapie pochodzi z miksu vibe, a nie z samego hex_score.',
+      },
+      {
+        label: 'Hub H3',
+        kind: 'Warstwa węzłów trasowania',
+        source: 'hotspots.geojson -> top komórki H3 z popytem i snapem do grafu',
+        formula: `wybór hubów = top komórki H3 z punktami, min odstęp ${currentSummary.explainability.h3_indexing.scenario.min_hub_separation_meters} m, snap do grafu <= ${currentSummary.explainability.h3_indexing.scenario.max_hub_snap_distance_meters} m; geometria punktu = środek wybranej komórki H3`,
+        meaning:
+          'To nie jest cała siatka H3. To tylko wybrane komórki H3 pokazane jako punkty w ich środku, żeby routing miał jeden reprezentatywny start/koniec komórki i żeby mapa była czytelna. Potem ten punkt jest snapowany do najbliższego węzła grafu.',
+      },
+      {
+        label: 'Rekomendowany korytarz',
+        kind: 'Warstwa routingu',
+        source: 'corridors.geojson -> wynik Dijkstry po grafie segmentów',
+        formula: currentScenario.edge_cost_formula,
+        meaning:
+          'To policzona trasa po istniejącej sieci rowerowej. Nie jest prostą linią między hubami, tylko najtańszą ścieżką według wybranego scenariusza.',
+      },
+      {
+        label: 'Nowy łącznik',
+        kind: 'Warstwa kandydatów planistycznych',
+        source: 'connectors.geojson -> kandydaty między rozłącznymi komponentami grafu',
+        formula: currentSummary.explainability.connector_optimization.scenario.priority_formula,
+        meaning:
+          'To kandydat nowego brakującego odcinka między komponentami sieci, a nie istniejący segment z danych wejściowych.',
+      },
+    ]
+  }
+
+  function dataDocumentationSections(currentSummary: Summary): DataDocSection[] {
+    const scoring = currentSummary.explainability.scoring
+    const references = scoring.references
+    const h3 = currentSummary.explainability.h3_indexing.scenario
+    const currentScenario =
+      selectedCorridorScenario()?.scenario ?? currentSummary.corridor_recommendations.scenario
+    const connector = currentSummary.explainability.connector_optimization
+
+    return [
+      {
+        title: 'Operatory przeliczeń',
+        intro:
+          'To są podstawowe operatory, z których budowane są wszystkie score 0-100 w tym projekcie.',
+        items: [
+          {
+            code: 'normalize',
+            label: 'Normalizacja do 0-100',
+            valueType: 'Operator znormalizowany',
+            source: 'Wartość policzona w tej paczce danych + maksimum z tej samej paczki',
+            formula: 'normalize(value, max) = clamp((value / max) * 100, 0, 100)',
+            usage:
+              'Używane do demand_score, network_score, rack_density_score i infrastructure_density_score.',
+            note:
+              'To normalizacja względna wewnątrz tej paczki danych, nie uniwersalna skala miejska.',
+          },
+          {
+            code: 'scaleDescending',
+            label: 'Skala „mniej = lepiej”',
+            valueType: 'Operator znormalizowany',
+            source: 'Surowa wartość + jawny zakres best/worst',
+            formula:
+              'scaleDescending(value, best, worst) = clamp(((worst - value) / (worst - best)) * 100, 0, 100)',
+            usage:
+              'Używane do noise_score, rack_score, infrastructure_score i distance_points łącznika.',
+            note:
+              'Jeśli wartość jest mniejsza, score rośnie. Jeśli większa, score maleje do 0.',
+          },
+          {
+            code: 'mean',
+            label: 'Średnia arytmetyczna',
+            valueType: 'Operator agregujący',
+            source: 'Lista wartości z próbek lub odcinków',
+            formula: 'mean(values) = suma(values) / liczba(values)',
+            usage:
+              'Używane do quality_score H3, mean_*_score w H3, mean_segment_score i mean_h3_score korytarza.',
+          },
+          {
+            code: 'sample_step_meters',
+            label: 'Krok próbkowania geometrii',
+            valueType: 'Parametr preprocessingowy',
+            source: 'Konfiguracja preprocessingu Node',
+            formula: `sample_step = ${scoring.sample_step_meters} m`,
+            usage:
+              'Co ten krok pobierane są próbki na segmentach i łącznikach do zieleni, hałasu i agregacji H3.',
+          },
+        ],
+      },
+      {
+        title: 'Segmenty',
+        intro:
+          'To metryki liczone dla pojedynczego istniejącego odcinka ścieżki rowerowej po normalizacji wszystkich warstw do WGS84.',
+        items: [
+          {
+            code: 'score',
+            label: 'Score segmentu',
+            valueType: 'Finalny score 0-100',
+            source:
+              'Ciągi rowerowe + zieleń BDOT10k + hałas + stojaki ZTP + infrastruktura rowerowa ZTP',
+            formula: scoring.formula,
+            usage:
+              'Ranking segmentów, Top 20, quality_score w H3 i średnie jakości na korytarzach.',
+          },
+          {
+            code: 'greenery_ratio',
+            label: 'Pokrycie zieleni',
+            valueType: 'Surowa proporcja 0-1',
+            source: 'Próbki segmentu + poligony zieleni BDOT10k',
+            formula: 'greenery_ratio = greenery_hits / sample_count',
+            usage: 'Z niego liczone są greenery_score i część score segmentu.',
+            note:
+              `Próbkowanie odbywa się co ${scoring.sample_step_meters} m, a nie przez pełne przecięcie bufora powierzchniowego.`,
+          },
+          {
+            code: 'greenery_score',
+            label: 'Score zieleni',
+            valueType: 'Subscore 0-100',
+            source: 'greenery_ratio',
+            formula: 'greenery_score = greenery_ratio * 100',
+            usage: '35% finalnego score segmentu i później mean_greenery_score w H3.',
+          },
+          {
+            code: 'max_noise_db',
+            label: 'Maksymalny hałas',
+            valueType: 'Surowa wartość dB',
+            source: 'Próbki segmentu + poligony hałasu',
+            formula: 'max_noise_db = max(noise_value dla próbek segmentu)',
+            usage: 'Z niego liczone są noise_score i prezentacja hałasu segmentu.',
+          },
+          {
+            code: 'noise_score',
+            label: 'Score hałasu',
+            valueType: 'Subscore 0-100',
+            source: 'max_noise_db + zakres referencyjny',
+            formula: `noise_score = brak ? ${references.noiseDb.missingScore} : scaleDescending(max_noise_db, ${references.noiseDb.best}, ${references.noiseDb.worst})`,
+            usage: '30% finalnego score segmentu i później mean_noise_score w H3.',
+          },
+          {
+            code: 'nearest_rack_m',
+            label: 'Najbliższy stojak',
+            valueType: 'Surowy dystans w metrach',
+            source: 'Geometria segmentu + punkty stojaków ZTP',
+            formula: 'nearest_rack_m = min(distance(segment, rack))',
+            usage: 'Z niego liczone są rack_score i karta segmentu.',
+          },
+          {
+            code: 'rack_score',
+            label: 'Score dostępu do stojaków',
+            valueType: 'Subscore 0-100',
+            source: 'nearest_rack_m + zakres referencyjny',
+            formula: `rack_score = brak ? ${references.rackDistanceM.missingScore} : scaleDescending(nearest_rack_m, ${references.rackDistanceM.best}, ${references.rackDistanceM.worst})`,
+            usage: '20% finalnego score segmentu i później mean_rack_score w H3.',
+          },
+          {
+            code: 'nearest_infra_m',
+            label: 'Najbliższy punkt infrastruktury',
+            valueType: 'Surowy dystans w metrach',
+            source: 'Geometria segmentu + punkty infrastruktury rowerowej ZTP',
+            formula: 'nearest_infra_m = min(distance(segment, infrastruktura_point))',
+            usage: 'Z niego liczone są infrastructure_score i karta segmentu.',
+          },
+          {
+            code: 'infrastructure_score',
+            label: 'Score dostępu do infrastruktury',
+            valueType: 'Subscore 0-100',
+            source: 'nearest_infra_m + zakres referencyjny',
+            formula: `infrastructure_score = brak ? ${references.infrastructureDistanceM.missingScore} : scaleDescending(nearest_infra_m, ${references.infrastructureDistanceM.best}, ${references.infrastructureDistanceM.worst})`,
+            usage: '15% finalnego score segmentu i później mean_infrastructure_score w H3.',
+          },
+        ],
+      },
+      {
+        title: 'H3 i agregacja komórek',
+        intro:
+          'To metryki agregowane z punktów i próbek segmentów wpadających do jednej aktywnej komórki H3.',
+        items: [
+          {
+            code: 'point_count',
+            label: 'Liczba punktów',
+            valueType: 'Surowa liczba obiektów',
+            source: 'Stojaki ZTP + punkty infrastruktury ZTP',
+            formula: 'point_count = rack_count + infrastructure_count',
+            usage: 'Opisuje, ile obiektów popytu wpada do heksa.',
+          },
+          {
+            code: 'demand_weight',
+            label: 'Ważony popyt',
+            valueType: 'Surowa wartość ważona',
+            source: 'Punkty popytu w heksie',
+            formula: 'demand_weight = rack_count*1 + infrastructure_count*2.5',
+            usage: 'Wejście do demand_score.',
+          },
+          {
+            code: 'demand_score',
+            label: 'Score popytu',
+            valueType: 'Znormalizowany score 0-100',
+            source: 'demand_weight',
+            formula: h3.demand_score_formula,
+            usage: '45% balanced hex_score i jeden z pure route scenarios.',
+          },
+          {
+            code: 'segment_sample_count',
+            label: 'Liczba próbek segmentów',
+            valueType: 'Surowa liczba próbek',
+            source: `Próbki geometrii segmentów co ${scoring.sample_step_meters} m`,
+            formula: 'segment_sample_count = liczba próbek segmentów wpadających do heksa',
+            usage: 'Wejście do network_score.',
+          },
+          {
+            code: 'network_score',
+            label: 'Score sieci',
+            valueType: 'Znormalizowany score 0-100',
+            source: 'segment_sample_count',
+            formula: h3.network_score_formula,
+            usage: '20% balanced hex_score i jeden z pure route scenarios.',
+          },
+          {
+            code: 'quality_score',
+            label: 'Jakość segmentów',
+            valueType: 'Agregowany score 0-100',
+            source: 'segments.geojson -> properties.score',
+            formula: h3.quality_score_formula,
+            usage: '35% balanced hex_score i metryka quality w vibe.',
+            note:
+              'To nie jest dostęp do infrastruktury. To średni końcowy score segmentów przypisanych do heksa.',
+          },
+          {
+            code: 'hex_score',
+            label: 'Score heksa H3',
+            valueType: 'Finalny score 0-100 dla komórki',
+            source: 'demand_score + network_score + quality_score',
+            formula: h3.cell_score_formula,
+            usage: 'Scenariusz zbalansowany, ranking komórek H3, wybór hubów i edge_h3_score.',
+          },
+          {
+            code: 'mean_greenery_score',
+            label: 'Średni score zieleni w heksie',
+            valueType: 'Agregowany score 0-100',
+            source: 'segments.geojson -> properties.greenery_score',
+            formula: 'mean_greenery_score = mean(segment.greenery_score sampled in cell)',
+            usage: 'Metryka zieleń otoczenia w vibe i w czystym scenariuszu tras „Zieleń otoczenia 100%”.',
+          },
+          {
+            code: 'mean_noise_score',
+            label: 'Średni score ciszy w heksie',
+            valueType: 'Agregowany score 0-100',
+            source: 'segments.geojson -> properties.noise_score',
+            formula: 'mean_noise_score = mean(segment.noise_score sampled in cell)',
+            usage: 'Metryka spokój akustyczny w vibe i w czystym scenariuszu tras „Spokój akustyczny 100%”.',
+          },
+          {
+            code: 'mean_rack_score',
+            label: 'Średni score dostępu do stojaków',
+            valueType: 'Agregowany score 0-100',
+            source: 'segments.geojson -> properties.rack_score',
+            formula: 'mean_rack_score = mean(segment.rack_score sampled in cell)',
+            usage: 'Metryka dostęp do stojaków w vibe i w czystym scenariuszu tras „Dostęp do stojaków 100%”.',
+          },
+          {
+            code: 'mean_infrastructure_score',
+            label: 'Średni score dostępu do infrastruktury',
+            valueType: 'Agregowany score 0-100',
+            source: 'segments.geojson -> properties.infrastructure_score',
+            formula:
+              'mean_infrastructure_score = mean(segment.infrastructure_score sampled in cell)',
+            usage:
+              'Metryka dostęp do infrastruktury w vibe i w czystym scenariuszu tras „Dostęp do infrastruktury 100%”.',
+          },
+          {
+            code: 'air_proxy_score',
+            label: 'Jakość powietrza (przybliżenie)',
+            valueType: 'Agregowany score 0-100',
+            source: 'mean_greenery_score + mean_noise_score',
+            formula: 'air_proxy_score = mean_greenery_score*0.55 + mean_noise_score*0.45',
+            usage: 'Metryka w vibe „Zdrowie”, „Post-apo” i w czystym scenariuszu tras „Jakość powietrza 100%”.',
+            note:
+              'To proxy, bo w paczce challenge nie ma osobnej warstwy jakości powietrza.',
+          },
+          {
+            code: 'rack_density_score',
+            label: 'Gęstość stojaków',
+            valueType: 'Znormalizowany score 0-100',
+            source: 'rack_count',
+            formula: 'rack_density_score = normalize(rack_count, maxRackCount)',
+            usage: 'Metryka vibe i w czystym scenariuszu tras „Gęstość stojaków 100%”.',
+          },
+          {
+            code: 'infrastructure_density_score',
+            label: 'Gęstość infrastruktury',
+            valueType: 'Znormalizowany score 0-100',
+            source: 'infrastructure_count',
+            formula:
+              'infrastructure_density_score = normalize(infrastructure_count, maxInfrastructureCount)',
+            usage: 'Metryka vibe i w czystym scenariuszu tras „Gęstość infrastruktury 100%”.',
+          },
+          {
+            code: 'covered_segment_count',
+            label: 'Liczba segmentów pokrytych',
+            valueType: 'Surowa liczba unikalnych segmentów',
+            source: 'Segmenty przechodzące przez heks',
+            formula: 'covered_segment_count = liczba unikalnych segment_id w heksie',
+            usage: 'Opis geometrii heksa, nie wchodzi bezpośrednio do hex_score.',
+          },
+          {
+            code: 'total_segment_length_km',
+            label: 'Łączna długość segmentów',
+            valueType: 'Surowa suma długości',
+            source: 'Segmenty przechodzące przez heks',
+            formula: 'total_segment_length_km = suma(length_km unikalnych segmentów w heksie)',
+            usage: 'Opis skali obecnej sieci w komórce.',
+          },
+        ],
+      },
+      {
+        title: 'Vibe i kolor heksa',
+        intro:
+          'Kolor heksa nie jest dziś równy jednemu score. To osobna warstwa wizualna liczona z aktywnych vibe.',
+        items: [
+          {
+            code: 'vibe_score',
+            label: 'Score pojedynczego vibe',
+            valueType: 'Ważona średnia 0-100',
+            source: 'Aktywne metryki 0-100 z heksa + wagi vibe',
+            formula:
+              'vibe_score = weighted_mean(metric lub 100-metric dla wag ujemnych, ważone przez |waga|)',
+            usage: 'Określa, jak mocno dany vibe pasuje do komórki.',
+          },
+          {
+            code: 'display_color',
+            label: 'Kolor heksa na mapie',
+            valueType: 'Wartość wizualna',
+            source: 'Wszystkie aktywne vibe i ich kolory bazowe',
+            formula: 'display_color = mix RGB aktywnych vibe, ważony ich vibe_score',
+            usage:
+              'Tylko render warstwy hexes-fill. Kolor mapy może być inny niż sam hex_score liczony do routingu.',
+          },
+          {
+            code: 'dominant_vibe',
+            label: 'Dominujący vibe',
+            valueType: 'Etykieta pochodna',
+            source: 'Najwyższy vibe_score w danym heksie',
+            formula: 'dominant_vibe = argmax(vibe_score)',
+            usage: 'Opis dominującego charakteru komórki.',
+          },
+        ],
+      },
+      {
+        title: 'Korytarze',
+        intro:
+          'To metryki liczone dla rekomendowanej trasy po istniejącym grafie segmentów rowerowych.',
+        items: [
+          {
+            code: 'path_cost',
+            label: 'Koszt trasy',
+            valueType: 'Koszt routingu',
+            source: 'Graf segmentów + edge score scenariusza',
+            formula: currentScenario.edge_cost_formula,
+            usage: 'Dijkstra minimalizuje właśnie ten koszt.',
+          },
+          {
+            code: 'pair_priority',
+            label: 'Priorytet pary hubów',
+            valueType: 'Priorytet kandydatury',
+            source: 'Dwa wybrane huby H3 i ich route_score',
+            formula: currentScenario.pair_priority_formula,
+            usage: 'Sortuje kandydatów par hubów przed odpaleniem pełnego pathfindingu.',
+          },
+          {
+            code: 'direct_distance_km',
+            label: 'Dystans prosty',
+            valueType: 'Surowa odległość',
+            source: 'Środki dwóch hubów H3',
+            formula: 'direct_distance_km = odległość w linii prostej między hubami / 1000',
+            usage: 'Porównanie dystansu prostego do rzeczywistej długości trasy.',
+          },
+          {
+            code: 'path_length_km',
+            label: 'Długość trasy',
+            valueType: 'Agregowana suma długości',
+            source: 'Krawędzie grafu przebyte przez Dijkstrę',
+            formula: 'path_length_km = suma(length_m traversed_edges) / 1000',
+            usage: 'Opis rzeczywistej długości rekomendowanego korytarza.',
+          },
+          {
+            code: 'mean_segment_score',
+            label: 'Średni score segmentów korytarza',
+            valueType: 'Agregowany score 0-100',
+            source: 'score segmentów na trasie',
+            formula: 'mean_segment_score = mean(segment.score dla segmentów na trasie)',
+            usage: 'Opis jakości trasy w kategoriach segmentowych.',
+          },
+          {
+            code: 'mean_h3_score',
+            label: 'Średni score H3 korytarza',
+            valueType: 'Agregowany score 0-100',
+            source: 'edge_h3_score krawędzi na trasie',
+            formula: 'mean_h3_score = mean(edge_h3_score dla krawędzi na trasie)',
+            usage: 'Pokazuje, po jakich komórkach H3 przebiega korytarz.',
+          },
+        ],
+      },
+      {
+        title: 'Łączniki',
+        intro:
+          'To kandydaci nowych krótkich odcinków między rozłącznymi komponentami sieci, a nie istniejące ścieżki z plików wejściowych.',
+        items: [
+          {
+            code: 'priority_score',
+            label: 'Priorytet łącznika',
+            valueType: 'Finalny score 0-100',
+            source: 'Popyt komponentu docelowego + wielkość komponentu + długość + środowisko + przecięcia',
+            formula: connector.scenario.priority_formula,
+            usage: 'Ranking kandydatów łączników.',
+          },
+          {
+            code: 'demand_gain_points',
+            label: 'Zysk popytu',
+            valueType: 'Punkty pochodne',
+            source: 'Waga popytu komponentu docelowego',
+            formula: 'demand_gain_points = normalize(target_component_demand_weight, maxDemandWeight) * 0.45',
+            usage: 'Premiuje dołączanie komponentów z większym popytem.',
+          },
+          {
+            code: 'network_gain_points',
+            label: 'Zysk sieci',
+            valueType: 'Punkty pochodne',
+            source: 'Liczba węzłów i krawędzi komponentu docelowego',
+            formula:
+              'network_gain_points = normalize(node_count, maxNodeCount)*0.15 + normalize(edge_count, maxEdgeCount)*0.10',
+            usage: 'Premiuje dołączanie większych i bardziej wartościowych komponentów.',
+          },
+          {
+            code: 'distance_points',
+            label: 'Punkty za dystans',
+            valueType: 'Punkty pochodne',
+            source: 'Długość kandydata łącznika',
+            formula: `distance_points = scaleDescending(length_m, ${connector.scenario.min_connector_length_meters}, ${connector.scenario.max_connector_length_meters}) * 0.20`,
+            usage: 'Premiuje krótsze łączniki mieszczące się w dopuszczalnym zakresie.',
+          },
+          {
+            code: 'environment_points',
+            label: 'Punkty środowiskowe',
+            valueType: 'Punkty pochodne',
+            source: 'Zieleń i hałas próbek łącznika',
+            formula: 'environment_points = greenery_ratio*10 + noise_score*0.1',
+            usage: 'Premiuje spokojniejsze i bardziej zielone kandydaty.',
+          },
+          {
+            code: 'crossing_penalty_points',
+            label: 'Kara za przecięcia',
+            valueType: 'Punkty ujemne',
+            source: 'Przecięcia łącznika z istniejącą siecią',
+            formula: 'crossing_penalty_points = min(network_crossings_count * 3, 15)',
+            usage: 'Obniża priorytet kandydatów przecinających istniejącą sieć.',
+          },
+        ],
+      },
+      {
+        title: 'Statystyki przestrzenne',
+        intro:
+          'To pomocnicze miary opisujące układ punktów i hubów w przestrzeni Krakowa.',
+        items: [
+          {
+            code: 'mean_center',
+            label: 'Środek ciężkości',
+            valueType: 'Agregowana statystyka przestrzenna',
+            source: 'Zbiór punktów danego typu',
+            formula: 'mean_center = [mean(lon), mean(lat)]',
+            usage: 'Pokazuje przeciętny środek rozkładu punktów.',
+          },
+          {
+            code: 'nearest_neighbor_index',
+            label: 'NNI',
+            valueType: 'Statystyka przestrzenna',
+            source: 'Odległości do najbliższego sąsiada + bounding box analizowanego zbioru',
+            formula:
+              'NNI = observed_mean_distance / expected_mean_distance_random',
+            usage:
+              'Pomaga ocenić, czy punkty są skupione, rozproszone czy bliskie losowym.',
+          },
+          {
+            code: 'standard_deviational_ellipse',
+            label: 'Elipsa odchylenia standardowego',
+            valueType: 'Statystyka przestrzenna',
+            source: 'Projected coordinates danego zbioru punktów',
+            formula:
+              'oś główna i pomocnicza wynikają z wariancji i kowariancji współrzędnych po projekcji do metrów',
+            usage: 'Pokazuje dominujący kierunek i rozrzut przestrzenny zjawiska.',
+          },
+        ],
+      },
+    ]
+  }
+
+  function hexMetricsRows(hex: H3CellSummary) {
+    const vector = buildHexMetricVector(hex)
+
+    return [
+      { code: 'hex_score', label: 'Score heksa', raw: formatScore(hex.hex_score), normalized: formatScore(hex.hex_score) },
+      { code: 'demand_score', label: 'Score popytu', raw: formatFixed(hex.demand_weight, 1), normalized: formatScore(vector.demand) },
+      { code: 'network_score', label: 'Score sieci', raw: formatCount(hex.segment_sample_count), normalized: formatScore(vector.network) },
+      { code: 'quality_score', label: 'Score jakości', raw: formatScore(hex.mean_segment_score), normalized: formatScore(vector.quality) },
+      { code: 'mean_greenery_score', label: 'Zieleń otoczenia', raw: formatPercent(hex.mean_greenery_ratio), normalized: formatScore(vector.greenery) },
+      { code: 'mean_noise_score', label: 'Spokój akustyczny', raw: formatNoise(hex.max_noise_db), normalized: formatScore(vector.quietness) },
+      { code: 'mean_rack_score', label: 'Dostęp do stojaków', raw: formatDistance(hex.mean_nearest_rack_m), normalized: formatScore(vector.rack_access) },
+      {
+        code: 'mean_infrastructure_score',
+        label: 'Dostęp do infrastruktury',
+        raw: formatDistance(hex.mean_nearest_infra_m),
+        normalized: formatScore(vector.infrastructure_access),
+      },
+      { code: 'rack_density_score', label: 'Gęstość stojaków', raw: formatCount(hex.rack_count), normalized: formatScore(vector.rack_density) },
+      {
+        code: 'infrastructure_density_score',
+        label: 'Gęstość infrastruktury',
+        raw: formatCount(hex.infrastructure_count),
+        normalized: formatScore(vector.infrastructure_density),
+      },
+      { code: 'air_proxy_score', label: 'Jakość powietrza (przybliżenie)', raw: `${formatScore(vector.air_proxy)}/100`, normalized: formatScore(vector.air_proxy) },
+      {
+        code: 'total_segment_length_km',
+        label: 'Łączna długość segmentów',
+        raw: formatKilometers(hex.total_segment_length_km),
+        normalized: formatCount(hex.covered_segment_count),
+      },
+    ]
+  }
+
+  function topVibesForHex(hex: H3CellSummary) {
+    return analyzeHexVibes(hex).scores.sort((left, right) => right.score - left.score)
+  }
+
   function buildSegmentPopup(segment: TopSegment) {
     const breakdownHtml = segmentBreakdown(segment)
       .map(
@@ -960,7 +2348,7 @@
               <span class="font-medium text-stone-900">${escapeHtml(item.label)}</span>
               <span class="text-stone-900">${formatPoints(item.points)}</span>
             </div>
-            <p class="mt-1 text-xs text-stone-500">${escapeHtml(item.raw)} • subscore ${formatScore(item.score)}/100 • waga ${escapeHtml(formatWeight(item.weight))}</p>
+            <p class="mt-1 text-xs text-stone-500">${escapeHtml(item.raw)} • wynik czastkowy ${formatScore(item.score)}/100 • waga ${escapeHtml(formatWeight(item.weight))}</p>
           </div>
         `,
       )
@@ -975,6 +2363,9 @@
             <p class="mt-1 text-xs text-stone-500">Ranking #${segment.score_rank ?? 'brak'}</p>
           </div>
           <span class="rounded-full px-3 py-1 text-sm font-semibold text-white" style="background:${scoreColor(segment.score)}">${formatScore(segment.score)}</span>
+        </div>
+        <div class="mb-3 rounded-xl bg-stone-50 px-3 py-2 text-xs leading-6 text-stone-600">
+          Score segmentu = finalna ocena istniejącego odcinka 0-100. Wzór: zieleń 35% + hałas 30% + stojaki 20% + infrastruktura 15%.
         </div>
         <dl class="grid grid-cols-2 gap-3 text-sm text-stone-700">
           <div><dt class="text-stone-500">Dlugosc</dt><dd class="font-medium text-stone-900">${formatKilometers(segment.length_km)}</dd></div>
@@ -993,12 +2384,18 @@
   }
 
   function buildCorridorPopup(corridor: RecommendedCorridor) {
+    const scenarioLabel = scenarioDisplayLabel({
+      label: corridor.scenario_label ?? 'brak scenariusza',
+      metric_key: corridor.route_metric_key ?? null,
+    })
+
     return `
       <div class="w-[19rem] bg-white p-4 text-stone-900">
         <div class="mb-3 flex items-start justify-between gap-3">
           <div>
             <p class="text-xs font-semibold uppercase tracking-[0.2em] text-stone-500">Korytarz #${corridor.corridor_rank}</p>
             <h3 class="mt-1 text-lg font-semibold text-stone-950">${escapeHtml(corridor.label)}</h3>
+            <p class="mt-1 text-xs text-stone-500">${escapeHtml(scenarioLabel)}</p>
           </div>
           <span class="rounded-full bg-sky-600 px-3 py-1 text-sm font-semibold text-white">${formatScore(corridor.mean_segment_score)}</span>
         </div>
@@ -1022,14 +2419,15 @@
       <div class="w-[19rem] bg-white p-4 text-stone-900">
         <div class="mb-3 flex items-start justify-between gap-3">
           <div>
-            <p class="text-xs font-semibold uppercase tracking-[0.2em] text-stone-500">Lacznik #${connector.connector_rank}</p>
+            <p class="text-xs font-semibold uppercase tracking-[0.2em] text-stone-500">Łącznik #${connector.connector_rank}</p>
             <h3 class="mt-1 text-lg font-semibold text-stone-950">${escapeHtml(connector.label)}</h3>
+            <p class="mt-1 text-xs text-stone-500">Kandydat planistyczny, nie istniejący odcinek z danych.</p>
           </div>
           <span class="rounded-full bg-red-500 px-3 py-1 text-sm font-semibold text-white">${formatScore(connector.priority_score)}</span>
         </div>
         <dl class="grid grid-cols-2 gap-3 text-sm text-stone-700">
           <div><dt class="text-stone-500">Dlugosc</dt><dd class="font-medium text-stone-900">${formatKilometers(connector.length_km)}</dd></div>
-          <div><dt class="text-stone-500">Crossingi sieci</dt><dd class="font-medium text-stone-900">${formatCount(connector.network_crossings_count)}</dd></div>
+          <div><dt class="text-stone-500">Przeciecia z siecia</dt><dd class="font-medium text-stone-900">${formatCount(connector.network_crossings_count)}</dd></div>
           <div><dt class="text-stone-500">Zielen</dt><dd class="font-medium text-stone-900">${formatPercent(connector.greenery_ratio)}</dd></div>
           <div><dt class="text-stone-500">Max halas</dt><dd class="font-medium text-stone-900">${formatNoise(connector.max_noise_db)}</dd></div>
           <div><dt class="text-stone-500">Komponent docelowy</dt><dd class="font-medium text-stone-900">${escapeHtml(connector.target_component_label)}</dd></div>
@@ -1042,15 +2440,17 @@
   function buildHotspotPopup(hotspot: HotspotSummary) {
     return `
       <div class="w-[16rem] bg-white p-4 text-stone-900">
-        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-stone-500">H3 hub</p>
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-stone-500">Hub H3</p>
         <h3 class="mt-1 text-base font-semibold text-stone-950">${escapeHtml(hotspot.label)}</h3>
+        <p class="mt-1 text-xs text-stone-500">Punkt reprezentujący wybraną komórkę H3 do trasowania.</p>
         <dl class="mt-3 space-y-2 text-sm text-stone-700">
-          <div><dt class="text-stone-500">H3 score</dt><dd class="font-medium text-stone-900">${formatScore(hotspot.hex_score)}</dd></div>
+          <div><dt class="text-stone-500">Score heksa</dt><dd class="font-medium text-stone-900">${formatScore(hotspot.hex_score)}</dd></div>
           <div><dt class="text-stone-500">H3 index</dt><dd class="font-medium text-stone-900">${escapeHtml(hotspot.h3_index)}</dd></div>
           <div><dt class="text-stone-500">Wszystkie punkty</dt><dd class="font-medium text-stone-900">${formatCount(hotspot.point_count)}</dd></div>
           <div><dt class="text-stone-500">Stojaki</dt><dd class="font-medium text-stone-900">${formatCount(hotspot.rack_count)}</dd></div>
           <div><dt class="text-stone-500">Infrastruktura</dt><dd class="font-medium text-stone-900">${formatCount(hotspot.infrastructure_count)}</dd></div>
           <div><dt class="text-stone-500">Sredni score segmentu</dt><dd class="font-medium text-stone-900">${formatScore(hotspot.mean_segment_score)}</dd></div>
+          <div><dt class="text-stone-500">Scenariusz</dt><dd class="font-medium text-stone-900">${escapeHtml(hotspot.scenario_label ?? 'brak')}</dd></div>
           <div><dt class="text-stone-500">Snap do grafu</dt><dd class="font-medium text-stone-900">${formatDistance(hotspot.snap_distance_m)}</dd></div>
         </dl>
       </div>
@@ -1058,20 +2458,37 @@
   }
 
   function buildHexPopup(hex: H3CellSummary) {
+    const vibe = analyzeHexVibes(hex)
+    const vibeHtml = vibe.scores
+      .slice()
+      .sort((left, right) => right.score - left.score)
+      .slice(0, 3)
+      .map(
+        (item) =>
+          `<div class="flex items-center justify-between gap-3"><span class="font-medium text-stone-900">${escapeHtml(item.label)}</span><span class="rounded-full px-2.5 py-1 text-xs font-semibold text-white" style="background:${item.color}">${formatScore(item.score)}</span></div>`,
+      )
+      .join('')
+
     return `
       <div class="w-[18rem] bg-white p-4 text-stone-900">
-        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-stone-500">H3 cell</p>
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-stone-500">Komorka H3</p>
         <h3 class="mt-1 text-base font-semibold text-stone-950">${escapeHtml(hex.h3_index)}</h3>
+        <p class="mt-1 text-xs text-stone-500">Wynik obszaru H3 = popyt 45% + obecność sieci 20% + ogólna jakość segmentów 35%.</p>
         <dl class="mt-3 space-y-2 text-sm text-stone-700">
-          <div><dt class="text-stone-500">Hex score</dt><dd class="font-medium text-stone-900">${formatScore(hex.hex_score)}</dd></div>
-          <div><dt class="text-stone-500">Demand score</dt><dd class="font-medium text-stone-900">${formatScore(hex.demand_score)}</dd></div>
-          <div><dt class="text-stone-500">Network score</dt><dd class="font-medium text-stone-900">${formatScore(hex.network_score)}</dd></div>
-          <div><dt class="text-stone-500">Quality score</dt><dd class="font-medium text-stone-900">${formatScore(hex.quality_score)}</dd></div>
+          <div><dt class="text-stone-500">Score heksa</dt><dd class="font-medium text-stone-900">${formatScore(hex.hex_score)}</dd></div>
+          <div><dt class="text-stone-500">Dominujacy vibe</dt><dd class="font-medium text-stone-900">${escapeHtml(vibe.dominant?.label ?? 'brak')}</dd></div>
+          <div><dt class="text-stone-500">Score popytu</dt><dd class="font-medium text-stone-900">${formatScore(hex.demand_score)}</dd></div>
+          <div><dt class="text-stone-500">Score sieci</dt><dd class="font-medium text-stone-900">${formatScore(hex.network_score)}</dd></div>
+          <div><dt class="text-stone-500">Ogólna jakość segmentów</dt><dd class="font-medium text-stone-900">${formatScore(hex.quality_score)}</dd></div>
           <div><dt class="text-stone-500">Punkty popytu</dt><dd class="font-medium text-stone-900">${formatCount(hex.point_count)}</dd></div>
           <div><dt class="text-stone-500">Probki segmentow</dt><dd class="font-medium text-stone-900">${formatCount(hex.segment_sample_count)}</dd></div>
           <div><dt class="text-stone-500">Sredni score segmentu</dt><dd class="font-medium text-stone-900">${formatScore(hex.mean_segment_score)}</dd></div>
           <div><dt class="text-stone-500">Max halas</dt><dd class="font-medium text-stone-900">${formatNoise(hex.max_noise_db)}</dd></div>
         </dl>
+        <div class="mt-4 space-y-2">
+          <p class="text-xs font-semibold uppercase tracking-[0.2em] text-stone-500">Miks vibe</p>
+          ${vibeHtml}
+        </div>
       </div>
     `
   }
@@ -1160,10 +2577,10 @@
 </script>
 
 <svelte:head>
-  <title>KrakHack Smart Cycling Map</title>
+  <title>KrakHack | Analiza tras rowerowych</title>
   <meta
     name="description"
-    content="Wizualizacja danych cycling-smart-city z preprocessingiem w Node i mapa w Svelte + MapLibre."
+    content="Polska wizualizacja danych cycling-smart-city z preprocessingiem w Node i mapa w Svelte + MapLibre."
   />
 </svelte:head>
 
@@ -1188,7 +2605,7 @@
 
       <div class="grid gap-3 sm:grid-cols-2 md:grid-cols-1">
         <div class="rounded-[1.5rem] border border-stone-200 bg-stone-50 p-4">
-          <p class="text-xs font-semibold uppercase tracking-[0.24em] text-stone-500">Pipeline</p>
+          <p class="text-xs font-semibold uppercase tracking-[0.24em] text-stone-500">Przeplyw danych</p>
           <p class="mt-2 text-sm leading-7 text-stone-700">
             ZIP challenge -> normalizacja CRS -> scoring segmentow -> statyczne GeoJSON/JSON -> mapa.
           </p>
@@ -1223,7 +2640,7 @@ npm run dev</pre>
               </div>
 
               <div class="flex flex-wrap gap-2">
-                <label class={`inline-flex cursor-pointer items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition ${showHexes ? 'bg-amber-500 text-stone-950' : 'bg-stone-100 text-stone-700'}`}>
+                <label class={`inline-flex cursor-pointer items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition ${showHexes ? 'bg-blue-600 text-white' : 'bg-stone-100 text-stone-700'}`}>
                   <input bind:checked={showHexes} class="sr-only" type="checkbox" />
                   <span>H3</span>
                 </label>
@@ -1245,7 +2662,7 @@ npm run dev</pre>
                 </label>
                 <label class={`inline-flex cursor-pointer items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition ${showConnectors ? 'bg-red-500 text-white' : 'bg-stone-100 text-stone-700'}`}>
                   <input bind:checked={showConnectors} class="sr-only" type="checkbox" />
-                  <span>Laczniki</span>
+                  <span>Łączniki</span>
                 </label>
                 <button
                   class={`rounded-full px-4 py-2 text-sm font-medium transition ${onlyTopSegments ? 'bg-amber-500 text-stone-950' : 'bg-stone-100 text-stone-700'}`}
@@ -1273,15 +2690,15 @@ npm run dev</pre>
               {/each}
               <div class="inline-flex items-center gap-2 rounded-full bg-sky-100 px-3 py-1 text-xs font-medium text-sky-800">
                 <span class="size-2.5 rounded-full bg-sky-600"></span>
-                <span>Krakow / OSM</span>
+                <span>Kraków / OSM</span>
               </div>
-              <div class="inline-flex items-center gap-2 rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-900">
-                <span class="size-2.5 rounded-full bg-amber-500"></span>
-                <span>H3 score grid</span>
+              <div class="inline-flex items-center gap-2 rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-900">
+                <span class="size-2.5 rounded-full bg-blue-600"></span>
+                <span>Siatka H3 / vibe</span>
               </div>
               <div class="inline-flex items-center gap-2 rounded-full bg-orange-100 px-3 py-1 text-xs font-medium text-orange-900">
                 <span class="size-2.5 rounded-full bg-orange-500"></span>
-                <span>H3 hub</span>
+                <span>Hub H3</span>
               </div>
               <div class="inline-flex items-center gap-2 rounded-full bg-sky-100 px-3 py-1 text-xs font-medium text-sky-900">
                 <span class="size-2.5 rounded-full bg-sky-500"></span>
@@ -1289,8 +2706,18 @@ npm run dev</pre>
               </div>
               <div class="inline-flex items-center gap-2 rounded-full bg-red-100 px-3 py-1 text-xs font-medium text-red-900">
                 <span class="size-2.5 rounded-full bg-red-500"></span>
-                <span>Nowy lacznik</span>
+                <span>Nowy łącznik</span>
               </div>
+            </div>
+            <div class="mt-3 rounded-[1rem] border border-stone-200 bg-stone-50 px-3 py-3 text-xs leading-6 text-stone-600">
+              <p>
+                <span class="font-semibold text-stone-900">80-100 / 65-79 / 50-64 / 0-49</span>
+                = progi koloru końcowego <code>score</code> segmentu. Nie dotyczą H3, korytarzy ani łączników.
+              </p>
+              <p class="mt-1">
+                <span class="font-semibold text-stone-900">Siatka H3 / vibe</span>
+                = geometria i metryki H3 z preprocessingu, ale kolor na mapie pochodzi z miksu aktywnych vibe. Liczbowy <code>hex_score</code> jest pokazany osobno w panelu analitycznym.
+              </p>
             </div>
           </div>
 
@@ -1365,13 +2792,13 @@ npm run dev</pre>
             <section class="rounded-[1.5rem] border border-stone-300 bg-white/82 p-5 shadow-lg shadow-amber-100/50 backdrop-blur">
               <div class="flex items-center justify-between gap-4">
                 <div>
-                  <p class="text-xs font-semibold uppercase tracking-[0.24em] text-stone-500">Corridor Engine</p>
+                  <p class="text-xs font-semibold uppercase tracking-[0.24em] text-stone-500">Silnik korytarzy</p>
                   <h3 class="mt-1 text-xl font-semibold tracking-tight text-stone-950">
                     H3 + graf + Dijkstra
                   </h3>
                 </div>
                 <span class="rounded-full bg-sky-600 px-3 py-1 text-sm font-semibold text-white">
-                  {summary.corridor_recommendations.recommended.length} tras
+                  {selectedCorridorScenario()?.recommended.length ?? 0} tras
                 </span>
               </div>
               <dl class="mt-4 grid grid-cols-2 gap-3 text-sm text-stone-700">
@@ -1405,36 +2832,48 @@ npm run dev</pre>
             <section class="rounded-[1.5rem] border border-stone-300 bg-white/82 p-5 shadow-lg shadow-amber-100/50 backdrop-blur">
               <div class="flex items-center justify-between gap-3">
                 <div>
-                  <p class="text-xs font-semibold uppercase tracking-[0.24em] text-stone-500">H3 Grid</p>
+                  <p class="text-xs font-semibold uppercase tracking-[0.24em] text-stone-500">Siatka H3</p>
                   <h3 class="mt-1 text-xl font-semibold tracking-tight text-stone-950">
-                    Najmocniejsze komorki
+                    Najwyżej ocenione obszary i miks vibe
                   </h3>
                 </div>
-                <span class="text-sm text-stone-500">klik = focus</span>
+                <span class="text-sm text-stone-500">klik = przyblizenie</span>
+              </div>
+
+              <div class="mt-3 rounded-[1.25rem] border border-stone-200 bg-stone-50 px-4 py-4 text-sm leading-6 text-stone-700">
+                <p>
+                  <span class="font-semibold text-stone-950">Wynik obszaru H3</span> to liczba 0-100 liczona z trzech rzeczy:
+                  <span class="font-semibold"> popytu 45%</span>,
+                  <span class="font-semibold"> obecności sieci 20%</span> i
+                  <span class="font-semibold"> ogólnej jakości segmentów 35%</span>.
+                </p>
+                <p class="mt-2 text-xs text-stone-500">
+                  `popyt` = stojaki i punkty infrastruktury po zważeniu i normalizacji, `próbki` = ile próbek segmentów co {summary.explainability.scoring.sample_step_meters} m wpada do komórki, `punkty` = ile obiektów punktowych wpada do komórki.
+                </p>
               </div>
 
               <div class="mt-4 space-y-2">
                 {#each summary.h3_grid.top_cells.slice(0, 8) as hex}
                   <button
-                    class={`w-full rounded-[1.25rem] border px-4 py-3 text-left transition ${selectedHex?.h3_index === hex.h3_index ? 'border-amber-500 bg-amber-500 text-stone-950 shadow-lg shadow-amber-300/40' : 'border-stone-200 bg-stone-50 text-stone-800 hover:border-stone-300 hover:bg-white'}`}
+                    class={`w-full rounded-[1.25rem] border px-4 py-3 text-left transition ${selectedHex?.h3_index === hex.h3_index ? 'border-blue-700 bg-blue-700 text-white shadow-lg shadow-blue-300/40' : 'border-stone-200 bg-stone-50 text-stone-800 hover:border-stone-300 hover:bg-white'}`}
                     onclick={() => focusHex(hex)}
                     type="button"
                   >
                     <div class="flex items-start justify-between gap-3">
                       <div>
-                        <p class={`text-xs font-semibold uppercase tracking-[0.2em] ${selectedHex?.h3_index === hex.h3_index ? 'text-amber-950/70' : 'text-stone-500'}`}>
-                          res {hex.h3_resolution} • {hex.h3_index}
+                        <p class={`text-xs font-semibold uppercase tracking-[0.2em] ${selectedHex?.h3_index === hex.h3_index ? 'text-blue-100' : 'text-stone-500'}`}>
+                          komórka H3 • rozdz. {hex.h3_resolution} • {hex.h3_index}
                         </p>
                         <p class="mt-1 text-sm font-semibold">
-                          hex {formatScore(hex.hex_score)} • demand {formatScore(hex.demand_score)}
+                          wynik obszaru {formatScore(hex.hex_score)} • popyt {formatScore(hex.demand_score)}
                         </p>
-                        <p class={`mt-1 text-xs ${selectedHex?.h3_index === hex.h3_index ? 'text-amber-950/70' : 'text-stone-500'}`}>
-                          punkty {formatCount(hex.point_count)} • probki {formatCount(hex.segment_sample_count)}
+                        <p class={`mt-1 text-xs ${selectedHex?.h3_index === hex.h3_index ? 'text-blue-100' : 'text-stone-500'}`}>
+                          obiekty punktowe {formatCount(hex.point_count)} • próbki segmentów {formatCount(hex.segment_sample_count)}
                         </p>
                       </div>
                       <span
                         class="rounded-full px-3 py-1 text-sm font-semibold"
-                        style={`background:${selectedHex?.h3_index === hex.h3_index ? 'rgba(255,255,255,0.35)' : '#f59e0b'}; color:${selectedHex?.h3_index === hex.h3_index ? '#1c1917' : '#ffffff'}`}
+                        style={`background:${selectedHex?.h3_index === hex.h3_index ? 'rgba(255,255,255,0.14)' : '#2563eb'}; color:#ffffff`}
                       >
                         {formatScore(hex.hex_score)}
                       </span>
@@ -1444,57 +2883,316 @@ npm run dev</pre>
               </div>
             </section>
 
+            <section class="rounded-[1.5rem] border border-stone-300 bg-white/82 p-5 shadow-lg shadow-amber-100/50 backdrop-blur">
+              <div class="flex items-center justify-between gap-3">
+                <div>
+                  <p class="text-xs font-semibold uppercase tracking-[0.24em] text-stone-500">Silnik vibe</p>
+                  <h3 class="mt-1 text-xl font-semibold tracking-tight text-stone-950">
+                    Kolor z miksu vibe
+                  </h3>
+                </div>
+                <span class="text-sm text-stone-500">deterministyczny mix RGB</span>
+              </div>
+
+              <div class="mt-3 rounded-[1.25rem] border border-stone-200 bg-stone-50 px-4 py-4 text-sm leading-6 text-stone-700">
+                <p>
+                  Vibe to nie jest osobna warstwa z pliku. To sposób interpretacji już policzonych metryk H3. Każdy vibe bierze metryki 0-100, nadaje im wagi i liczy z nich własny wynik obszaru.
+                </p>
+                <p class="mt-2 text-xs text-stone-500">
+                  Przykład: `Jakość powietrza (przybliżenie)` nie pochodzi z czujników powietrza. To przybliżenie liczone z zieleni i spokoju akustycznego, bo w paczce challenge nie ma osobnej warstwy jakości powietrza.
+                </p>
+              </div>
+
+              <div class="mt-4 rounded-[1.25rem] border border-stone-200 bg-stone-50 px-4 py-4">
+                <p class="text-sm font-semibold text-stone-950">Bazowe vibe</p>
+                <div class="mt-3 space-y-3">
+                  {#each mixedVibes as vibe}
+                    <button
+                      class={`w-full rounded-[1.25rem] border px-4 py-3 text-left transition ${isVibeEnabled(vibe.id) ? 'border-stone-900 bg-white shadow-sm' : 'border-stone-200 bg-stone-100 text-stone-700'}`}
+                      onclick={() => toggleVibe(vibe.id)}
+                      type="button"
+                    >
+                      <div class="flex items-start justify-between gap-3">
+                        <div>
+                          <p class="text-sm font-semibold text-stone-950">{vibe.label}</p>
+                          <p class="mt-1 text-xs leading-6 text-stone-500">{vibe.formula}</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                          <span class="size-5 rounded-full" style={`background:${vibe.color}`}></span>
+                          <span class={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${isVibeEnabled(vibe.id) ? 'bg-stone-900 text-white' : 'bg-white text-stone-500 ring-1 ring-stone-200'}`}>
+                            {isVibeEnabled(vibe.id) ? 'aktywny' : 'wylaczony'}
+                          </span>
+                        </div>
+                      </div>
+                    </button>
+                  {/each}
+                </div>
+              </div>
+
+              <div class="mt-5 rounded-[1.25rem] border border-stone-200 bg-stone-50 px-4 py-4">
+                <p class="text-sm font-semibold text-stone-950">Czyste vibe 100%</p>
+                <p class="mt-1 text-xs leading-6 text-stone-500">
+                  Jeden preset = jedna metryka bez domieszki innych wag. Tego samego zestawu mozna uzyc do czystych scenariuszy tras.
+                </p>
+                <div class="mt-3 space-y-3">
+                  {#each pureMetricVibes as vibe}
+                    <button
+                      class={`w-full rounded-[1.25rem] border px-4 py-3 text-left transition ${isVibeEnabled(vibe.id) ? 'border-stone-900 bg-white shadow-sm' : 'border-stone-200 bg-stone-100 text-stone-700'}`}
+                      onclick={() => toggleVibe(vibe.id)}
+                      type="button"
+                    >
+                      <div class="flex items-start justify-between gap-3">
+                        <div>
+                          <p class="text-sm font-semibold text-stone-950">{vibe.label}</p>
+                          <p class="mt-1 text-xs leading-6 text-stone-500">{vibe.formula}</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                          <span class="size-5 rounded-full" style={`background:${vibe.color}`}></span>
+                          <span class={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${isVibeEnabled(vibe.id) ? 'bg-stone-900 text-white' : 'bg-white text-stone-500 ring-1 ring-stone-200'}`}>
+                            {isVibeEnabled(vibe.id) ? 'aktywny' : 'wylaczony'}
+                          </span>
+                        </div>
+                      </div>
+                    </button>
+                  {/each}
+                </div>
+              </div>
+
+              <div class="mt-5 rounded-[1.25rem] border border-stone-200 bg-stone-50 px-4 py-4">
+                <div class="flex items-center justify-between gap-3">
+                  <div>
+                    <p class="text-sm font-semibold text-stone-950">Scenariusz tras</p>
+                    <p class="mt-1 text-xs leading-6 text-stone-500">
+                      Zmieniaj routing między trybem zbalansowanym i czystymi trasami po jednej metryce. Każdy wariant poniżej mówi wprost, pod co optymalizuje trasę.
+                    </p>
+                  </div>
+                  <span class="rounded-full bg-white px-3 py-1 text-xs font-semibold text-stone-600 ring-1 ring-stone-200">
+                    {corridorScenarioList().length} wariantow
+                  </span>
+                </div>
+
+                <div class="mt-4 grid gap-2">
+                  {#each corridorScenarioList() as scenarioItem}
+                    <button
+                      class={`rounded-[1.1rem] border px-4 py-3 text-left transition ${selectedCorridorScenarioId === scenarioItem.scenario.id ? 'border-sky-700 bg-sky-700 text-white shadow-lg shadow-sky-300/30' : 'border-stone-200 bg-white text-stone-800 hover:border-stone-300'}`}
+                      onclick={() => selectCorridorScenario(scenarioItem.scenario.id)}
+                      type="button"
+                    >
+                      <p class="text-sm font-semibold">{scenarioDisplayLabel(scenarioItem.scenario)}</p>
+                      <p class={`mt-1 text-xs ${selectedCorridorScenarioId === scenarioItem.scenario.id ? 'text-sky-100' : 'text-stone-500'}`}>
+                        {scenarioItem.recommended.length} tras • {scenarioItem.hotspots.length} hubow
+                      </p>
+                      <p class={`mt-1 text-xs leading-6 ${selectedCorridorScenarioId === scenarioItem.scenario.id ? 'text-sky-100' : 'text-stone-500'}`}>
+                        {scenarioDisplayNote(scenarioItem.scenario, summary)}
+                      </p>
+                    </button>
+                  {/each}
+                </div>
+              </div>
+
+              <div class="mt-5 rounded-[1.25rem] border border-stone-200 bg-stone-50 px-4 py-4">
+                <div class="flex items-start justify-between gap-3">
+                  <div>
+                    <p class="text-sm font-semibold text-stone-950">Dodaj wlasny vibe</p>
+                    <p class="mt-1 text-xs leading-6 text-stone-500">
+                      Kazda metryka jest w skali 0-100. Dodatnia waga wzmacnia metryke, ujemna odwraca ja do `100 - metric`.
+                    </p>
+                  </div>
+                  <button
+                    class="rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-stone-600 ring-1 ring-stone-200 hover:bg-stone-100"
+                    onclick={resetCustomVibeDraft}
+                    type="button"
+                  >
+                    reset
+                  </button>
+                </div>
+
+                <div class="mt-4 grid gap-3 sm:grid-cols-2">
+                  <label class="space-y-2">
+                    <span class="text-xs font-semibold uppercase tracking-[0.18em] text-stone-500">Nazwa</span>
+                    <input bind:value={customVibeLabel} class="w-full rounded-2xl border border-stone-300 bg-white px-3 py-2 text-sm text-stone-900 outline-none ring-0 transition focus:border-stone-500" type="text" />
+                  </label>
+                  <label class="space-y-2">
+                    <span class="text-xs font-semibold uppercase tracking-[0.18em] text-stone-500">Kolor</span>
+                    <input bind:value={customVibeColor} class="h-11 w-full rounded-2xl border border-stone-300 bg-white px-2 py-2" type="color" />
+                  </label>
+                </div>
+
+                <div class="mt-4 grid gap-3 sm:grid-cols-2">
+                  {#each vibeMetricMeta as metric}
+                    <label class="rounded-2xl border border-stone-200 bg-white px-3 py-3">
+                      <div class="flex items-center justify-between gap-3">
+                        <span class="text-sm font-semibold text-stone-900">{metric.label}</span>
+                        <span class="text-xs font-medium text-stone-500">{customVibeWeights[metric.key]}</span>
+                      </div>
+                      <p class="mt-1 text-xs leading-5 text-stone-500">{metric.note}</p>
+                      {#if summary}
+                        {@const doc = dataDocByCode(summary, vibeMetricDocCodeByKey[metric.key])}
+                        {#if doc}
+                          <p class="mt-1 text-[11px] leading-5 text-stone-500">
+                            <span class="font-semibold text-stone-600">Źródło:</span> {doc.source}
+                          </p>
+                          <p class="mt-1 text-[11px] leading-5 text-stone-500">
+                            <span class="font-semibold text-stone-600">Wzór:</span> {doc.formula}
+                          </p>
+                        {/if}
+                      {/if}
+                      <input
+                        class="mt-3 w-full"
+                        max="100"
+                        min="-100"
+                        step="5"
+                        type="range"
+                        value={customVibeWeights[metric.key]}
+                        oninput={(event) =>
+                          (customVibeWeights = {
+                            ...customVibeWeights,
+                            [metric.key]: Number((event.currentTarget as HTMLInputElement).value),
+                          })}
+                      />
+                    </label>
+                  {/each}
+                </div>
+
+                <div class="mt-4 flex justify-end">
+                  <button
+                    class="rounded-full bg-violet-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-violet-700"
+                    onclick={addCustomVibe}
+                    type="button"
+                  >
+                    Dodaj vibe
+                  </button>
+                </div>
+
+                {#if customVibes.length > 0}
+                  <div class="mt-4 space-y-3">
+                    {#each customVibes as vibe}
+                      <div class={`rounded-[1.25rem] border px-4 py-3 ${isVibeEnabled(vibe.id) ? 'border-violet-300 bg-white' : 'border-stone-200 bg-stone-100'}`}>
+                        <div class="flex items-start justify-between gap-3">
+                          <button class="min-w-0 flex-1 text-left" onclick={() => toggleVibe(vibe.id)} type="button">
+                            <p class="text-sm font-semibold text-stone-950">{vibe.label}</p>
+                            <p class="mt-1 text-xs leading-6 text-stone-500">{vibe.formula}</p>
+                          </button>
+                          <div class="flex items-center gap-2">
+                            <span class="size-5 rounded-full" style={`background:${vibe.color}`}></span>
+                            <span class={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${isVibeEnabled(vibe.id) ? 'bg-violet-600 text-white' : 'bg-white text-stone-500 ring-1 ring-stone-200'}`}>
+                              {isVibeEnabled(vibe.id) ? 'aktywny' : 'wylaczony'}
+                            </span>
+                            <button
+                              class="rounded-full bg-white px-2.5 py-1 text-xs font-semibold text-stone-600 ring-1 ring-stone-200 hover:bg-stone-100"
+                              onclick={() => removeCustomVibe(vibe.id)}
+                              type="button"
+                            >
+                              usun
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    {/each}
+                  </div>
+                {/if}
+              </div>
+            </section>
+
             {#if selectedHex}
               <section class="rounded-[1.5rem] border border-stone-300 bg-white/82 p-5 shadow-lg shadow-amber-100/50 backdrop-blur">
-                <p class="text-xs font-semibold uppercase tracking-[0.24em] text-stone-500">Wybrany H3 cell</p>
+                <p class="text-xs font-semibold uppercase tracking-[0.24em] text-stone-500">Wybrana komorka H3</p>
                 <div class="mt-2 flex items-start justify-between gap-3">
                   <div>
                     <h3 class="text-xl font-semibold tracking-tight text-stone-950">
                       {selectedHex.h3_index}
                     </h3>
                     <p class="mt-1 text-sm text-stone-500">
-                      resolution {selectedHex.h3_resolution}
+                      rozdzielczosc {selectedHex.h3_resolution}
                     </p>
                   </div>
-                  <span class="rounded-full bg-amber-500 px-3 py-1 text-sm font-semibold text-stone-950">
+                  <span class="rounded-full bg-blue-600 px-3 py-1 text-sm font-semibold text-white">
                     {formatScore(selectedHex.hex_score)}
                   </span>
                 </div>
 
-                <dl class="mt-4 grid grid-cols-2 gap-3 text-sm text-stone-700">
-                  <div class="rounded-2xl bg-stone-50 px-4 py-3">
-                    <dt class="text-stone-500">Demand score</dt>
-                    <dd class="mt-1 font-semibold text-stone-950">{formatScore(selectedHex.demand_score)}</dd>
+                <div class="mt-4 rounded-[1.25rem] border border-stone-200 bg-stone-50 px-4 py-4">
+                  <div class="flex items-center justify-between gap-3">
+                    <div>
+                      <p class="text-xs font-semibold uppercase tracking-[0.2em] text-stone-500">Surowe metryki</p>
+                      <h4 class="mt-1 text-base font-semibold text-stone-950">Wszystkie metryki heksa</h4>
+                    </div>
+                    <span class="rounded-full bg-white px-3 py-1 text-xs font-semibold text-stone-600 ring-1 ring-stone-200">
+                      surowe + znormalizowane
+                    </span>
                   </div>
-                  <div class="rounded-2xl bg-stone-50 px-4 py-3">
-                    <dt class="text-stone-500">Network score</dt>
-                    <dd class="mt-1 font-semibold text-stone-950">{formatScore(selectedHex.network_score)}</dd>
+
+                  <p class="mt-3 text-xs leading-6 text-stone-500">
+                    W każdym wierszu: po lewej widzisz wartość surową z danych lub agregacji, po prawej wynik po przeliczeniu do skali 0-100. Pod spodem pokazuję z jakich danych to pochodzi i jak jest liczone.
+                  </p>
+
+                  <div class="mt-4 space-y-2">
+                    {#each hexMetricsRows(selectedHex) as metric}
+                      <div class="flex items-center justify-between gap-3 rounded-2xl bg-white px-4 py-3 text-sm text-stone-700">
+                        <div class="min-w-0">
+                          <p class="font-semibold text-stone-950">{metric.label}</p>
+                          <p class="mt-1 text-xs text-stone-500">surowe: {metric.raw}</p>
+                          {#if summary}
+                            {@const doc = dataDocByCode(summary, metric.code)}
+                            {#if doc}
+                              <p class="mt-1 text-[11px] leading-5 text-stone-500">
+                                <span class="font-semibold text-stone-600">Źródło:</span> {doc.source}
+                              </p>
+                              <p class="mt-1 text-[11px] leading-5 text-stone-500">
+                                <span class="font-semibold text-stone-600">Wzór:</span> {doc.formula}
+                              </p>
+                            {/if}
+                          {/if}
+                        </div>
+                        <span class="rounded-full bg-stone-900 px-3 py-1 text-xs font-semibold text-stone-50">
+                          {metric.normalized}
+                        </span>
+                      </div>
+                    {/each}
                   </div>
-                  <div class="rounded-2xl bg-stone-50 px-4 py-3">
-                    <dt class="text-stone-500">Quality score</dt>
-                    <dd class="mt-1 font-semibold text-stone-950">{formatScore(selectedHex.quality_score)}</dd>
+                </div>
+
+                <div class="mt-5 rounded-[1.25rem] border border-stone-200 bg-stone-50 px-4 py-4">
+                  <div class="flex items-center justify-between gap-3">
+                    <div>
+                      <p class="text-xs font-semibold uppercase tracking-[0.2em] text-stone-500">Rozbicie vibe</p>
+                      <h4 class="mt-1 text-base font-semibold text-stone-950">Jak ten heks dostaje kolor</h4>
+                    </div>
+                    <span
+                      class="size-8 rounded-full ring-2 ring-white"
+                      style={`background:${analyzeHexVibes(selectedHex).color}`}
+                    ></span>
                   </div>
-                  <div class="rounded-2xl bg-stone-50 px-4 py-3">
-                    <dt class="text-stone-500">Waga popytu</dt>
-                    <dd class="mt-1 font-semibold text-stone-950">{formatFixed(selectedHex.demand_weight, 1)}</dd>
+
+                  <div class="mt-4 space-y-3">
+                    {#each topVibesForHex(selectedHex) as vibe}
+                      <div class="rounded-[1.25rem] border border-stone-200 bg-white px-4 py-3">
+                        <div class="flex items-start justify-between gap-3">
+                          <div>
+                            <div class="flex items-center gap-2">
+                              <span class="size-3 rounded-full" style={`background:${vibe.color}`}></span>
+                              <p class="text-sm font-semibold text-stone-950">{vibe.label}</p>
+                            </div>
+                            <p class="mt-1 text-xs leading-6 text-stone-500">{vibe.formula}</p>
+                          </div>
+                          <span class="rounded-full px-3 py-1 text-xs font-semibold text-white" style={`background:${vibe.color}`}>
+                            {formatScore(vibe.score)}
+                          </span>
+                        </div>
+                        <div class="mt-3 grid gap-2">
+                          {#each vibe.contributions as contribution}
+                            <div class="flex items-center justify-between gap-3 rounded-2xl bg-stone-50 px-3 py-2 text-xs text-stone-600">
+                              <span>{contribution.label}</span>
+                              <span>
+                                metryka {formatScore(contribution.raw)} • waga {contribution.weight > 0 ? '+' : ''}{contribution.weight}
+                              </span>
+                            </div>
+                          {/each}
+                        </div>
+                      </div>
+                    {/each}
                   </div>
-                  <div class="rounded-2xl bg-stone-50 px-4 py-3">
-                    <dt class="text-stone-500">Punkty</dt>
-                    <dd class="mt-1 font-semibold text-stone-950">{formatCount(selectedHex.point_count)}</dd>
-                  </div>
-                  <div class="rounded-2xl bg-stone-50 px-4 py-3">
-                    <dt class="text-stone-500">Probki segmentow</dt>
-                    <dd class="mt-1 font-semibold text-stone-950">{formatCount(selectedHex.segment_sample_count)}</dd>
-                  </div>
-                  <div class="rounded-2xl bg-stone-50 px-4 py-3">
-                    <dt class="text-stone-500">Sredni score segmentu</dt>
-                    <dd class="mt-1 font-semibold text-stone-950">{formatScore(selectedHex.mean_segment_score)}</dd>
-                  </div>
-                  <div class="rounded-2xl bg-stone-50 px-4 py-3">
-                    <dt class="text-stone-500">Max halas</dt>
-                    <dd class="mt-1 font-semibold text-stone-950">{formatNoise(selectedHex.max_noise_db)}</dd>
-                  </div>
-                </dl>
+                </div>
               </section>
             {/if}
 
@@ -1503,34 +3201,38 @@ npm run dev</pre>
                 <div>
                   <p class="text-xs font-semibold uppercase tracking-[0.24em] text-stone-500">Korytarze</p>
                   <h3 class="mt-1 text-xl font-semibold tracking-tight text-stone-950">
-                    Rekomendowane polaczenia
+                    Rekomendowane polaczenia dla scenariusza
                   </h3>
                 </div>
-                <span class="text-sm text-stone-500">klik = focus</span>
+                <span class="text-sm text-stone-500">klik = przyblizenie</span>
               </div>
 
+              <p class="mt-2 text-sm text-stone-500">
+                {selectedCorridorScenario()?.scenario.label ?? 'brak scenariusza'}
+              </p>
+
               <div class="mt-4 space-y-2">
-                {#each summary.corridor_recommendations.recommended as corridor}
+                {#each selectedCorridorScenario()?.recommended ?? [] as corridor}
                   <button
-                    class={`w-full rounded-[1.25rem] border px-4 py-3 text-left transition ${selectedCorridor?.corridor_id === corridor.corridor_id ? 'border-sky-700 bg-sky-700 text-white shadow-lg shadow-sky-300/40' : 'border-stone-200 bg-stone-50 text-stone-800 hover:border-stone-300 hover:bg-white'}`}
+                    class={`w-full rounded-[1.25rem] border px-4 py-3 text-left transition ${selectedCorridor?.corridor_id === corridor.corridor_id && selectedCorridor?.scenario_id === corridor.scenario_id ? 'border-sky-700 bg-sky-700 text-white shadow-lg shadow-sky-300/40' : 'border-stone-200 bg-stone-50 text-stone-800 hover:border-stone-300 hover:bg-white'}`}
                     onclick={() => focusCorridor(corridor)}
                     type="button"
                   >
                     <div class="flex items-start justify-between gap-3">
                       <div>
-                        <p class={`text-xs font-semibold uppercase tracking-[0.2em] ${selectedCorridor?.corridor_id === corridor.corridor_id ? 'text-sky-100' : 'text-stone-500'}`}>
+                        <p class={`text-xs font-semibold uppercase tracking-[0.2em] ${selectedCorridor?.corridor_id === corridor.corridor_id && selectedCorridor?.scenario_id === corridor.scenario_id ? 'text-sky-100' : 'text-stone-500'}`}>
                           #{corridor.corridor_rank} {corridor.from_label} -> {corridor.to_label}
                         </p>
                         <p class="mt-1 text-sm font-semibold">
                           {corridor.path_length_km.toFixed(2)} km • {corridor.segment_count} odc.
                         </p>
-                        <p class={`mt-1 text-xs ${selectedCorridor?.corridor_id === corridor.corridor_id ? 'text-sky-100' : 'text-stone-500'}`}>
+                        <p class={`mt-1 text-xs ${selectedCorridor?.corridor_id === corridor.corridor_id && selectedCorridor?.scenario_id === corridor.scenario_id ? 'text-sky-100' : 'text-stone-500'}`}>
                           score {formatScore(corridor.mean_segment_score)} • koszt {corridor.path_cost.toFixed(1)}
                         </p>
                       </div>
                       <span
                         class="rounded-full px-3 py-1 text-sm font-semibold"
-                        style={`background:${selectedCorridor?.corridor_id === corridor.corridor_id ? 'rgba(255,255,255,0.14)' : '#0ea5e9'}; color:#ffffff`}
+                        style={`background:${selectedCorridor?.corridor_id === corridor.corridor_id && selectedCorridor?.scenario_id === corridor.scenario_id ? 'rgba(255,255,255,0.14)' : '#0ea5e9'}; color:#ffffff`}
                       >
                         {corridor.corridor_rank}
                       </span>
@@ -1549,7 +3251,10 @@ npm run dev</pre>
                       {selectedCorridor.label}
                     </h3>
                     <p class="mt-1 text-sm text-stone-500">
-                      Korytarz #{selectedCorridor.corridor_rank}
+                      Korytarz #{selectedCorridor.corridor_rank} • {scenarioDisplayLabel({
+                        label: selectedCorridor.scenario_label ?? 'brak scenariusza',
+                        metric_key: selectedCorridor.route_metric_key ?? null,
+                      })}
                     </p>
                   </div>
                   <span class="rounded-full bg-sky-600 px-3 py-1 text-sm font-semibold text-white">
@@ -1599,14 +3304,14 @@ npm run dev</pre>
             {/if}
 
             <section class="rounded-[1.5rem] border border-stone-300 bg-white/82 p-5 shadow-lg shadow-amber-100/50 backdrop-blur">
-              <div class="flex items-center justify-between gap-3">
-                <div>
-                  <p class="text-xs font-semibold uppercase tracking-[0.24em] text-stone-500">Laczniki</p>
-                  <h3 class="mt-1 text-xl font-semibold tracking-tight text-stone-950">
-                    Propozycje nowych polaczen
-                  </h3>
-                </div>
-                <span class="text-sm text-stone-500">klik = focus</span>
+                <div class="flex items-center justify-between gap-3">
+                  <div>
+                    <p class="text-xs font-semibold uppercase tracking-[0.24em] text-stone-500">Łączniki</p>
+                    <h3 class="mt-1 text-xl font-semibold tracking-tight text-stone-950">
+                      Propozycje nowych polaczen
+                    </h3>
+                  </div>
+                <span class="text-sm text-stone-500">klik = przyblizenie</span>
               </div>
 
               <div class="mt-4 space-y-2">
@@ -1622,7 +3327,7 @@ npm run dev</pre>
                           #{connector.connector_rank} {connector.source_component_label} -> {connector.target_component_label}
                         </p>
                         <p class="mt-1 text-sm font-semibold">
-                          {formatKilometers(connector.length_km)} • crossingi {formatCount(connector.network_crossings_count)}
+                          {formatKilometers(connector.length_km)} • przeciecia {formatCount(connector.network_crossings_count)}
                         </p>
                         <p class={`mt-1 text-xs ${selectedConnector?.connector_id === connector.connector_id ? 'text-red-100' : 'text-stone-500'}`}>
                           priorytet {formatScore(connector.priority_score)} • komponent {connector.target_component_id}
@@ -1642,14 +3347,14 @@ npm run dev</pre>
 
             {#if selectedConnector}
               <section class="rounded-[1.5rem] border border-stone-300 bg-white/82 p-5 shadow-lg shadow-amber-100/50 backdrop-blur">
-                <p class="text-xs font-semibold uppercase tracking-[0.24em] text-stone-500">Wybrany lacznik</p>
+                <p class="text-xs font-semibold uppercase tracking-[0.24em] text-stone-500">Wybrany łącznik</p>
                 <div class="mt-2 flex items-start justify-between gap-3">
                   <div>
                     <h3 class="text-xl font-semibold tracking-tight text-stone-950">
                       {selectedConnector.label}
                     </h3>
                     <p class="mt-1 text-sm text-stone-500">
-                      Lacznik #{selectedConnector.connector_rank}
+                      Łącznik #{selectedConnector.connector_rank}
                     </p>
                   </div>
                   <span class="rounded-full bg-red-500 px-3 py-1 text-sm font-semibold text-white">
@@ -1663,7 +3368,7 @@ npm run dev</pre>
                     <dd class="mt-1 font-semibold text-stone-950">{formatKilometers(selectedConnector.length_km)}</dd>
                   </div>
                   <div class="rounded-2xl bg-stone-50 px-4 py-3">
-                    <dt class="text-stone-500">Crossingi sieci</dt>
+                    <dt class="text-stone-500">Przeciecia z siecia</dt>
                     <dd class="mt-1 font-semibold text-stone-950">{formatCount(selectedConnector.network_crossings_count)}</dd>
                   </div>
                   <div class="rounded-2xl bg-stone-50 px-4 py-3">
@@ -1675,22 +3380,81 @@ npm run dev</pre>
                     <dd class="mt-1 font-semibold text-stone-950">{formatNoise(selectedConnector.max_noise_db)}</dd>
                   </div>
                   <div class="rounded-2xl bg-stone-50 px-4 py-3">
-                    <dt class="text-stone-500">Demand gain</dt>
+                    <dt class="text-stone-500">Zysk popytu</dt>
                     <dd class="mt-1 font-semibold text-stone-950">{formatPoints(selectedConnector.demand_gain_points)}</dd>
                   </div>
                   <div class="rounded-2xl bg-stone-50 px-4 py-3">
-                    <dt class="text-stone-500">Network gain</dt>
+                    <dt class="text-stone-500">Zysk sieci</dt>
                     <dd class="mt-1 font-semibold text-stone-950">{formatPoints(selectedConnector.network_gain_points)}</dd>
                   </div>
                   <div class="rounded-2xl bg-stone-50 px-4 py-3">
-                    <dt class="text-stone-500">Distance points</dt>
+                    <dt class="text-stone-500">Punkty za dystans</dt>
                     <dd class="mt-1 font-semibold text-stone-950">{formatPoints(selectedConnector.distance_points)}</dd>
                   </div>
                   <div class="rounded-2xl bg-stone-50 px-4 py-3">
-                    <dt class="text-stone-500">Crossing penalty</dt>
+                    <dt class="text-stone-500">Kara za przeciecia</dt>
                     <dd class="mt-1 font-semibold text-stone-950">{formatPoints(selectedConnector.crossing_penalty_points)}</dd>
                   </div>
                 </dl>
+
+                <div class="mt-5 rounded-[1.25rem] border border-red-200 bg-red-50/80 px-4 py-4">
+                  <p class="text-xs font-semibold uppercase tracking-[0.2em] text-red-700">Co to jest łącznik?</p>
+                  <p class="mt-2 text-sm leading-6 text-stone-700">
+                    {summary.explainability.connector_optimization.connector_definition}
+                  </p>
+                  <p class="mt-2 text-sm leading-6 text-stone-700">
+                    {summary.explainability.connector_optimization.why_this_is_not_guessing}
+                  </p>
+                </div>
+
+                <div class="mt-4 grid gap-4 lg:grid-cols-2">
+                  <div class="rounded-[1.25rem] border border-stone-200 bg-stone-50 px-4 py-4">
+                    <p class="text-xs font-semibold uppercase tracking-[0.2em] text-stone-500">Na podstawie jakich danych</p>
+                    <div class="mt-3 space-y-2">
+                      {#each summary.explainability.connector_optimization.data_used as dataItem}
+                        <div class="rounded-xl bg-white px-3 py-2 text-sm leading-6 text-stone-700 ring-1 ring-stone-200">
+                          {dataItem}
+                        </div>
+                      {/each}
+                    </div>
+                  </div>
+
+                  <div class="rounded-[1.25rem] border border-stone-200 bg-stone-50 px-4 py-4">
+                    <p class="text-xs font-semibold uppercase tracking-[0.2em] text-stone-500">Dlaczego ten konkretny łącznik</p>
+                    <div class="mt-3 space-y-2">
+                      {#each connectorEvidenceRows(selectedConnector) as item}
+                        <div class="rounded-xl bg-white px-3 py-2 ring-1 ring-stone-200">
+                          <p class="text-sm font-semibold text-stone-950">{item.title}</p>
+                          <p class="mt-1 text-sm leading-6 text-stone-700">{item.detail}</p>
+                        </div>
+                      {/each}
+                    </div>
+                  </div>
+                </div>
+
+                <div class="mt-4 rounded-[1.25rem] border border-stone-200 bg-stone-50 px-4 py-4">
+                  <p class="text-xs font-semibold uppercase tracking-[0.2em] text-stone-500">Jak pipeline dochodzi do łącznika</p>
+                  <div class="mt-3 space-y-2">
+                    {#each summary.explainability.connector_optimization.qualification_steps as step, index}
+                      <div class="flex items-start gap-3 rounded-xl bg-white px-3 py-2 text-sm leading-6 text-stone-700 ring-1 ring-stone-200">
+                        <span class="mt-0.5 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-red-100 text-xs font-semibold text-red-700">
+                          {index + 1}
+                        </span>
+                        <span>{step}</span>
+                      </div>
+                    {/each}
+                  </div>
+                </div>
+
+                <div class="mt-4 rounded-[1.25rem] border border-amber-200 bg-amber-50/80 px-4 py-4">
+                  <p class="text-xs font-semibold uppercase tracking-[0.2em] text-amber-700">Czy to tylko zgadywanie?</p>
+                  <p class="mt-2 text-sm leading-6 text-stone-700">
+                    Nie. To deterministyczny kandydat policzony z grafu istniejącej sieci i warstw przestrzennych. System nie zgaduje przebiegu z opisu ani z modelu AI, tylko bierze najkrótszą dopuszczalną parę węzłów między rozłącznymi komponentami i punktuje ją według jawnej formuły.
+                  </p>
+                  <p class="mt-2 text-sm leading-6 text-stone-700">
+                    {summary.explainability.connector_optimization.planning_note}
+                  </p>
+                </div>
               </section>
             {/if}
 
@@ -1700,7 +3464,7 @@ npm run dev</pre>
                   <p class="text-xs font-semibold uppercase tracking-[0.24em] text-stone-500">Top 20</p>
                   <h3 class="mt-1 text-xl font-semibold tracking-tight text-stone-950">Najlepsze odcinki</h3>
                 </div>
-                <span class="text-sm text-stone-500">klik = focus</span>
+                <span class="text-sm text-stone-500">klik = przyblizenie</span>
               </div>
 
               <div class="mt-4 space-y-2">
@@ -1713,7 +3477,7 @@ npm run dev</pre>
                     <div class="flex items-start justify-between gap-3">
                       <div>
                         <p class={`text-xs font-semibold uppercase tracking-[0.2em] ${selectedSegment?.segment_id === segment.segment_id ? 'text-stone-300' : 'text-stone-500'}`}>
-                          #{segment.score_rank} segment {segment.segment_id}
+                          #{segment.score_rank} odcinek {segment.segment_id}
                         </p>
                         <p class="mt-1 text-sm font-semibold">
                           {segment.kind ?? 'nieopisany odcinek'}
@@ -1751,6 +3515,48 @@ npm run dev</pre>
                   </span>
                 </div>
 
+                <div class="mt-4 rounded-[1.25rem] border border-stone-200 bg-stone-50 px-4 py-4">
+                  <p class="text-xs font-semibold uppercase tracking-[0.2em] text-stone-500">Co to jest score segmentu?</p>
+                  <p class="mt-2 text-sm leading-6 text-stone-700">
+                    To finalna ocena istniejącego odcinka sieci rowerowej w skali 0-100. Nie jest to liczba z pliku wejściowego, tylko wynik policzony w preprocessingu z 4 warstw danych: zieleni, hałasu, stojaków i punktowej infrastruktury rowerowej.
+                  </p>
+                  <div class="mt-3 grid gap-3 md:grid-cols-2">
+                    <div class="rounded-2xl bg-white px-4 py-3 ring-1 ring-stone-200">
+                      <p class="text-sm font-semibold text-stone-950">Wzór</p>
+                      <p class="mt-2 text-xs leading-6 text-stone-600">{summary.explainability.scoring.formula}</p>
+                    </div>
+                    <div class="rounded-2xl bg-white px-4 py-3 ring-1 ring-stone-200">
+                      <p class="text-sm font-semibold text-stone-950">Źródła danych</p>
+                      <p class="mt-2 text-xs leading-6 text-stone-600">
+                        ciągi rowerowe + zieleń BDOT10k + hałas + stojaki ZTP + infrastruktura rowerowa ZTP
+                      </p>
+                    </div>
+                  </div>
+                  <div class="mt-3 grid gap-3 md:grid-cols-3">
+                    <div class="rounded-2xl bg-white px-4 py-3 ring-1 ring-stone-200">
+                      <p class="text-sm font-semibold text-stone-950">Hałas</p>
+                      <p class="mt-2 text-xs leading-6 text-stone-600">
+                        {summary.explainability.scoring.references.noiseDb.best} dB = 100, {summary.explainability.scoring.references.noiseDb.worst} dB = 0, brak = {summary.explainability.scoring.references.noiseDb.missingScore}
+                      </p>
+                    </div>
+                    <div class="rounded-2xl bg-white px-4 py-3 ring-1 ring-stone-200">
+                      <p class="text-sm font-semibold text-stone-950">Stojaki</p>
+                      <p class="mt-2 text-xs leading-6 text-stone-600">
+                        {summary.explainability.scoring.references.rackDistanceM.best} m = 100, {summary.explainability.scoring.references.rackDistanceM.worst} m = 0, brak = {summary.explainability.scoring.references.rackDistanceM.missingScore}
+                      </p>
+                    </div>
+                    <div class="rounded-2xl bg-white px-4 py-3 ring-1 ring-stone-200">
+                      <p class="text-sm font-semibold text-stone-950">Infrastruktura</p>
+                      <p class="mt-2 text-xs leading-6 text-stone-600">
+                        {summary.explainability.scoring.references.infrastructureDistanceM.best} m = 100, {summary.explainability.scoring.references.infrastructureDistanceM.worst} m = 0, brak = {summary.explainability.scoring.references.infrastructureDistanceM.missingScore}
+                      </p>
+                    </div>
+                  </div>
+                  <p class="mt-3 text-xs leading-6 text-stone-500">
+                    Zieleń działa najprościej: <code>greenery_score = greenery_ratio * 100</code>. Sam <code>score</code> segmentu jest potem używany dalej w H3 jako wejście do <code>quality_score</code> i do rankingu odcinków.
+                  </p>
+                </div>
+
                 <dl class="mt-4 grid grid-cols-2 gap-3 text-sm text-stone-700">
                   <div class="rounded-2xl bg-stone-50 px-4 py-3">
                     <dt class="text-stone-500">Dlugosc</dt>
@@ -1781,7 +3587,7 @@ npm run dev</pre>
                 <div class="mt-5">
                   <div class="flex items-center justify-between gap-3">
                     <div>
-                      <p class="text-xs font-semibold uppercase tracking-[0.2em] text-stone-500">Why this score</p>
+                      <p class="text-xs font-semibold uppercase tracking-[0.2em] text-stone-500">Skad ten score</p>
                       <h4 class="mt-1 text-base font-semibold text-stone-950">Rozbicie punktacji</h4>
                     </div>
                     <span class="rounded-full bg-stone-900 px-3 py-1 text-xs font-semibold text-stone-50">
@@ -1815,8 +3621,11 @@ npm run dev</pre>
 
             <section class="rounded-[1.5rem] border border-stone-300 bg-white/82 p-5 shadow-lg shadow-amber-100/50 backdrop-blur">
               <p class="text-xs font-semibold uppercase tracking-[0.24em] text-stone-500">H3 huby</p>
+              <p class="mt-2 text-sm leading-6 text-stone-500">
+                Hub H3 to punkt pokazany w środku wybranej komórki H3. Sama komórka nadal istnieje jako poligon w warstwie `Siatka H3 / vibe`, ale routing potrzebuje jednego reprezentanta komórki, więc pokazujemy też punkt.
+              </p>
               <div class="mt-4 space-y-2">
-                {#each summary.corridor_recommendations.hotspots as hotspot}
+                {#each selectedCorridorScenario()?.hotspots ?? [] as hotspot}
                   <div class="rounded-[1.25rem] border border-stone-200 bg-stone-50 px-4 py-3">
                     <div class="flex items-start justify-between gap-3">
                       <div>
@@ -1830,11 +3639,11 @@ npm run dev</pre>
                       </div>
                       <div class="text-right">
                         <p class="text-sm font-semibold text-stone-950">{formatScore(hotspot.hex_score)}</p>
-                        <p class="mt-1 text-xs text-stone-500">hex score</p>
+                        <p class="mt-1 text-xs text-stone-500">score heksa</p>
                       </div>
                     </div>
                     <p class="mt-2 text-xs text-stone-600">
-                      Snap do wezla grafu: {formatDistance(hotspot.snap_distance_m)} • quality {formatScore(hotspot.quality_score)}
+                      Snap do wezla grafu: {formatDistance(hotspot.snap_distance_m)} • jakosc {formatScore(hotspot.quality_score)}
                     </p>
                   </div>
                 {/each}
@@ -1842,12 +3651,111 @@ npm run dev</pre>
             </section>
 
             <section class="rounded-[1.5rem] border border-stone-300 bg-white/82 p-5 shadow-lg shadow-amber-100/50 backdrop-blur">
-              <p class="text-xs font-semibold uppercase tracking-[0.24em] text-stone-500">Spatial Stats</p>
+              <p class="text-xs font-semibold uppercase tracking-[0.24em] text-stone-500">Słownik danych i wzorów</p>
+              <p class="mt-2 text-sm leading-6 text-stone-600">
+                Każda liczba, kolor i warstwa w interfejsie ma tu opis: czym jest, z jakiego źródła pochodzi, jak jest liczona i do czego jest używana.
+              </p>
+
+              <div class="mt-4 rounded-[1.25rem] border border-stone-200 bg-stone-50 px-4 py-4">
+                <p class="text-sm font-semibold text-stone-950">Legenda mapy</p>
+                <div class="mt-3 rounded-[1rem] border border-blue-200 bg-blue-50 px-3 py-3 text-xs leading-6 text-blue-950">
+                  <p>
+                    <span class="font-semibold">Jak to czytać:</span> progi
+                    <code>80-100 / 65-79 / 50-64 / 0-49</code> dotyczą tylko koloru segmentów.
+                    <span class="font-semibold">Siatka H3 / vibe</span> to poligony heksów H3.
+                    <span class="font-semibold">Hub H3</span> to punkt w środku wybranej komórki H3, używany jako reprezentant komórki do trasowania i jako czytelny marker na mapie.
+                  </p>
+                  <p class="mt-1">
+                    Innymi słowy: heks = obszar, hub = punkt reprezentujący wybrany heks, korytarz = trasa po istniejącej sieci między hubami.
+                  </p>
+                </div>
+                <div class="mt-3 space-y-2">
+                  {#each mapLegendDocs(summary) as item}
+                    <div class="rounded-2xl bg-white px-4 py-3 text-sm text-stone-700">
+                      <div class="flex items-center justify-between gap-3">
+                        <p class="font-semibold text-stone-950">{item.label}</p>
+                        <span class="rounded-full bg-stone-100 px-2.5 py-1 text-[11px] font-semibold text-stone-600">
+                          {item.kind}
+                        </span>
+                      </div>
+                      <div class="mt-2 grid gap-1 text-xs leading-6 text-stone-500">
+                        <p><span class="font-semibold text-stone-700">Znaczenie:</span> {item.meaning}</p>
+                        <p><span class="font-semibold text-stone-700">Źródło:</span> {item.source}</p>
+                        <p><span class="font-semibold text-stone-700">Wzór / logika:</span> {item.formula}</p>
+                      </div>
+                    </div>
+                  {/each}
+                </div>
+              </div>
+
+              <div class="mt-4 space-y-4">
+                {#each dataDocumentationSections(summary) as section}
+                  <div class="rounded-[1.25rem] border border-stone-200 bg-stone-50 px-4 py-4">
+                    <p class="text-sm font-semibold text-stone-950">{section.title}</p>
+                    <p class="mt-1 text-xs leading-6 text-stone-500">{section.intro}</p>
+                    <div class="mt-3 space-y-2">
+                      {#each section.items as item}
+                        <div class="rounded-2xl bg-white px-4 py-3 text-sm text-stone-700">
+                          <div class="flex items-center justify-between gap-3">
+                            <div class="min-w-0">
+                              <p class="font-semibold text-stone-950">{item.label}</p>
+                              {#if item.code}
+                                <p class="mt-1 font-mono text-[11px] text-stone-500">{item.code}</p>
+                              {/if}
+                            </div>
+                            <span class="rounded-full bg-stone-100 px-2.5 py-1 text-[11px] font-semibold text-stone-600">
+                              {item.valueType}
+                            </span>
+                          </div>
+                          <div class="mt-2 grid gap-1 text-xs leading-6 text-stone-500">
+                            <p><span class="font-semibold text-stone-700">Źródło:</span> {item.source}</p>
+                            <p><span class="font-semibold text-stone-700">Wzór / logika:</span> {item.formula}</p>
+                            <p><span class="font-semibold text-stone-700">Do czego używane:</span> {item.usage}</p>
+                            {#if item.note}
+                              <p><span class="font-semibold text-stone-700">Uwagi:</span> {item.note}</p>
+                            {/if}
+                          </div>
+                        </div>
+                      {/each}
+                    </div>
+                  </div>
+                {/each}
+              </div>
+
+              <div class="mt-4 rounded-[1.25rem] border border-stone-200 bg-stone-50 px-4 py-4">
+                <p class="text-sm font-semibold text-stone-950">Szybki skrót metryk</p>
+                <div class="mt-3 space-y-2">
+                  {#each metricLegendSections as section}
+                    <div class="rounded-2xl bg-white px-4 py-3 text-sm text-stone-700">
+                      <p class="font-semibold text-stone-950">{section.title}</p>
+                      <div class="mt-2 space-y-2">
+                        {#each section.items as item}
+                          <div>
+                            <div class="flex items-center justify-between gap-3">
+                              <p class="font-medium text-stone-900">{item.label}</p>
+                              {#if item.code}
+                                <span class="rounded-full bg-stone-100 px-2 py-0.5 font-mono text-[11px] text-stone-600">
+                                  {item.code}
+                                </span>
+                              {/if}
+                            </div>
+                            <p class="mt-1 text-xs leading-6 text-stone-500">{item.note}</p>
+                          </div>
+                        {/each}
+                      </div>
+                    </div>
+                  {/each}
+                </div>
+              </div>
+            </section>
+
+            <section class="rounded-[1.5rem] border border-stone-300 bg-white/82 p-5 shadow-lg shadow-amber-100/50 backdrop-blur">
+              <p class="text-xs font-semibold uppercase tracking-[0.24em] text-stone-500">Statystyki przestrzenne</p>
               <div class="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
                 <div class="rounded-[1.25rem] border border-stone-200 bg-stone-50 px-4 py-3">
                   <p class="text-sm font-semibold text-stone-950">Punkty popytu</p>
                   <p class="mt-1 text-xs text-stone-500">
-                    mean center: {formatCoordinatePair(summary.spatial_statistics.demand_points.mean_center)}
+                    srodek ciezkosci: {formatCoordinatePair(summary.spatial_statistics.demand_points.mean_center)}
                   </p>
                   <p class="mt-2 text-sm text-stone-700">
                     NNI {formatFixed(summary.spatial_statistics.demand_points.nearest_neighbor_index?.nni, 3)} • {summary.spatial_statistics.demand_points.nearest_neighbor_index?.pattern ?? 'brak'}
@@ -1856,7 +3764,7 @@ npm run dev</pre>
                 <div class="rounded-[1.25rem] border border-stone-200 bg-stone-50 px-4 py-3">
                   <p class="text-sm font-semibold text-stone-950">Stojaki</p>
                   <p class="mt-1 text-xs text-stone-500">
-                    mean center: {formatCoordinatePair(summary.spatial_statistics.bike_racks.mean_center)}
+                    srodek ciezkosci: {formatCoordinatePair(summary.spatial_statistics.bike_racks.mean_center)}
                   </p>
                   <p class="mt-2 text-sm text-stone-700">
                     NNI {formatFixed(summary.spatial_statistics.bike_racks.nearest_neighbor_index?.nni, 3)} • {summary.spatial_statistics.bike_racks.nearest_neighbor_index?.pattern ?? 'brak'}
@@ -1865,7 +3773,7 @@ npm run dev</pre>
                 <div class="rounded-[1.25rem] border border-stone-200 bg-stone-50 px-4 py-3">
                   <p class="text-sm font-semibold text-stone-950">Infrastruktura</p>
                   <p class="mt-1 text-xs text-stone-500">
-                    mean center: {formatCoordinatePair(summary.spatial_statistics.bike_infrastructure.mean_center)}
+                    srodek ciezkosci: {formatCoordinatePair(summary.spatial_statistics.bike_infrastructure.mean_center)}
                   </p>
                   <p class="mt-2 text-sm text-stone-700">
                     NNI {formatFixed(summary.spatial_statistics.bike_infrastructure.nearest_neighbor_index?.nni, 3)} • {summary.spatial_statistics.bike_infrastructure.nearest_neighbor_index?.pattern ?? 'brak'}
@@ -1881,10 +3789,10 @@ npm run dev</pre>
             </section>
 
             <section class="rounded-[1.5rem] border border-stone-300 bg-white/82 p-5 shadow-lg shadow-amber-100/50 backdrop-blur">
-              <p class="text-xs font-semibold uppercase tracking-[0.24em] text-stone-500">Explainability</p>
+              <p class="text-xs font-semibold uppercase tracking-[0.24em] text-stone-500">Wyjasnialnosc</p>
               <div class="mt-3 space-y-4 text-sm leading-7 text-stone-700">
                 <div class="rounded-[1.25rem] border border-stone-200 bg-stone-50 px-4 py-3">
-                  <p class="text-xs font-semibold uppercase tracking-[0.2em] text-stone-500">Formula</p>
+                  <p class="text-xs font-semibold uppercase tracking-[0.2em] text-stone-500">Wzor</p>
                   <p class="mt-2 font-medium text-stone-950">{summary.explainability.scoring.formula}</p>
                   <p class="mt-2 text-stone-600">
                     Probkowanie: co {summary.explainability.scoring.sample_step_meters} m • zakres wyniku {summary.explainability.scoring.output_range[0]}-{summary.explainability.scoring.output_range[1]}
@@ -1892,23 +3800,36 @@ npm run dev</pre>
                 </div>
 
                 <div class="rounded-[1.25rem] border border-stone-200 bg-stone-50 px-4 py-3">
-                  <p class="text-xs font-semibold uppercase tracking-[0.2em] text-stone-500">H3 Indexing</p>
+                  <p class="text-xs font-semibold uppercase tracking-[0.2em] text-stone-500">Indeksowanie H3</p>
                   <p class="mt-2 font-medium text-stone-950">
                     {summary.explainability.h3_indexing.scenario.cell_score_formula}
                   </p>
                   <p class="mt-2 text-stone-600">
-                    resolution {summary.explainability.h3_indexing.scenario.resolution} • huby {summary.explainability.h3_indexing.scenario.hub_count}
+                    rozdzielczosc {summary.explainability.h3_indexing.scenario.resolution} • huby {summary.explainability.h3_indexing.scenario.hub_count}
                   </p>
                   <p class="mt-2 text-stone-600">
-                    demand: {summary.explainability.h3_indexing.scenario.demand_score_formula}
+                    popyt: {summary.explainability.h3_indexing.scenario.demand_score_formula}
                   </p>
                   <p class="mt-2 text-stone-600">
-                    network: {summary.explainability.h3_indexing.scenario.network_score_formula} • quality: {summary.explainability.h3_indexing.scenario.quality_score_formula}
+                    siec: {summary.explainability.h3_indexing.scenario.network_score_formula} • jakosc: {summary.explainability.h3_indexing.scenario.quality_score_formula}
                   </p>
                 </div>
 
                 <div class="rounded-[1.25rem] border border-stone-200 bg-stone-50 px-4 py-3">
-                  <p class="text-xs font-semibold uppercase tracking-[0.2em] text-stone-500">Corridor Optimization</p>
+                  <p class="text-xs font-semibold uppercase tracking-[0.2em] text-stone-500">Wzor vibe</p>
+                  <p class="mt-2 font-medium text-stone-950">
+                    vibe_score = srednia wazona metryk 0-100; dodatnia waga bierze metryke, ujemna bierze 100 - metryka
+                  </p>
+                  <p class="mt-2 text-stone-600">
+                    Dostępne metryki: jakość powietrza (przybliżenie), zieleń otoczenia, spokój akustyczny, dostęp do stojaków, dostęp do infrastruktury, gęstość stojaków, gęstość infrastruktury, popyt, obecność sieci rowerowej, ogólna jakość segmentów.
+                  </p>
+                  <p class="mt-2 text-stone-600">
+                    Kolor heksa = miks RGB wszystkich aktywnych vibe, wazony ich score dla danego heksa.
+                  </p>
+                </div>
+
+                <div class="rounded-[1.25rem] border border-stone-200 bg-stone-50 px-4 py-3">
+                  <p class="text-xs font-semibold uppercase tracking-[0.2em] text-stone-500">Optymalizacja korytarzy</p>
                   <p class="mt-2 font-medium text-stone-950">
                     {summary.explainability.corridor_optimization.scenario.edge_cost_formula}
                   </p>
@@ -1916,12 +3837,12 @@ npm run dev</pre>
                     Priorytet pary: {summary.explainability.corridor_optimization.scenario.pair_priority_formula}
                   </p>
                   <p class="mt-2 text-stone-600">
-                    Snap grafu: {summary.explainability.corridor_optimization.graph_snap_decimals} cyfr • H3 res {summary.explainability.corridor_optimization.scenario.h3_resolution} • huby {summary.explainability.corridor_optimization.scenario.hub_count}
+                    Snap grafu: {summary.explainability.corridor_optimization.graph_snap_decimals} cyfr • rozdz. H3 {summary.explainability.corridor_optimization.scenario.h3_resolution} • huby {summary.explainability.corridor_optimization.scenario.hub_count}
                   </p>
                 </div>
 
                 <div class="rounded-[1.25rem] border border-stone-200 bg-stone-50 px-4 py-3">
-                  <p class="text-xs font-semibold uppercase tracking-[0.2em] text-stone-500">Connector Optimization</p>
+                  <p class="text-xs font-semibold uppercase tracking-[0.2em] text-stone-500">Optymalizacja łączników</p>
                   <p class="mt-2 font-medium text-stone-950">
                     {summary.explainability.connector_optimization.scenario.priority_formula}
                   </p>
@@ -1929,7 +3850,13 @@ npm run dev</pre>
                     Dlugosc {summary.explainability.connector_optimization.scenario.min_connector_length_meters}-{summary.explainability.connector_optimization.scenario.max_connector_length_meters} m • targety {summary.explainability.connector_optimization.scenario.target_component_limit}
                   </p>
                   <p class="mt-2 text-stone-600">
-                    Crossing method: {summary.explainability.connector_optimization.scenario.crossing_method}
+                    Metoda przeciec: {summary.explainability.connector_optimization.scenario.crossing_method}
+                  </p>
+                  <p class="mt-2 text-stone-600">
+                    {summary.explainability.connector_optimization.connector_definition}
+                  </p>
+                  <p class="mt-2 text-stone-600">
+                    {summary.explainability.connector_optimization.why_this_is_not_guessing}
                   </p>
                 </div>
 

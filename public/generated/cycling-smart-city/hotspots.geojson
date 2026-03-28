@@ -13,6 +13,11 @@
       "properties": {
         "hub_id": 1,
         "label": "H3 Hub 1",
+        "scenario_id": "h3_balanced_corridor_v2",
+        "scenario_label": "Zbalansowany score H3",
+        "route_metric_key": "hex_score",
+        "route_metric_label": "hex_score",
+        "route_score": 49.33,
         "cell_id": "881e2e6ae5fffff",
         "h3_index": "881e2e6ae5fffff",
         "h3_resolution": 8,
@@ -25,6 +30,9 @@
         "demand_score": 40.77,
         "network_score": 67.35,
         "quality_score": 50.06,
+        "air_proxy_score": 30.08,
+        "rack_density_score": 39.88,
+        "infrastructure_density_score": 16.67,
         "total_weight": 266,
         "point_count": 66,
         "rack_count": 65,
@@ -47,6 +55,11 @@
       "properties": {
         "hub_id": 2,
         "label": "H3 Hub 2",
+        "scenario_id": "h3_balanced_corridor_v2",
+        "scenario_label": "Zbalansowany score H3",
+        "route_metric_key": "hex_score",
+        "route_metric_label": "hex_score",
+        "route_score": 35.88,
         "cell_id": "881e2e6869fffff",
         "h3_index": "881e2e6869fffff",
         "h3_resolution": 8,
@@ -59,6 +72,9 @@
         "demand_score": 11.65,
         "network_score": 61.22,
         "quality_score": 52.55,
+        "air_proxy_score": 35.58,
+        "rack_density_score": 10.43,
+        "infrastructure_density_score": 33.33,
         "total_weight": 76,
         "point_count": 19,
         "rack_count": 17,
@@ -81,6 +97,11 @@
       "properties": {
         "hub_id": 3,
         "label": "H3 Hub 3",
+        "scenario_id": "h3_balanced_corridor_v2",
+        "scenario_label": "Zbalansowany score H3",
+        "route_metric_key": "hex_score",
+        "route_metric_label": "hex_score",
+        "route_score": 35.72,
         "cell_id": "881e2e6a17fffff",
         "h3_index": "881e2e6a17fffff",
         "h3_resolution": 8,
@@ -93,6 +114,9 @@
         "demand_score": 25.44,
         "network_score": 42.86,
         "quality_score": 44.87,
+        "air_proxy_score": 21.59,
+        "rack_density_score": 19.63,
+        "infrastructure_density_score": 33.33,
         "total_weight": 166,
         "point_count": 34,
         "rack_count": 32,
@@ -115,6 +139,11 @@
       "properties": {
         "hub_id": 4,
         "label": "H3 Hub 4",
+        "scenario_id": "h3_balanced_corridor_v2",
+        "scenario_label": "Zbalansowany score H3",
+        "route_metric_key": "hex_score",
+        "route_metric_label": "hex_score",
+        "route_score": 33.92,
         "cell_id": "881e2e6a37fffff",
         "h3_index": "881e2e6a37fffff",
         "h3_resolution": 8,
@@ -127,6 +156,9 @@
         "demand_score": 4.6,
         "network_score": 80.95,
         "quality_score": 44.74,
+        "air_proxy_score": 27.07,
+        "rack_density_score": 3.68,
+        "infrastructure_density_score": 33.33,
         "total_weight": 30,
         "point_count": 8,
         "rack_count": 6,
@@ -149,6 +181,11 @@
       "properties": {
         "hub_id": 5,
         "label": "H3 Hub 5",
+        "scenario_id": "h3_balanced_corridor_v2",
+        "scenario_label": "Zbalansowany score H3",
+        "route_metric_key": "hex_score",
+        "route_metric_label": "hex_score",
+        "route_score": 29.88,
         "cell_id": "881e2e6a39fffff",
         "h3_index": "881e2e6a39fffff",
         "h3_resolution": 8,
@@ -161,6 +198,9 @@
         "demand_score": 6.21,
         "network_score": 82.31,
         "quality_score": 30.35,
+        "air_proxy_score": 19.15,
+        "rack_density_score": 6.13,
+        "infrastructure_density_score": 16.67,
         "total_weight": 40.5,
         "point_count": 11,
         "rack_count": 10,
@@ -183,6 +223,11 @@
       "properties": {
         "hub_id": 6,
         "label": "H3 Hub 6",
+        "scenario_id": "h3_balanced_corridor_v2",
+        "scenario_label": "Zbalansowany score H3",
+        "route_metric_key": "hex_score",
+        "route_metric_label": "hex_score",
+        "route_score": 29.14,
         "cell_id": "881e2e6841fffff",
         "h3_index": "881e2e6841fffff",
         "h3_resolution": 8,
@@ -195,6 +240,2529 @@
         "demand_score": 8.97,
         "network_score": 69.39,
         "quality_score": 32.07,
+        "air_proxy_score": 19.76,
+        "rack_density_score": 4.91,
+        "infrastructure_density_score": 16.67,
+        "total_weight": 58.5,
+        "point_count": 9,
+        "rack_count": 8,
+        "infrastructure_count": 1,
+        "mean_segment_score": 32.07,
+        "graph_node_id": 1246,
+        "component_id": 19,
+        "snap_distance_m": 31.07
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          20.026612,
+          50.0766
+        ]
+      },
+      "properties": {
+        "hub_id": 1,
+        "label": "Hub air_proxy 1",
+        "scenario_id": "pure_air_proxy_corridor_v1",
+        "scenario_label": "air_proxy 100%",
+        "route_metric_key": "air_proxy",
+        "route_metric_label": "air_proxy 100%",
+        "route_score": 30.08,
+        "cell_id": "881e2e6ae5fffff",
+        "h3_index": "881e2e6ae5fffff",
+        "h3_resolution": 8,
+        "center": [
+          20.026612,
+          50.0766
+        ],
+        "density_score": 30.08,
+        "hex_score": 49.33,
+        "demand_score": 40.77,
+        "network_score": 67.35,
+        "quality_score": 50.06,
+        "air_proxy_score": 30.08,
+        "rack_density_score": 39.88,
+        "infrastructure_density_score": 16.67,
+        "total_weight": 266,
+        "point_count": 66,
+        "rack_count": 65,
+        "infrastructure_count": 1,
+        "mean_segment_score": 50.06,
+        "graph_node_id": 123,
+        "component_id": 19,
+        "snap_distance_m": 226.19
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          19.964018,
+          50.053248
+        ]
+      },
+      "properties": {
+        "hub_id": 2,
+        "label": "Hub air_proxy 2",
+        "scenario_id": "pure_air_proxy_corridor_v1",
+        "scenario_label": "air_proxy 100%",
+        "route_metric_key": "air_proxy",
+        "route_metric_label": "air_proxy 100%",
+        "route_score": 35.58,
+        "cell_id": "881e2e6869fffff",
+        "h3_index": "881e2e6869fffff",
+        "h3_resolution": 8,
+        "center": [
+          19.964018,
+          50.053248
+        ],
+        "density_score": 35.58,
+        "hex_score": 35.88,
+        "demand_score": 11.65,
+        "network_score": 61.22,
+        "quality_score": 52.55,
+        "air_proxy_score": 35.58,
+        "rack_density_score": 10.43,
+        "infrastructure_density_score": 33.33,
+        "total_weight": 76,
+        "point_count": 19,
+        "rack_count": 17,
+        "infrastructure_count": 2,
+        "mean_segment_score": 52.55,
+        "graph_node_id": 1266,
+        "component_id": 19,
+        "snap_distance_m": 185.83
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          20.021961,
+          50.091983
+        ]
+      },
+      "properties": {
+        "hub_id": 3,
+        "label": "Hub air_proxy 3",
+        "scenario_id": "pure_air_proxy_corridor_v1",
+        "scenario_label": "air_proxy 100%",
+        "route_metric_key": "air_proxy",
+        "route_metric_label": "air_proxy 100%",
+        "route_score": 21.59,
+        "cell_id": "881e2e6a17fffff",
+        "h3_index": "881e2e6a17fffff",
+        "h3_resolution": 8,
+        "center": [
+          20.021961,
+          50.091983
+        ],
+        "density_score": 21.59,
+        "hex_score": 35.72,
+        "demand_score": 25.44,
+        "network_score": 42.86,
+        "quality_score": 44.87,
+        "air_proxy_score": 21.59,
+        "rack_density_score": 19.63,
+        "infrastructure_density_score": 33.33,
+        "total_weight": 166,
+        "point_count": 34,
+        "rack_count": 32,
+        "infrastructure_count": 2,
+        "mean_segment_score": 44.87,
+        "graph_node_id": 757,
+        "component_id": 19,
+        "snap_distance_m": 137.03
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          20.004191,
+          50.073949
+        ]
+      },
+      "properties": {
+        "hub_id": 4,
+        "label": "Hub air_proxy 4",
+        "scenario_id": "pure_air_proxy_corridor_v1",
+        "scenario_label": "air_proxy 100%",
+        "route_metric_key": "air_proxy",
+        "route_metric_label": "air_proxy 100%",
+        "route_score": 27.07,
+        "cell_id": "881e2e6a37fffff",
+        "h3_index": "881e2e6a37fffff",
+        "h3_resolution": 8,
+        "center": [
+          20.004191,
+          50.073949
+        ],
+        "density_score": 27.07,
+        "hex_score": 33.92,
+        "demand_score": 4.6,
+        "network_score": 80.95,
+        "quality_score": 44.74,
+        "air_proxy_score": 27.07,
+        "rack_density_score": 3.68,
+        "infrastructure_density_score": 33.33,
+        "total_weight": 30,
+        "point_count": 8,
+        "rack_count": 6,
+        "infrastructure_count": 2,
+        "mean_segment_score": 44.74,
+        "graph_node_id": 3669,
+        "component_id": 19,
+        "snap_distance_m": 11.1
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          19.999535,
+          50.089331
+        ]
+      },
+      "properties": {
+        "hub_id": 5,
+        "label": "Hub air_proxy 5",
+        "scenario_id": "pure_air_proxy_corridor_v1",
+        "scenario_label": "air_proxy 100%",
+        "route_metric_key": "air_proxy",
+        "route_metric_label": "air_proxy 100%",
+        "route_score": 19.15,
+        "cell_id": "881e2e6a39fffff",
+        "h3_index": "881e2e6a39fffff",
+        "h3_resolution": 8,
+        "center": [
+          19.999535,
+          50.089331
+        ],
+        "density_score": 19.15,
+        "hex_score": 29.88,
+        "demand_score": 6.21,
+        "network_score": 82.31,
+        "quality_score": 30.35,
+        "air_proxy_score": 19.15,
+        "rack_density_score": 6.13,
+        "infrastructure_density_score": 16.67,
+        "total_weight": 40.5,
+        "point_count": 11,
+        "rack_count": 10,
+        "infrastructure_count": 1,
+        "mean_segment_score": 30.35,
+        "graph_node_id": 2773,
+        "component_id": 19,
+        "snap_distance_m": 188.57
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          19.984101,
+          50.063601
+        ]
+      },
+      "properties": {
+        "hub_id": 6,
+        "label": "Hub air_proxy 6",
+        "scenario_id": "pure_air_proxy_corridor_v1",
+        "scenario_label": "air_proxy 100%",
+        "route_metric_key": "air_proxy",
+        "route_metric_label": "air_proxy 100%",
+        "route_score": 19.76,
+        "cell_id": "881e2e6841fffff",
+        "h3_index": "881e2e6841fffff",
+        "h3_resolution": 8,
+        "center": [
+          19.984101,
+          50.063601
+        ],
+        "density_score": 19.76,
+        "hex_score": 29.14,
+        "demand_score": 8.97,
+        "network_score": 69.39,
+        "quality_score": 32.07,
+        "air_proxy_score": 19.76,
+        "rack_density_score": 4.91,
+        "infrastructure_density_score": 16.67,
+        "total_weight": 58.5,
+        "point_count": 9,
+        "rack_count": 8,
+        "infrastructure_count": 1,
+        "mean_segment_score": 32.07,
+        "graph_node_id": 1246,
+        "component_id": 19,
+        "snap_distance_m": 31.07
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          20.026612,
+          50.0766
+        ]
+      },
+      "properties": {
+        "hub_id": 1,
+        "label": "Hub greenery 1",
+        "scenario_id": "pure_greenery_corridor_v1",
+        "scenario_label": "greenery 100%",
+        "route_metric_key": "greenery",
+        "route_metric_label": "greenery 100%",
+        "route_score": 32.79,
+        "cell_id": "881e2e6ae5fffff",
+        "h3_index": "881e2e6ae5fffff",
+        "h3_resolution": 8,
+        "center": [
+          20.026612,
+          50.0766
+        ],
+        "density_score": 32.79,
+        "hex_score": 49.33,
+        "demand_score": 40.77,
+        "network_score": 67.35,
+        "quality_score": 50.06,
+        "air_proxy_score": 30.08,
+        "rack_density_score": 39.88,
+        "infrastructure_density_score": 16.67,
+        "total_weight": 266,
+        "point_count": 66,
+        "rack_count": 65,
+        "infrastructure_count": 1,
+        "mean_segment_score": 50.06,
+        "graph_node_id": 123,
+        "component_id": 19,
+        "snap_distance_m": 226.19
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          19.964018,
+          50.053248
+        ]
+      },
+      "properties": {
+        "hub_id": 2,
+        "label": "Hub greenery 2",
+        "scenario_id": "pure_greenery_corridor_v1",
+        "scenario_label": "greenery 100%",
+        "route_metric_key": "greenery",
+        "route_metric_label": "greenery 100%",
+        "route_score": 40.56,
+        "cell_id": "881e2e6869fffff",
+        "h3_index": "881e2e6869fffff",
+        "h3_resolution": 8,
+        "center": [
+          19.964018,
+          50.053248
+        ],
+        "density_score": 40.56,
+        "hex_score": 35.88,
+        "demand_score": 11.65,
+        "network_score": 61.22,
+        "quality_score": 52.55,
+        "air_proxy_score": 35.58,
+        "rack_density_score": 10.43,
+        "infrastructure_density_score": 33.33,
+        "total_weight": 76,
+        "point_count": 19,
+        "rack_count": 17,
+        "infrastructure_count": 2,
+        "mean_segment_score": 52.55,
+        "graph_node_id": 1266,
+        "component_id": 19,
+        "snap_distance_m": 185.83
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          20.021961,
+          50.091983
+        ]
+      },
+      "properties": {
+        "hub_id": 3,
+        "label": "Hub greenery 3",
+        "scenario_id": "pure_greenery_corridor_v1",
+        "scenario_label": "greenery 100%",
+        "route_metric_key": "greenery",
+        "route_metric_label": "greenery 100%",
+        "route_score": 9.26,
+        "cell_id": "881e2e6a17fffff",
+        "h3_index": "881e2e6a17fffff",
+        "h3_resolution": 8,
+        "center": [
+          20.021961,
+          50.091983
+        ],
+        "density_score": 9.26,
+        "hex_score": 35.72,
+        "demand_score": 25.44,
+        "network_score": 42.86,
+        "quality_score": 44.87,
+        "air_proxy_score": 21.59,
+        "rack_density_score": 19.63,
+        "infrastructure_density_score": 33.33,
+        "total_weight": 166,
+        "point_count": 34,
+        "rack_count": 32,
+        "infrastructure_count": 2,
+        "mean_segment_score": 44.87,
+        "graph_node_id": 757,
+        "component_id": 19,
+        "snap_distance_m": 137.03
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          20.004191,
+          50.073949
+        ]
+      },
+      "properties": {
+        "hub_id": 4,
+        "label": "Hub greenery 4",
+        "scenario_id": "pure_greenery_corridor_v1",
+        "scenario_label": "greenery 100%",
+        "route_metric_key": "greenery",
+        "route_metric_label": "greenery 100%",
+        "route_score": 25.27,
+        "cell_id": "881e2e6a37fffff",
+        "h3_index": "881e2e6a37fffff",
+        "h3_resolution": 8,
+        "center": [
+          20.004191,
+          50.073949
+        ],
+        "density_score": 25.27,
+        "hex_score": 33.92,
+        "demand_score": 4.6,
+        "network_score": 80.95,
+        "quality_score": 44.74,
+        "air_proxy_score": 27.07,
+        "rack_density_score": 3.68,
+        "infrastructure_density_score": 33.33,
+        "total_weight": 30,
+        "point_count": 8,
+        "rack_count": 6,
+        "infrastructure_count": 2,
+        "mean_segment_score": 44.74,
+        "graph_node_id": 3669,
+        "component_id": 19,
+        "snap_distance_m": 11.1
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          19.999535,
+          50.089331
+        ]
+      },
+      "properties": {
+        "hub_id": 5,
+        "label": "Hub greenery 5",
+        "scenario_id": "pure_greenery_corridor_v1",
+        "scenario_label": "greenery 100%",
+        "route_metric_key": "greenery",
+        "route_metric_label": "greenery 100%",
+        "route_score": 13.46,
+        "cell_id": "881e2e6a39fffff",
+        "h3_index": "881e2e6a39fffff",
+        "h3_resolution": 8,
+        "center": [
+          19.999535,
+          50.089331
+        ],
+        "density_score": 13.46,
+        "hex_score": 29.88,
+        "demand_score": 6.21,
+        "network_score": 82.31,
+        "quality_score": 30.35,
+        "air_proxy_score": 19.15,
+        "rack_density_score": 6.13,
+        "infrastructure_density_score": 16.67,
+        "total_weight": 40.5,
+        "point_count": 11,
+        "rack_count": 10,
+        "infrastructure_count": 1,
+        "mean_segment_score": 30.35,
+        "graph_node_id": 2773,
+        "component_id": 19,
+        "snap_distance_m": 188.57
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          19.984101,
+          50.063601
+        ]
+      },
+      "properties": {
+        "hub_id": 6,
+        "label": "Hub greenery 6",
+        "scenario_id": "pure_greenery_corridor_v1",
+        "scenario_label": "greenery 100%",
+        "route_metric_key": "greenery",
+        "route_metric_label": "greenery 100%",
+        "route_score": 12.31,
+        "cell_id": "881e2e6841fffff",
+        "h3_index": "881e2e6841fffff",
+        "h3_resolution": 8,
+        "center": [
+          19.984101,
+          50.063601
+        ],
+        "density_score": 12.31,
+        "hex_score": 29.14,
+        "demand_score": 8.97,
+        "network_score": 69.39,
+        "quality_score": 32.07,
+        "air_proxy_score": 19.76,
+        "rack_density_score": 4.91,
+        "infrastructure_density_score": 16.67,
+        "total_weight": 58.5,
+        "point_count": 9,
+        "rack_count": 8,
+        "infrastructure_count": 1,
+        "mean_segment_score": 32.07,
+        "graph_node_id": 1246,
+        "component_id": 19,
+        "snap_distance_m": 31.07
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          20.026612,
+          50.0766
+        ]
+      },
+      "properties": {
+        "hub_id": 1,
+        "label": "Hub quietness 1",
+        "scenario_id": "pure_quietness_corridor_v1",
+        "scenario_label": "quietness 100%",
+        "route_metric_key": "quietness",
+        "route_metric_label": "quietness 100%",
+        "route_score": 26.77,
+        "cell_id": "881e2e6ae5fffff",
+        "h3_index": "881e2e6ae5fffff",
+        "h3_resolution": 8,
+        "center": [
+          20.026612,
+          50.0766
+        ],
+        "density_score": 26.77,
+        "hex_score": 49.33,
+        "demand_score": 40.77,
+        "network_score": 67.35,
+        "quality_score": 50.06,
+        "air_proxy_score": 30.08,
+        "rack_density_score": 39.88,
+        "infrastructure_density_score": 16.67,
+        "total_weight": 266,
+        "point_count": 66,
+        "rack_count": 65,
+        "infrastructure_count": 1,
+        "mean_segment_score": 50.06,
+        "graph_node_id": 123,
+        "component_id": 19,
+        "snap_distance_m": 226.19
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          19.964018,
+          50.053248
+        ]
+      },
+      "properties": {
+        "hub_id": 2,
+        "label": "Hub quietness 2",
+        "scenario_id": "pure_quietness_corridor_v1",
+        "scenario_label": "quietness 100%",
+        "route_metric_key": "quietness",
+        "route_metric_label": "quietness 100%",
+        "route_score": 29.5,
+        "cell_id": "881e2e6869fffff",
+        "h3_index": "881e2e6869fffff",
+        "h3_resolution": 8,
+        "center": [
+          19.964018,
+          50.053248
+        ],
+        "density_score": 29.5,
+        "hex_score": 35.88,
+        "demand_score": 11.65,
+        "network_score": 61.22,
+        "quality_score": 52.55,
+        "air_proxy_score": 35.58,
+        "rack_density_score": 10.43,
+        "infrastructure_density_score": 33.33,
+        "total_weight": 76,
+        "point_count": 19,
+        "rack_count": 17,
+        "infrastructure_count": 2,
+        "mean_segment_score": 52.55,
+        "graph_node_id": 1266,
+        "component_id": 19,
+        "snap_distance_m": 185.83
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          20.021961,
+          50.091983
+        ]
+      },
+      "properties": {
+        "hub_id": 3,
+        "label": "Hub quietness 3",
+        "scenario_id": "pure_quietness_corridor_v1",
+        "scenario_label": "quietness 100%",
+        "route_metric_key": "quietness",
+        "route_metric_label": "quietness 100%",
+        "route_score": 36.67,
+        "cell_id": "881e2e6a17fffff",
+        "h3_index": "881e2e6a17fffff",
+        "h3_resolution": 8,
+        "center": [
+          20.021961,
+          50.091983
+        ],
+        "density_score": 36.67,
+        "hex_score": 35.72,
+        "demand_score": 25.44,
+        "network_score": 42.86,
+        "quality_score": 44.87,
+        "air_proxy_score": 21.59,
+        "rack_density_score": 19.63,
+        "infrastructure_density_score": 33.33,
+        "total_weight": 166,
+        "point_count": 34,
+        "rack_count": 32,
+        "infrastructure_count": 2,
+        "mean_segment_score": 44.87,
+        "graph_node_id": 757,
+        "component_id": 19,
+        "snap_distance_m": 137.03
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          20.004191,
+          50.073949
+        ]
+      },
+      "properties": {
+        "hub_id": 4,
+        "label": "Hub quietness 4",
+        "scenario_id": "pure_quietness_corridor_v1",
+        "scenario_label": "quietness 100%",
+        "route_metric_key": "quietness",
+        "route_metric_label": "quietness 100%",
+        "route_score": 29.26,
+        "cell_id": "881e2e6a37fffff",
+        "h3_index": "881e2e6a37fffff",
+        "h3_resolution": 8,
+        "center": [
+          20.004191,
+          50.073949
+        ],
+        "density_score": 29.26,
+        "hex_score": 33.92,
+        "demand_score": 4.6,
+        "network_score": 80.95,
+        "quality_score": 44.74,
+        "air_proxy_score": 27.07,
+        "rack_density_score": 3.68,
+        "infrastructure_density_score": 33.33,
+        "total_weight": 30,
+        "point_count": 8,
+        "rack_count": 6,
+        "infrastructure_count": 2,
+        "mean_segment_score": 44.74,
+        "graph_node_id": 3669,
+        "component_id": 19,
+        "snap_distance_m": 11.1
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          19.999535,
+          50.089331
+        ]
+      },
+      "properties": {
+        "hub_id": 5,
+        "label": "Hub quietness 5",
+        "scenario_id": "pure_quietness_corridor_v1",
+        "scenario_label": "quietness 100%",
+        "route_metric_key": "quietness",
+        "route_metric_label": "quietness 100%",
+        "route_score": 26.1,
+        "cell_id": "881e2e6a39fffff",
+        "h3_index": "881e2e6a39fffff",
+        "h3_resolution": 8,
+        "center": [
+          19.999535,
+          50.089331
+        ],
+        "density_score": 26.1,
+        "hex_score": 29.88,
+        "demand_score": 6.21,
+        "network_score": 82.31,
+        "quality_score": 30.35,
+        "air_proxy_score": 19.15,
+        "rack_density_score": 6.13,
+        "infrastructure_density_score": 16.67,
+        "total_weight": 40.5,
+        "point_count": 11,
+        "rack_count": 10,
+        "infrastructure_count": 1,
+        "mean_segment_score": 30.35,
+        "graph_node_id": 2773,
+        "component_id": 19,
+        "snap_distance_m": 188.57
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          19.984101,
+          50.063601
+        ]
+      },
+      "properties": {
+        "hub_id": 6,
+        "label": "Hub quietness 6",
+        "scenario_id": "pure_quietness_corridor_v1",
+        "scenario_label": "quietness 100%",
+        "route_metric_key": "quietness",
+        "route_metric_label": "quietness 100%",
+        "route_score": 28.87,
+        "cell_id": "881e2e6841fffff",
+        "h3_index": "881e2e6841fffff",
+        "h3_resolution": 8,
+        "center": [
+          19.984101,
+          50.063601
+        ],
+        "density_score": 28.87,
+        "hex_score": 29.14,
+        "demand_score": 8.97,
+        "network_score": 69.39,
+        "quality_score": 32.07,
+        "air_proxy_score": 19.76,
+        "rack_density_score": 4.91,
+        "infrastructure_density_score": 16.67,
+        "total_weight": 58.5,
+        "point_count": 9,
+        "rack_count": 8,
+        "infrastructure_count": 1,
+        "mean_segment_score": 32.07,
+        "graph_node_id": 1246,
+        "component_id": 19,
+        "snap_distance_m": 31.07
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          20.026612,
+          50.0766
+        ]
+      },
+      "properties": {
+        "hub_id": 1,
+        "label": "Hub rack_access 1",
+        "scenario_id": "pure_rack_access_corridor_v1",
+        "scenario_label": "rack_access 100%",
+        "route_metric_key": "rack_access",
+        "route_metric_label": "rack_access 100%",
+        "route_score": 92.73,
+        "cell_id": "881e2e6ae5fffff",
+        "h3_index": "881e2e6ae5fffff",
+        "h3_resolution": 8,
+        "center": [
+          20.026612,
+          50.0766
+        ],
+        "density_score": 92.73,
+        "hex_score": 49.33,
+        "demand_score": 40.77,
+        "network_score": 67.35,
+        "quality_score": 50.06,
+        "air_proxy_score": 30.08,
+        "rack_density_score": 39.88,
+        "infrastructure_density_score": 16.67,
+        "total_weight": 266,
+        "point_count": 66,
+        "rack_count": 65,
+        "infrastructure_count": 1,
+        "mean_segment_score": 50.06,
+        "graph_node_id": 123,
+        "component_id": 19,
+        "snap_distance_m": 226.19
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          19.964018,
+          50.053248
+        ]
+      },
+      "properties": {
+        "hub_id": 2,
+        "label": "Hub rack_access 2",
+        "scenario_id": "pure_rack_access_corridor_v1",
+        "scenario_label": "rack_access 100%",
+        "route_metric_key": "rack_access",
+        "route_metric_label": "rack_access 100%",
+        "route_score": 85.05,
+        "cell_id": "881e2e6869fffff",
+        "h3_index": "881e2e6869fffff",
+        "h3_resolution": 8,
+        "center": [
+          19.964018,
+          50.053248
+        ],
+        "density_score": 85.05,
+        "hex_score": 35.88,
+        "demand_score": 11.65,
+        "network_score": 61.22,
+        "quality_score": 52.55,
+        "air_proxy_score": 35.58,
+        "rack_density_score": 10.43,
+        "infrastructure_density_score": 33.33,
+        "total_weight": 76,
+        "point_count": 19,
+        "rack_count": 17,
+        "infrastructure_count": 2,
+        "mean_segment_score": 52.55,
+        "graph_node_id": 1266,
+        "component_id": 19,
+        "snap_distance_m": 185.83
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          20.021961,
+          50.091983
+        ]
+      },
+      "properties": {
+        "hub_id": 3,
+        "label": "Hub rack_access 3",
+        "scenario_id": "pure_rack_access_corridor_v1",
+        "scenario_label": "rack_access 100%",
+        "route_metric_key": "rack_access",
+        "route_metric_label": "rack_access 100%",
+        "route_score": 87.75,
+        "cell_id": "881e2e6a17fffff",
+        "h3_index": "881e2e6a17fffff",
+        "h3_resolution": 8,
+        "center": [
+          20.021961,
+          50.091983
+        ],
+        "density_score": 87.75,
+        "hex_score": 35.72,
+        "demand_score": 25.44,
+        "network_score": 42.86,
+        "quality_score": 44.87,
+        "air_proxy_score": 21.59,
+        "rack_density_score": 19.63,
+        "infrastructure_density_score": 33.33,
+        "total_weight": 166,
+        "point_count": 34,
+        "rack_count": 32,
+        "infrastructure_count": 2,
+        "mean_segment_score": 44.87,
+        "graph_node_id": 757,
+        "component_id": 19,
+        "snap_distance_m": 137.03
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          20.004191,
+          50.073949
+        ]
+      },
+      "properties": {
+        "hub_id": 4,
+        "label": "Hub rack_access 4",
+        "scenario_id": "pure_rack_access_corridor_v1",
+        "scenario_label": "rack_access 100%",
+        "route_metric_key": "rack_access",
+        "route_metric_label": "rack_access 100%",
+        "route_score": 74.41,
+        "cell_id": "881e2e6a37fffff",
+        "h3_index": "881e2e6a37fffff",
+        "h3_resolution": 8,
+        "center": [
+          20.004191,
+          50.073949
+        ],
+        "density_score": 74.41,
+        "hex_score": 33.92,
+        "demand_score": 4.6,
+        "network_score": 80.95,
+        "quality_score": 44.74,
+        "air_proxy_score": 27.07,
+        "rack_density_score": 3.68,
+        "infrastructure_density_score": 33.33,
+        "total_weight": 30,
+        "point_count": 8,
+        "rack_count": 6,
+        "infrastructure_count": 2,
+        "mean_segment_score": 44.74,
+        "graph_node_id": 3669,
+        "component_id": 19,
+        "snap_distance_m": 11.1
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          19.999535,
+          50.089331
+        ]
+      },
+      "properties": {
+        "hub_id": 5,
+        "label": "Hub rack_access 5",
+        "scenario_id": "pure_rack_access_corridor_v1",
+        "scenario_label": "rack_access 100%",
+        "route_metric_key": "rack_access",
+        "route_metric_label": "rack_access 100%",
+        "route_score": 30.12,
+        "cell_id": "881e2e6a39fffff",
+        "h3_index": "881e2e6a39fffff",
+        "h3_resolution": 8,
+        "center": [
+          19.999535,
+          50.089331
+        ],
+        "density_score": 30.12,
+        "hex_score": 29.88,
+        "demand_score": 6.21,
+        "network_score": 82.31,
+        "quality_score": 30.35,
+        "air_proxy_score": 19.15,
+        "rack_density_score": 6.13,
+        "infrastructure_density_score": 16.67,
+        "total_weight": 40.5,
+        "point_count": 11,
+        "rack_count": 10,
+        "infrastructure_count": 1,
+        "mean_segment_score": 30.35,
+        "graph_node_id": 2773,
+        "component_id": 19,
+        "snap_distance_m": 188.57
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          19.984101,
+          50.063601
+        ]
+      },
+      "properties": {
+        "hub_id": 6,
+        "label": "Hub rack_access 6",
+        "scenario_id": "pure_rack_access_corridor_v1",
+        "scenario_label": "rack_access 100%",
+        "route_metric_key": "rack_access",
+        "route_metric_label": "rack_access 100%",
+        "route_score": 37.66,
+        "cell_id": "881e2e6841fffff",
+        "h3_index": "881e2e6841fffff",
+        "h3_resolution": 8,
+        "center": [
+          19.984101,
+          50.063601
+        ],
+        "density_score": 37.66,
+        "hex_score": 29.14,
+        "demand_score": 8.97,
+        "network_score": 69.39,
+        "quality_score": 32.07,
+        "air_proxy_score": 19.76,
+        "rack_density_score": 4.91,
+        "infrastructure_density_score": 16.67,
+        "total_weight": 58.5,
+        "point_count": 9,
+        "rack_count": 8,
+        "infrastructure_count": 1,
+        "mean_segment_score": 32.07,
+        "graph_node_id": 1246,
+        "component_id": 19,
+        "snap_distance_m": 31.07
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          20.026612,
+          50.0766
+        ]
+      },
+      "properties": {
+        "hub_id": 1,
+        "label": "Hub infrastructure_access 1",
+        "scenario_id": "pure_infrastructure_access_corridor_v1",
+        "scenario_label": "infrastructure_access 100%",
+        "route_metric_key": "infrastructure_access",
+        "route_metric_label": "infrastructure_access 100%",
+        "route_score": 80.02,
+        "cell_id": "881e2e6ae5fffff",
+        "h3_index": "881e2e6ae5fffff",
+        "h3_resolution": 8,
+        "center": [
+          20.026612,
+          50.0766
+        ],
+        "density_score": 80.02,
+        "hex_score": 49.33,
+        "demand_score": 40.77,
+        "network_score": 67.35,
+        "quality_score": 50.06,
+        "air_proxy_score": 30.08,
+        "rack_density_score": 39.88,
+        "infrastructure_density_score": 16.67,
+        "total_weight": 266,
+        "point_count": 66,
+        "rack_count": 65,
+        "infrastructure_count": 1,
+        "mean_segment_score": 50.06,
+        "graph_node_id": 123,
+        "component_id": 19,
+        "snap_distance_m": 226.19
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          19.964018,
+          50.053248
+        ]
+      },
+      "properties": {
+        "hub_id": 2,
+        "label": "Hub infrastructure_access 2",
+        "scenario_id": "pure_infrastructure_access_corridor_v1",
+        "scenario_label": "infrastructure_access 100%",
+        "route_metric_key": "infrastructure_access",
+        "route_metric_label": "infrastructure_access 100%",
+        "route_score": 83.32,
+        "cell_id": "881e2e6869fffff",
+        "h3_index": "881e2e6869fffff",
+        "h3_resolution": 8,
+        "center": [
+          19.964018,
+          50.053248
+        ],
+        "density_score": 83.32,
+        "hex_score": 35.88,
+        "demand_score": 11.65,
+        "network_score": 61.22,
+        "quality_score": 52.55,
+        "air_proxy_score": 35.58,
+        "rack_density_score": 10.43,
+        "infrastructure_density_score": 33.33,
+        "total_weight": 76,
+        "point_count": 19,
+        "rack_count": 17,
+        "infrastructure_count": 2,
+        "mean_segment_score": 52.55,
+        "graph_node_id": 1266,
+        "component_id": 19,
+        "snap_distance_m": 185.83
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          20.021961,
+          50.091983
+        ]
+      },
+      "properties": {
+        "hub_id": 3,
+        "label": "Hub infrastructure_access 3",
+        "scenario_id": "pure_infrastructure_access_corridor_v1",
+        "scenario_label": "infrastructure_access 100%",
+        "route_metric_key": "infrastructure_access",
+        "route_metric_label": "infrastructure_access 100%",
+        "route_score": 87.19,
+        "cell_id": "881e2e6a17fffff",
+        "h3_index": "881e2e6a17fffff",
+        "h3_resolution": 8,
+        "center": [
+          20.021961,
+          50.091983
+        ],
+        "density_score": 87.19,
+        "hex_score": 35.72,
+        "demand_score": 25.44,
+        "network_score": 42.86,
+        "quality_score": 44.87,
+        "air_proxy_score": 21.59,
+        "rack_density_score": 19.63,
+        "infrastructure_density_score": 33.33,
+        "total_weight": 166,
+        "point_count": 34,
+        "rack_count": 32,
+        "infrastructure_count": 2,
+        "mean_segment_score": 44.87,
+        "graph_node_id": 757,
+        "component_id": 19,
+        "snap_distance_m": 137.03
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          20.004191,
+          50.073949
+        ]
+      },
+      "properties": {
+        "hub_id": 4,
+        "label": "Hub infrastructure_access 4",
+        "scenario_id": "pure_infrastructure_access_corridor_v1",
+        "scenario_label": "infrastructure_access 100%",
+        "route_metric_key": "infrastructure_access",
+        "route_metric_label": "infrastructure_access 100%",
+        "route_score": 81.59,
+        "cell_id": "881e2e6a37fffff",
+        "h3_index": "881e2e6a37fffff",
+        "h3_resolution": 8,
+        "center": [
+          20.004191,
+          50.073949
+        ],
+        "density_score": 81.59,
+        "hex_score": 33.92,
+        "demand_score": 4.6,
+        "network_score": 80.95,
+        "quality_score": 44.74,
+        "air_proxy_score": 27.07,
+        "rack_density_score": 3.68,
+        "infrastructure_density_score": 33.33,
+        "total_weight": 30,
+        "point_count": 8,
+        "rack_count": 6,
+        "infrastructure_count": 2,
+        "mean_segment_score": 44.74,
+        "graph_node_id": 3669,
+        "component_id": 19,
+        "snap_distance_m": 11.1
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          19.999535,
+          50.089331
+        ]
+      },
+      "properties": {
+        "hub_id": 5,
+        "label": "Hub infrastructure_access 5",
+        "scenario_id": "pure_infrastructure_access_corridor_v1",
+        "scenario_label": "infrastructure_access 100%",
+        "route_metric_key": "infrastructure_access",
+        "route_metric_label": "infrastructure_access 100%",
+        "route_score": 78.57,
+        "cell_id": "881e2e6a39fffff",
+        "h3_index": "881e2e6a39fffff",
+        "h3_resolution": 8,
+        "center": [
+          19.999535,
+          50.089331
+        ],
+        "density_score": 78.57,
+        "hex_score": 29.88,
+        "demand_score": 6.21,
+        "network_score": 82.31,
+        "quality_score": 30.35,
+        "air_proxy_score": 19.15,
+        "rack_density_score": 6.13,
+        "infrastructure_density_score": 16.67,
+        "total_weight": 40.5,
+        "point_count": 11,
+        "rack_count": 10,
+        "infrastructure_count": 1,
+        "mean_segment_score": 30.35,
+        "graph_node_id": 2773,
+        "component_id": 19,
+        "snap_distance_m": 188.57
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          19.984101,
+          50.063601
+        ]
+      },
+      "properties": {
+        "hub_id": 6,
+        "label": "Hub infrastructure_access 6",
+        "scenario_id": "pure_infrastructure_access_corridor_v1",
+        "scenario_label": "infrastructure_access 100%",
+        "route_metric_key": "infrastructure_access",
+        "route_metric_label": "infrastructure_access 100%",
+        "route_score": 77.12,
+        "cell_id": "881e2e6841fffff",
+        "h3_index": "881e2e6841fffff",
+        "h3_resolution": 8,
+        "center": [
+          19.984101,
+          50.063601
+        ],
+        "density_score": 77.12,
+        "hex_score": 29.14,
+        "demand_score": 8.97,
+        "network_score": 69.39,
+        "quality_score": 32.07,
+        "air_proxy_score": 19.76,
+        "rack_density_score": 4.91,
+        "infrastructure_density_score": 16.67,
+        "total_weight": 58.5,
+        "point_count": 9,
+        "rack_count": 8,
+        "infrastructure_count": 1,
+        "mean_segment_score": 32.07,
+        "graph_node_id": 1246,
+        "component_id": 19,
+        "snap_distance_m": 31.07
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          20.026612,
+          50.0766
+        ]
+      },
+      "properties": {
+        "hub_id": 1,
+        "label": "Hub rack_density 1",
+        "scenario_id": "pure_rack_density_corridor_v1",
+        "scenario_label": "rack_density 100%",
+        "route_metric_key": "rack_density",
+        "route_metric_label": "rack_density 100%",
+        "route_score": 39.88,
+        "cell_id": "881e2e6ae5fffff",
+        "h3_index": "881e2e6ae5fffff",
+        "h3_resolution": 8,
+        "center": [
+          20.026612,
+          50.0766
+        ],
+        "density_score": 39.88,
+        "hex_score": 49.33,
+        "demand_score": 40.77,
+        "network_score": 67.35,
+        "quality_score": 50.06,
+        "air_proxy_score": 30.08,
+        "rack_density_score": 39.88,
+        "infrastructure_density_score": 16.67,
+        "total_weight": 266,
+        "point_count": 66,
+        "rack_count": 65,
+        "infrastructure_count": 1,
+        "mean_segment_score": 50.06,
+        "graph_node_id": 123,
+        "component_id": 19,
+        "snap_distance_m": 226.19
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          19.964018,
+          50.053248
+        ]
+      },
+      "properties": {
+        "hub_id": 2,
+        "label": "Hub rack_density 2",
+        "scenario_id": "pure_rack_density_corridor_v1",
+        "scenario_label": "rack_density 100%",
+        "route_metric_key": "rack_density",
+        "route_metric_label": "rack_density 100%",
+        "route_score": 10.43,
+        "cell_id": "881e2e6869fffff",
+        "h3_index": "881e2e6869fffff",
+        "h3_resolution": 8,
+        "center": [
+          19.964018,
+          50.053248
+        ],
+        "density_score": 10.43,
+        "hex_score": 35.88,
+        "demand_score": 11.65,
+        "network_score": 61.22,
+        "quality_score": 52.55,
+        "air_proxy_score": 35.58,
+        "rack_density_score": 10.43,
+        "infrastructure_density_score": 33.33,
+        "total_weight": 76,
+        "point_count": 19,
+        "rack_count": 17,
+        "infrastructure_count": 2,
+        "mean_segment_score": 52.55,
+        "graph_node_id": 1266,
+        "component_id": 19,
+        "snap_distance_m": 185.83
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          20.021961,
+          50.091983
+        ]
+      },
+      "properties": {
+        "hub_id": 3,
+        "label": "Hub rack_density 3",
+        "scenario_id": "pure_rack_density_corridor_v1",
+        "scenario_label": "rack_density 100%",
+        "route_metric_key": "rack_density",
+        "route_metric_label": "rack_density 100%",
+        "route_score": 19.63,
+        "cell_id": "881e2e6a17fffff",
+        "h3_index": "881e2e6a17fffff",
+        "h3_resolution": 8,
+        "center": [
+          20.021961,
+          50.091983
+        ],
+        "density_score": 19.63,
+        "hex_score": 35.72,
+        "demand_score": 25.44,
+        "network_score": 42.86,
+        "quality_score": 44.87,
+        "air_proxy_score": 21.59,
+        "rack_density_score": 19.63,
+        "infrastructure_density_score": 33.33,
+        "total_weight": 166,
+        "point_count": 34,
+        "rack_count": 32,
+        "infrastructure_count": 2,
+        "mean_segment_score": 44.87,
+        "graph_node_id": 757,
+        "component_id": 19,
+        "snap_distance_m": 137.03
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          20.004191,
+          50.073949
+        ]
+      },
+      "properties": {
+        "hub_id": 4,
+        "label": "Hub rack_density 4",
+        "scenario_id": "pure_rack_density_corridor_v1",
+        "scenario_label": "rack_density 100%",
+        "route_metric_key": "rack_density",
+        "route_metric_label": "rack_density 100%",
+        "route_score": 3.68,
+        "cell_id": "881e2e6a37fffff",
+        "h3_index": "881e2e6a37fffff",
+        "h3_resolution": 8,
+        "center": [
+          20.004191,
+          50.073949
+        ],
+        "density_score": 3.68,
+        "hex_score": 33.92,
+        "demand_score": 4.6,
+        "network_score": 80.95,
+        "quality_score": 44.74,
+        "air_proxy_score": 27.07,
+        "rack_density_score": 3.68,
+        "infrastructure_density_score": 33.33,
+        "total_weight": 30,
+        "point_count": 8,
+        "rack_count": 6,
+        "infrastructure_count": 2,
+        "mean_segment_score": 44.74,
+        "graph_node_id": 3669,
+        "component_id": 19,
+        "snap_distance_m": 11.1
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          19.999535,
+          50.089331
+        ]
+      },
+      "properties": {
+        "hub_id": 5,
+        "label": "Hub rack_density 5",
+        "scenario_id": "pure_rack_density_corridor_v1",
+        "scenario_label": "rack_density 100%",
+        "route_metric_key": "rack_density",
+        "route_metric_label": "rack_density 100%",
+        "route_score": 6.13,
+        "cell_id": "881e2e6a39fffff",
+        "h3_index": "881e2e6a39fffff",
+        "h3_resolution": 8,
+        "center": [
+          19.999535,
+          50.089331
+        ],
+        "density_score": 6.13,
+        "hex_score": 29.88,
+        "demand_score": 6.21,
+        "network_score": 82.31,
+        "quality_score": 30.35,
+        "air_proxy_score": 19.15,
+        "rack_density_score": 6.13,
+        "infrastructure_density_score": 16.67,
+        "total_weight": 40.5,
+        "point_count": 11,
+        "rack_count": 10,
+        "infrastructure_count": 1,
+        "mean_segment_score": 30.35,
+        "graph_node_id": 2773,
+        "component_id": 19,
+        "snap_distance_m": 188.57
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          19.984101,
+          50.063601
+        ]
+      },
+      "properties": {
+        "hub_id": 6,
+        "label": "Hub rack_density 6",
+        "scenario_id": "pure_rack_density_corridor_v1",
+        "scenario_label": "rack_density 100%",
+        "route_metric_key": "rack_density",
+        "route_metric_label": "rack_density 100%",
+        "route_score": 4.91,
+        "cell_id": "881e2e6841fffff",
+        "h3_index": "881e2e6841fffff",
+        "h3_resolution": 8,
+        "center": [
+          19.984101,
+          50.063601
+        ],
+        "density_score": 4.91,
+        "hex_score": 29.14,
+        "demand_score": 8.97,
+        "network_score": 69.39,
+        "quality_score": 32.07,
+        "air_proxy_score": 19.76,
+        "rack_density_score": 4.91,
+        "infrastructure_density_score": 16.67,
+        "total_weight": 58.5,
+        "point_count": 9,
+        "rack_count": 8,
+        "infrastructure_count": 1,
+        "mean_segment_score": 32.07,
+        "graph_node_id": 1246,
+        "component_id": 19,
+        "snap_distance_m": 31.07
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          20.026612,
+          50.0766
+        ]
+      },
+      "properties": {
+        "hub_id": 1,
+        "label": "Hub infrastructure_density 1",
+        "scenario_id": "pure_infrastructure_density_corridor_v1",
+        "scenario_label": "infrastructure_density 100%",
+        "route_metric_key": "infrastructure_density",
+        "route_metric_label": "infrastructure_density 100%",
+        "route_score": 16.67,
+        "cell_id": "881e2e6ae5fffff",
+        "h3_index": "881e2e6ae5fffff",
+        "h3_resolution": 8,
+        "center": [
+          20.026612,
+          50.0766
+        ],
+        "density_score": 16.67,
+        "hex_score": 49.33,
+        "demand_score": 40.77,
+        "network_score": 67.35,
+        "quality_score": 50.06,
+        "air_proxy_score": 30.08,
+        "rack_density_score": 39.88,
+        "infrastructure_density_score": 16.67,
+        "total_weight": 266,
+        "point_count": 66,
+        "rack_count": 65,
+        "infrastructure_count": 1,
+        "mean_segment_score": 50.06,
+        "graph_node_id": 123,
+        "component_id": 19,
+        "snap_distance_m": 226.19
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          19.964018,
+          50.053248
+        ]
+      },
+      "properties": {
+        "hub_id": 2,
+        "label": "Hub infrastructure_density 2",
+        "scenario_id": "pure_infrastructure_density_corridor_v1",
+        "scenario_label": "infrastructure_density 100%",
+        "route_metric_key": "infrastructure_density",
+        "route_metric_label": "infrastructure_density 100%",
+        "route_score": 33.33,
+        "cell_id": "881e2e6869fffff",
+        "h3_index": "881e2e6869fffff",
+        "h3_resolution": 8,
+        "center": [
+          19.964018,
+          50.053248
+        ],
+        "density_score": 33.33,
+        "hex_score": 35.88,
+        "demand_score": 11.65,
+        "network_score": 61.22,
+        "quality_score": 52.55,
+        "air_proxy_score": 35.58,
+        "rack_density_score": 10.43,
+        "infrastructure_density_score": 33.33,
+        "total_weight": 76,
+        "point_count": 19,
+        "rack_count": 17,
+        "infrastructure_count": 2,
+        "mean_segment_score": 52.55,
+        "graph_node_id": 1266,
+        "component_id": 19,
+        "snap_distance_m": 185.83
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          20.021961,
+          50.091983
+        ]
+      },
+      "properties": {
+        "hub_id": 3,
+        "label": "Hub infrastructure_density 3",
+        "scenario_id": "pure_infrastructure_density_corridor_v1",
+        "scenario_label": "infrastructure_density 100%",
+        "route_metric_key": "infrastructure_density",
+        "route_metric_label": "infrastructure_density 100%",
+        "route_score": 33.33,
+        "cell_id": "881e2e6a17fffff",
+        "h3_index": "881e2e6a17fffff",
+        "h3_resolution": 8,
+        "center": [
+          20.021961,
+          50.091983
+        ],
+        "density_score": 33.33,
+        "hex_score": 35.72,
+        "demand_score": 25.44,
+        "network_score": 42.86,
+        "quality_score": 44.87,
+        "air_proxy_score": 21.59,
+        "rack_density_score": 19.63,
+        "infrastructure_density_score": 33.33,
+        "total_weight": 166,
+        "point_count": 34,
+        "rack_count": 32,
+        "infrastructure_count": 2,
+        "mean_segment_score": 44.87,
+        "graph_node_id": 757,
+        "component_id": 19,
+        "snap_distance_m": 137.03
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          20.004191,
+          50.073949
+        ]
+      },
+      "properties": {
+        "hub_id": 4,
+        "label": "Hub infrastructure_density 4",
+        "scenario_id": "pure_infrastructure_density_corridor_v1",
+        "scenario_label": "infrastructure_density 100%",
+        "route_metric_key": "infrastructure_density",
+        "route_metric_label": "infrastructure_density 100%",
+        "route_score": 33.33,
+        "cell_id": "881e2e6a37fffff",
+        "h3_index": "881e2e6a37fffff",
+        "h3_resolution": 8,
+        "center": [
+          20.004191,
+          50.073949
+        ],
+        "density_score": 33.33,
+        "hex_score": 33.92,
+        "demand_score": 4.6,
+        "network_score": 80.95,
+        "quality_score": 44.74,
+        "air_proxy_score": 27.07,
+        "rack_density_score": 3.68,
+        "infrastructure_density_score": 33.33,
+        "total_weight": 30,
+        "point_count": 8,
+        "rack_count": 6,
+        "infrastructure_count": 2,
+        "mean_segment_score": 44.74,
+        "graph_node_id": 3669,
+        "component_id": 19,
+        "snap_distance_m": 11.1
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          19.999535,
+          50.089331
+        ]
+      },
+      "properties": {
+        "hub_id": 5,
+        "label": "Hub infrastructure_density 5",
+        "scenario_id": "pure_infrastructure_density_corridor_v1",
+        "scenario_label": "infrastructure_density 100%",
+        "route_metric_key": "infrastructure_density",
+        "route_metric_label": "infrastructure_density 100%",
+        "route_score": 16.67,
+        "cell_id": "881e2e6a39fffff",
+        "h3_index": "881e2e6a39fffff",
+        "h3_resolution": 8,
+        "center": [
+          19.999535,
+          50.089331
+        ],
+        "density_score": 16.67,
+        "hex_score": 29.88,
+        "demand_score": 6.21,
+        "network_score": 82.31,
+        "quality_score": 30.35,
+        "air_proxy_score": 19.15,
+        "rack_density_score": 6.13,
+        "infrastructure_density_score": 16.67,
+        "total_weight": 40.5,
+        "point_count": 11,
+        "rack_count": 10,
+        "infrastructure_count": 1,
+        "mean_segment_score": 30.35,
+        "graph_node_id": 2773,
+        "component_id": 19,
+        "snap_distance_m": 188.57
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          19.984101,
+          50.063601
+        ]
+      },
+      "properties": {
+        "hub_id": 6,
+        "label": "Hub infrastructure_density 6",
+        "scenario_id": "pure_infrastructure_density_corridor_v1",
+        "scenario_label": "infrastructure_density 100%",
+        "route_metric_key": "infrastructure_density",
+        "route_metric_label": "infrastructure_density 100%",
+        "route_score": 16.67,
+        "cell_id": "881e2e6841fffff",
+        "h3_index": "881e2e6841fffff",
+        "h3_resolution": 8,
+        "center": [
+          19.984101,
+          50.063601
+        ],
+        "density_score": 16.67,
+        "hex_score": 29.14,
+        "demand_score": 8.97,
+        "network_score": 69.39,
+        "quality_score": 32.07,
+        "air_proxy_score": 19.76,
+        "rack_density_score": 4.91,
+        "infrastructure_density_score": 16.67,
+        "total_weight": 58.5,
+        "point_count": 9,
+        "rack_count": 8,
+        "infrastructure_count": 1,
+        "mean_segment_score": 32.07,
+        "graph_node_id": 1246,
+        "component_id": 19,
+        "snap_distance_m": 31.07
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          20.026612,
+          50.0766
+        ]
+      },
+      "properties": {
+        "hub_id": 1,
+        "label": "Hub demand 1",
+        "scenario_id": "pure_demand_corridor_v1",
+        "scenario_label": "demand 100%",
+        "route_metric_key": "demand",
+        "route_metric_label": "demand 100%",
+        "route_score": 40.77,
+        "cell_id": "881e2e6ae5fffff",
+        "h3_index": "881e2e6ae5fffff",
+        "h3_resolution": 8,
+        "center": [
+          20.026612,
+          50.0766
+        ],
+        "density_score": 40.77,
+        "hex_score": 49.33,
+        "demand_score": 40.77,
+        "network_score": 67.35,
+        "quality_score": 50.06,
+        "air_proxy_score": 30.08,
+        "rack_density_score": 39.88,
+        "infrastructure_density_score": 16.67,
+        "total_weight": 266,
+        "point_count": 66,
+        "rack_count": 65,
+        "infrastructure_count": 1,
+        "mean_segment_score": 50.06,
+        "graph_node_id": 123,
+        "component_id": 19,
+        "snap_distance_m": 226.19
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          19.964018,
+          50.053248
+        ]
+      },
+      "properties": {
+        "hub_id": 2,
+        "label": "Hub demand 2",
+        "scenario_id": "pure_demand_corridor_v1",
+        "scenario_label": "demand 100%",
+        "route_metric_key": "demand",
+        "route_metric_label": "demand 100%",
+        "route_score": 11.65,
+        "cell_id": "881e2e6869fffff",
+        "h3_index": "881e2e6869fffff",
+        "h3_resolution": 8,
+        "center": [
+          19.964018,
+          50.053248
+        ],
+        "density_score": 11.65,
+        "hex_score": 35.88,
+        "demand_score": 11.65,
+        "network_score": 61.22,
+        "quality_score": 52.55,
+        "air_proxy_score": 35.58,
+        "rack_density_score": 10.43,
+        "infrastructure_density_score": 33.33,
+        "total_weight": 76,
+        "point_count": 19,
+        "rack_count": 17,
+        "infrastructure_count": 2,
+        "mean_segment_score": 52.55,
+        "graph_node_id": 1266,
+        "component_id": 19,
+        "snap_distance_m": 185.83
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          20.021961,
+          50.091983
+        ]
+      },
+      "properties": {
+        "hub_id": 3,
+        "label": "Hub demand 3",
+        "scenario_id": "pure_demand_corridor_v1",
+        "scenario_label": "demand 100%",
+        "route_metric_key": "demand",
+        "route_metric_label": "demand 100%",
+        "route_score": 25.44,
+        "cell_id": "881e2e6a17fffff",
+        "h3_index": "881e2e6a17fffff",
+        "h3_resolution": 8,
+        "center": [
+          20.021961,
+          50.091983
+        ],
+        "density_score": 25.44,
+        "hex_score": 35.72,
+        "demand_score": 25.44,
+        "network_score": 42.86,
+        "quality_score": 44.87,
+        "air_proxy_score": 21.59,
+        "rack_density_score": 19.63,
+        "infrastructure_density_score": 33.33,
+        "total_weight": 166,
+        "point_count": 34,
+        "rack_count": 32,
+        "infrastructure_count": 2,
+        "mean_segment_score": 44.87,
+        "graph_node_id": 757,
+        "component_id": 19,
+        "snap_distance_m": 137.03
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          20.004191,
+          50.073949
+        ]
+      },
+      "properties": {
+        "hub_id": 4,
+        "label": "Hub demand 4",
+        "scenario_id": "pure_demand_corridor_v1",
+        "scenario_label": "demand 100%",
+        "route_metric_key": "demand",
+        "route_metric_label": "demand 100%",
+        "route_score": 4.6,
+        "cell_id": "881e2e6a37fffff",
+        "h3_index": "881e2e6a37fffff",
+        "h3_resolution": 8,
+        "center": [
+          20.004191,
+          50.073949
+        ],
+        "density_score": 4.6,
+        "hex_score": 33.92,
+        "demand_score": 4.6,
+        "network_score": 80.95,
+        "quality_score": 44.74,
+        "air_proxy_score": 27.07,
+        "rack_density_score": 3.68,
+        "infrastructure_density_score": 33.33,
+        "total_weight": 30,
+        "point_count": 8,
+        "rack_count": 6,
+        "infrastructure_count": 2,
+        "mean_segment_score": 44.74,
+        "graph_node_id": 3669,
+        "component_id": 19,
+        "snap_distance_m": 11.1
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          19.999535,
+          50.089331
+        ]
+      },
+      "properties": {
+        "hub_id": 5,
+        "label": "Hub demand 5",
+        "scenario_id": "pure_demand_corridor_v1",
+        "scenario_label": "demand 100%",
+        "route_metric_key": "demand",
+        "route_metric_label": "demand 100%",
+        "route_score": 6.21,
+        "cell_id": "881e2e6a39fffff",
+        "h3_index": "881e2e6a39fffff",
+        "h3_resolution": 8,
+        "center": [
+          19.999535,
+          50.089331
+        ],
+        "density_score": 6.21,
+        "hex_score": 29.88,
+        "demand_score": 6.21,
+        "network_score": 82.31,
+        "quality_score": 30.35,
+        "air_proxy_score": 19.15,
+        "rack_density_score": 6.13,
+        "infrastructure_density_score": 16.67,
+        "total_weight": 40.5,
+        "point_count": 11,
+        "rack_count": 10,
+        "infrastructure_count": 1,
+        "mean_segment_score": 30.35,
+        "graph_node_id": 2773,
+        "component_id": 19,
+        "snap_distance_m": 188.57
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          19.984101,
+          50.063601
+        ]
+      },
+      "properties": {
+        "hub_id": 6,
+        "label": "Hub demand 6",
+        "scenario_id": "pure_demand_corridor_v1",
+        "scenario_label": "demand 100%",
+        "route_metric_key": "demand",
+        "route_metric_label": "demand 100%",
+        "route_score": 8.97,
+        "cell_id": "881e2e6841fffff",
+        "h3_index": "881e2e6841fffff",
+        "h3_resolution": 8,
+        "center": [
+          19.984101,
+          50.063601
+        ],
+        "density_score": 8.97,
+        "hex_score": 29.14,
+        "demand_score": 8.97,
+        "network_score": 69.39,
+        "quality_score": 32.07,
+        "air_proxy_score": 19.76,
+        "rack_density_score": 4.91,
+        "infrastructure_density_score": 16.67,
+        "total_weight": 58.5,
+        "point_count": 9,
+        "rack_count": 8,
+        "infrastructure_count": 1,
+        "mean_segment_score": 32.07,
+        "graph_node_id": 1246,
+        "component_id": 19,
+        "snap_distance_m": 31.07
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          20.026612,
+          50.0766
+        ]
+      },
+      "properties": {
+        "hub_id": 1,
+        "label": "Hub network 1",
+        "scenario_id": "pure_network_corridor_v1",
+        "scenario_label": "network 100%",
+        "route_metric_key": "network",
+        "route_metric_label": "network 100%",
+        "route_score": 67.35,
+        "cell_id": "881e2e6ae5fffff",
+        "h3_index": "881e2e6ae5fffff",
+        "h3_resolution": 8,
+        "center": [
+          20.026612,
+          50.0766
+        ],
+        "density_score": 67.35,
+        "hex_score": 49.33,
+        "demand_score": 40.77,
+        "network_score": 67.35,
+        "quality_score": 50.06,
+        "air_proxy_score": 30.08,
+        "rack_density_score": 39.88,
+        "infrastructure_density_score": 16.67,
+        "total_weight": 266,
+        "point_count": 66,
+        "rack_count": 65,
+        "infrastructure_count": 1,
+        "mean_segment_score": 50.06,
+        "graph_node_id": 123,
+        "component_id": 19,
+        "snap_distance_m": 226.19
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          19.964018,
+          50.053248
+        ]
+      },
+      "properties": {
+        "hub_id": 2,
+        "label": "Hub network 2",
+        "scenario_id": "pure_network_corridor_v1",
+        "scenario_label": "network 100%",
+        "route_metric_key": "network",
+        "route_metric_label": "network 100%",
+        "route_score": 61.22,
+        "cell_id": "881e2e6869fffff",
+        "h3_index": "881e2e6869fffff",
+        "h3_resolution": 8,
+        "center": [
+          19.964018,
+          50.053248
+        ],
+        "density_score": 61.22,
+        "hex_score": 35.88,
+        "demand_score": 11.65,
+        "network_score": 61.22,
+        "quality_score": 52.55,
+        "air_proxy_score": 35.58,
+        "rack_density_score": 10.43,
+        "infrastructure_density_score": 33.33,
+        "total_weight": 76,
+        "point_count": 19,
+        "rack_count": 17,
+        "infrastructure_count": 2,
+        "mean_segment_score": 52.55,
+        "graph_node_id": 1266,
+        "component_id": 19,
+        "snap_distance_m": 185.83
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          20.021961,
+          50.091983
+        ]
+      },
+      "properties": {
+        "hub_id": 3,
+        "label": "Hub network 3",
+        "scenario_id": "pure_network_corridor_v1",
+        "scenario_label": "network 100%",
+        "route_metric_key": "network",
+        "route_metric_label": "network 100%",
+        "route_score": 42.86,
+        "cell_id": "881e2e6a17fffff",
+        "h3_index": "881e2e6a17fffff",
+        "h3_resolution": 8,
+        "center": [
+          20.021961,
+          50.091983
+        ],
+        "density_score": 42.86,
+        "hex_score": 35.72,
+        "demand_score": 25.44,
+        "network_score": 42.86,
+        "quality_score": 44.87,
+        "air_proxy_score": 21.59,
+        "rack_density_score": 19.63,
+        "infrastructure_density_score": 33.33,
+        "total_weight": 166,
+        "point_count": 34,
+        "rack_count": 32,
+        "infrastructure_count": 2,
+        "mean_segment_score": 44.87,
+        "graph_node_id": 757,
+        "component_id": 19,
+        "snap_distance_m": 137.03
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          20.004191,
+          50.073949
+        ]
+      },
+      "properties": {
+        "hub_id": 4,
+        "label": "Hub network 4",
+        "scenario_id": "pure_network_corridor_v1",
+        "scenario_label": "network 100%",
+        "route_metric_key": "network",
+        "route_metric_label": "network 100%",
+        "route_score": 80.95,
+        "cell_id": "881e2e6a37fffff",
+        "h3_index": "881e2e6a37fffff",
+        "h3_resolution": 8,
+        "center": [
+          20.004191,
+          50.073949
+        ],
+        "density_score": 80.95,
+        "hex_score": 33.92,
+        "demand_score": 4.6,
+        "network_score": 80.95,
+        "quality_score": 44.74,
+        "air_proxy_score": 27.07,
+        "rack_density_score": 3.68,
+        "infrastructure_density_score": 33.33,
+        "total_weight": 30,
+        "point_count": 8,
+        "rack_count": 6,
+        "infrastructure_count": 2,
+        "mean_segment_score": 44.74,
+        "graph_node_id": 3669,
+        "component_id": 19,
+        "snap_distance_m": 11.1
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          19.999535,
+          50.089331
+        ]
+      },
+      "properties": {
+        "hub_id": 5,
+        "label": "Hub network 5",
+        "scenario_id": "pure_network_corridor_v1",
+        "scenario_label": "network 100%",
+        "route_metric_key": "network",
+        "route_metric_label": "network 100%",
+        "route_score": 82.31,
+        "cell_id": "881e2e6a39fffff",
+        "h3_index": "881e2e6a39fffff",
+        "h3_resolution": 8,
+        "center": [
+          19.999535,
+          50.089331
+        ],
+        "density_score": 82.31,
+        "hex_score": 29.88,
+        "demand_score": 6.21,
+        "network_score": 82.31,
+        "quality_score": 30.35,
+        "air_proxy_score": 19.15,
+        "rack_density_score": 6.13,
+        "infrastructure_density_score": 16.67,
+        "total_weight": 40.5,
+        "point_count": 11,
+        "rack_count": 10,
+        "infrastructure_count": 1,
+        "mean_segment_score": 30.35,
+        "graph_node_id": 2773,
+        "component_id": 19,
+        "snap_distance_m": 188.57
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          19.984101,
+          50.063601
+        ]
+      },
+      "properties": {
+        "hub_id": 6,
+        "label": "Hub network 6",
+        "scenario_id": "pure_network_corridor_v1",
+        "scenario_label": "network 100%",
+        "route_metric_key": "network",
+        "route_metric_label": "network 100%",
+        "route_score": 69.39,
+        "cell_id": "881e2e6841fffff",
+        "h3_index": "881e2e6841fffff",
+        "h3_resolution": 8,
+        "center": [
+          19.984101,
+          50.063601
+        ],
+        "density_score": 69.39,
+        "hex_score": 29.14,
+        "demand_score": 8.97,
+        "network_score": 69.39,
+        "quality_score": 32.07,
+        "air_proxy_score": 19.76,
+        "rack_density_score": 4.91,
+        "infrastructure_density_score": 16.67,
+        "total_weight": 58.5,
+        "point_count": 9,
+        "rack_count": 8,
+        "infrastructure_count": 1,
+        "mean_segment_score": 32.07,
+        "graph_node_id": 1246,
+        "component_id": 19,
+        "snap_distance_m": 31.07
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          20.026612,
+          50.0766
+        ]
+      },
+      "properties": {
+        "hub_id": 1,
+        "label": "Hub quality 1",
+        "scenario_id": "pure_quality_corridor_v1",
+        "scenario_label": "quality 100%",
+        "route_metric_key": "quality",
+        "route_metric_label": "quality 100%",
+        "route_score": 50.06,
+        "cell_id": "881e2e6ae5fffff",
+        "h3_index": "881e2e6ae5fffff",
+        "h3_resolution": 8,
+        "center": [
+          20.026612,
+          50.0766
+        ],
+        "density_score": 50.06,
+        "hex_score": 49.33,
+        "demand_score": 40.77,
+        "network_score": 67.35,
+        "quality_score": 50.06,
+        "air_proxy_score": 30.08,
+        "rack_density_score": 39.88,
+        "infrastructure_density_score": 16.67,
+        "total_weight": 266,
+        "point_count": 66,
+        "rack_count": 65,
+        "infrastructure_count": 1,
+        "mean_segment_score": 50.06,
+        "graph_node_id": 123,
+        "component_id": 19,
+        "snap_distance_m": 226.19
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          19.964018,
+          50.053248
+        ]
+      },
+      "properties": {
+        "hub_id": 2,
+        "label": "Hub quality 2",
+        "scenario_id": "pure_quality_corridor_v1",
+        "scenario_label": "quality 100%",
+        "route_metric_key": "quality",
+        "route_metric_label": "quality 100%",
+        "route_score": 52.55,
+        "cell_id": "881e2e6869fffff",
+        "h3_index": "881e2e6869fffff",
+        "h3_resolution": 8,
+        "center": [
+          19.964018,
+          50.053248
+        ],
+        "density_score": 52.55,
+        "hex_score": 35.88,
+        "demand_score": 11.65,
+        "network_score": 61.22,
+        "quality_score": 52.55,
+        "air_proxy_score": 35.58,
+        "rack_density_score": 10.43,
+        "infrastructure_density_score": 33.33,
+        "total_weight": 76,
+        "point_count": 19,
+        "rack_count": 17,
+        "infrastructure_count": 2,
+        "mean_segment_score": 52.55,
+        "graph_node_id": 1266,
+        "component_id": 19,
+        "snap_distance_m": 185.83
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          20.021961,
+          50.091983
+        ]
+      },
+      "properties": {
+        "hub_id": 3,
+        "label": "Hub quality 3",
+        "scenario_id": "pure_quality_corridor_v1",
+        "scenario_label": "quality 100%",
+        "route_metric_key": "quality",
+        "route_metric_label": "quality 100%",
+        "route_score": 44.87,
+        "cell_id": "881e2e6a17fffff",
+        "h3_index": "881e2e6a17fffff",
+        "h3_resolution": 8,
+        "center": [
+          20.021961,
+          50.091983
+        ],
+        "density_score": 44.87,
+        "hex_score": 35.72,
+        "demand_score": 25.44,
+        "network_score": 42.86,
+        "quality_score": 44.87,
+        "air_proxy_score": 21.59,
+        "rack_density_score": 19.63,
+        "infrastructure_density_score": 33.33,
+        "total_weight": 166,
+        "point_count": 34,
+        "rack_count": 32,
+        "infrastructure_count": 2,
+        "mean_segment_score": 44.87,
+        "graph_node_id": 757,
+        "component_id": 19,
+        "snap_distance_m": 137.03
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          20.004191,
+          50.073949
+        ]
+      },
+      "properties": {
+        "hub_id": 4,
+        "label": "Hub quality 4",
+        "scenario_id": "pure_quality_corridor_v1",
+        "scenario_label": "quality 100%",
+        "route_metric_key": "quality",
+        "route_metric_label": "quality 100%",
+        "route_score": 44.74,
+        "cell_id": "881e2e6a37fffff",
+        "h3_index": "881e2e6a37fffff",
+        "h3_resolution": 8,
+        "center": [
+          20.004191,
+          50.073949
+        ],
+        "density_score": 44.74,
+        "hex_score": 33.92,
+        "demand_score": 4.6,
+        "network_score": 80.95,
+        "quality_score": 44.74,
+        "air_proxy_score": 27.07,
+        "rack_density_score": 3.68,
+        "infrastructure_density_score": 33.33,
+        "total_weight": 30,
+        "point_count": 8,
+        "rack_count": 6,
+        "infrastructure_count": 2,
+        "mean_segment_score": 44.74,
+        "graph_node_id": 3669,
+        "component_id": 19,
+        "snap_distance_m": 11.1
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          19.999535,
+          50.089331
+        ]
+      },
+      "properties": {
+        "hub_id": 5,
+        "label": "Hub quality 5",
+        "scenario_id": "pure_quality_corridor_v1",
+        "scenario_label": "quality 100%",
+        "route_metric_key": "quality",
+        "route_metric_label": "quality 100%",
+        "route_score": 30.35,
+        "cell_id": "881e2e6a39fffff",
+        "h3_index": "881e2e6a39fffff",
+        "h3_resolution": 8,
+        "center": [
+          19.999535,
+          50.089331
+        ],
+        "density_score": 30.35,
+        "hex_score": 29.88,
+        "demand_score": 6.21,
+        "network_score": 82.31,
+        "quality_score": 30.35,
+        "air_proxy_score": 19.15,
+        "rack_density_score": 6.13,
+        "infrastructure_density_score": 16.67,
+        "total_weight": 40.5,
+        "point_count": 11,
+        "rack_count": 10,
+        "infrastructure_count": 1,
+        "mean_segment_score": 30.35,
+        "graph_node_id": 2773,
+        "component_id": 19,
+        "snap_distance_m": 188.57
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          19.984101,
+          50.063601
+        ]
+      },
+      "properties": {
+        "hub_id": 6,
+        "label": "Hub quality 6",
+        "scenario_id": "pure_quality_corridor_v1",
+        "scenario_label": "quality 100%",
+        "route_metric_key": "quality",
+        "route_metric_label": "quality 100%",
+        "route_score": 32.07,
+        "cell_id": "881e2e6841fffff",
+        "h3_index": "881e2e6841fffff",
+        "h3_resolution": 8,
+        "center": [
+          19.984101,
+          50.063601
+        ],
+        "density_score": 32.07,
+        "hex_score": 29.14,
+        "demand_score": 8.97,
+        "network_score": 69.39,
+        "quality_score": 32.07,
+        "air_proxy_score": 19.76,
+        "rack_density_score": 4.91,
+        "infrastructure_density_score": 16.67,
         "total_weight": 58.5,
         "point_count": 9,
         "rack_count": 8,

@@ -112,10 +112,13 @@ export interface CorridorScenarioMeta {
   hub_count: number
   hub_source: string
   id: string
+  kind?: string | null
   label: string
   max_hub_snap_distance_meters: number
   min_hub_separation_meters: number
   min_pair_distance_meters: number
+  metric_key?: string | null
+  metric_label?: string | null
   pair_priority_formula: string
   recommended_corridor_count: number
 }
@@ -149,8 +152,13 @@ export interface ConnectorScenarioMeta {
 
 export interface ExplainabilityMeta {
   connector_optimization: {
+    connector_definition: string
+    data_used: string[]
     endpoint_proximity_tolerance_meters: number
+    planning_note: string
+    qualification_steps: string[]
     scenario: ConnectorScenarioMeta
+    why_this_is_not_guessing: string
   }
   corridor_optimization: {
     graph_snap_decimals: number
@@ -224,8 +232,10 @@ export interface ComponentSummary {
 }
 
 export interface HotspotSummary {
+  air_proxy_score?: number
   center: Coordinate
   cell_id: string
+  component_id?: number | null
   density_score: number
   graph_node_id: number
   h3_index: string
@@ -233,12 +243,19 @@ export interface HotspotSummary {
   hex_score: number
   hub_id: number
   infrastructure_count: number
+  infrastructure_density_score?: number
   label: string
   mean_segment_score: number
   network_score: number
   point_count: number
   quality_score: number
   rack_count: number
+  rack_density_score?: number
+  route_metric_key?: string | null
+  route_metric_label?: string | null
+  route_score?: number
+  scenario_id?: string | null
+  scenario_label?: string | null
   snap_distance_m: number
   demand_score: number
   total_weight: number
@@ -248,6 +265,7 @@ export interface RecommendedCorridor {
   bounds: Bounds | null
   center: Coordinate | null
   corridor_id: number
+  corridor_key?: string
   corridor_rank: number
   direct_distance_km: number
   from_h3_index: string
@@ -265,16 +283,27 @@ export interface RecommendedCorridor {
   pair_priority: number
   path_cost: number
   path_length_km: number
+  route_metric_key?: string | null
+  route_metric_label?: string | null
+  scenario_id?: string | null
+  scenario_label?: string | null
   segment_count: number
   to_h3_index: string
   to_hub_id: number
   to_label: string
 }
 
+export interface CorridorRecommendationScenario {
+  hotspots: HotspotSummary[]
+  recommended: RecommendedCorridor[]
+  scenario: CorridorScenarioMeta
+}
+
 export interface CorridorRecommendationsSummary {
   hotspots: HotspotSummary[]
   recommended: RecommendedCorridor[]
   scenario: CorridorScenarioMeta
+  scenarios: CorridorRecommendationScenario[]
 }
 
 export interface RecommendedConnector {
@@ -313,6 +342,7 @@ export interface OffNetworkConnectorsSummary {
 }
 
 export interface H3CellSummary {
+  air_proxy_score?: number
   bounds: Bounds | null
   center: Coordinate
   covered_segment_count: number
@@ -324,12 +354,21 @@ export interface H3CellSummary {
   infrastructure_count: number
   max_noise_db: number | null
   mean_greenery_ratio: number
+  mean_greenery_score: number
+  mean_infrastructure_score: number
+  mean_nearest_infra_m: number | null
+  mean_nearest_rack_m: number | null
+  mean_noise_score: number
+  mean_rack_score: number
   mean_segment_score: number
   network_score: number
   point_count: number
   quality_score: number
   rack_count: number
+  rack_density_score?: number
   segment_sample_count: number
+  infrastructure_density_score?: number
+  total_segment_length_km: number
 }
 
 export interface H3GridSummary {
@@ -337,6 +376,23 @@ export interface H3GridSummary {
   hubs: HotspotSummary[]
   scenario: H3ScenarioMeta
   top_cells: H3CellSummary[]
+}
+
+export interface HexFeatureCollection {
+  type: 'FeatureCollection'
+  features: Array<{
+    type: 'Feature'
+    geometry: {
+      type: 'Polygon'
+      coordinates: Coordinate[][]
+    }
+    properties: H3CellSummary & {
+      display_color?: string
+      display_outline_color?: string
+      display_opacity?: number
+      dominant_vibe?: string | null
+    }
+  }>
 }
 
 export interface SegmentFeatureCollection {
@@ -484,4 +540,56 @@ export function scoreColor(score: number) {
     return '#d97706'
   }
   return '#b91c1c'
+}
+
+// ---------------------------------------------------------------------------
+// Routing types
+// ---------------------------------------------------------------------------
+
+export interface GraphNode {
+  node_id: number
+  coordinate: Coordinate
+}
+
+export interface GraphEdge {
+  edge_id: number
+  segment_id: number
+  start_node_id: number
+  end_node_id: number
+  coordinates: Coordinate[]
+  length_m: number
+  segment_score: number
+  edge_h3_index: string | null
+  edge_h3_score: number
+  edge_cost: number
+}
+
+export interface AdjacencyEntry {
+  to_node_id: number
+  edge_index: number
+  cost: number
+}
+
+export interface RoutingGraph {
+  nodes: GraphNode[]
+  edges: GraphEdge[]
+  adjacency: AdjacencyEntry[][]
+  largest_component_id: number
+  node_component_id_by_node_id: Record<number, number>
+}
+
+export interface RouteResult {
+  total_cost: number
+  total_length_m: number
+  segment_count: number
+  mean_score: number
+  coordinates: Coordinate[]
+  segment_ids: number[]
+  steps: Array<{ from_node_id: number; to_node_id: number; edge_index: number }>
+}
+
+export interface RouteMarker {
+  coordinate: Coordinate
+  node_id: number
+  snap_distance_m: number
 }
