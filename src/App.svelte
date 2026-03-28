@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { afterUpdate, onDestroy, onMount } from 'svelte'
+  import { afterUpdate, onDestroy, onMount, tick } from 'svelte'
   import type {
     GeoJSONSource,
     Map as MapLibreMap,
@@ -85,6 +85,27 @@
   let routeVibeLevel = 2
   let showRoute = true
   let routeVibeSearch = ''
+  let showMockAssistant = false
+  let isMockAssistantStreaming = false
+  let mockAssistantInput = ''
+  let mockAssistantMessageCounter = 2
+  let mockAssistantStreamFrame: number | null = null
+  let mockAssistantMessages: MockAssistantMessage[] = [
+    {
+      id: 'assistant_1',
+      role: 'assistant',
+      text: 'Hej, opisz jak chcesz dzisiaj jechac. Mozesz napisac o nastroju, tempie albo klimacie przejazdu.',
+    },
+    {
+      id: 'assistant_2',
+      role: 'assistant',
+      text: 'Na podstawie opisu zaproponuje vibe i ustawie go jako aktualny klimat przejazdu.',
+    },
+  ]
+  const MOCK_ASSISTANT_REPLY =
+    'Brzmi jak surowy, pustynny klimat. Polecam vibe Post-apo i od razu ustawiam go jako aktualny vibe.'
+  const MOCK_ASSISTANT_THINKING_MS = 420
+  const MOCK_ASSISTANT_CHAR_INTERVAL_MS = 24
   const MIN_ROUTE_VIBE_LEVEL = 1
   const MAX_ROUTE_VIBE_LEVEL = 10
 
@@ -196,6 +217,14 @@
     note: string
     title: string
     vibeIds: string[]
+  }
+
+  type MockAssistantMessage = {
+    id: string
+    isPending?: boolean
+    isRecommendation?: boolean
+    role: 'assistant' | 'user'
+    text: string
   }
 
   const emptyHexFeatureCollection: HexFeatureCollection = {
@@ -554,6 +583,10 @@
   })
 
   onDestroy(() => {
+    if (mockAssistantStreamFrame != null) {
+      cancelAnimationFrame(mockAssistantStreamFrame)
+      mockAssistantStreamFrame = null
+    }
     isMapReady = false
     popup?.remove()
     popup = null
@@ -2195,6 +2228,101 @@
     showHotspots = nextVisibility
   }
 
+  async function submitMockAssistantPrompt() {
+    const prompt = mockAssistantInput.trim()
+    if (!prompt || isMockAssistantStreaming) {
+      return
+    }
+
+    const recommendationId = `assistant_${mockAssistantMessageCounter + 2}`
+    mockAssistantMessages = [
+      ...mockAssistantMessages,
+      {
+        id: `user_${mockAssistantMessageCounter + 1}`,
+        role: 'user',
+        text: prompt,
+      },
+      {
+        id: recommendationId,
+        isPending: true,
+        isRecommendation: true,
+        role: 'assistant',
+        text: '',
+      },
+    ]
+    mockAssistantMessageCounter += 2
+    mockAssistantInput = ''
+    await tick()
+    streamMockAssistantReply(recommendationId, MOCK_ASSISTANT_REPLY)
+  }
+
+  function streamMockAssistantReply(messageId: string, fullText: string) {
+    const characters = Array.from(fullText)
+    if (characters.length === 0) {
+      return
+    }
+
+    if (mockAssistantStreamFrame != null) {
+      cancelAnimationFrame(mockAssistantStreamFrame)
+      mockAssistantStreamFrame = null
+    }
+
+    isMockAssistantStreaming = true
+    let startAt: number | null = null
+
+    const step = (timestamp: number) => {
+      if (startAt == null) {
+        startAt = timestamp
+      }
+
+      const elapsed = timestamp - startAt
+      if (elapsed < MOCK_ASSISTANT_THINKING_MS) {
+        mockAssistantStreamFrame = requestAnimationFrame(step)
+        return
+      }
+
+      const streamingElapsed = elapsed - MOCK_ASSISTANT_THINKING_MS
+      const nextCharacterCount = Math.max(
+        1,
+        Math.min(
+          characters.length,
+          Math.floor(streamingElapsed / MOCK_ASSISTANT_CHAR_INTERVAL_MS) + 1,
+        ),
+      )
+      const nextText = characters.slice(0, nextCharacterCount).join('')
+
+      mockAssistantMessages = mockAssistantMessages.map((message) =>
+        message.id === messageId
+          ? {
+              ...message,
+              isPending: false,
+              text: nextText,
+            }
+          : message,
+      )
+
+      if (nextCharacterCount >= characters.length) {
+        mockAssistantMessages = mockAssistantMessages.map((message) =>
+          message.id === messageId
+            ? {
+                ...message,
+                isPending: false,
+                text: fullText,
+              }
+            : message,
+        )
+        isMockAssistantStreaming = false
+        mockAssistantStreamFrame = null
+        applyVibeSelection(['post_apo'])
+        return
+      }
+
+      mockAssistantStreamFrame = requestAnimationFrame(step)
+    }
+
+    mockAssistantStreamFrame = requestAnimationFrame(step)
+  }
+
   function buildPreviewBounds(bounds: [number, number, number, number] | null): MapBoundsLike | undefined {
     if (!bounds) {
       return undefined
@@ -3343,6 +3471,7 @@
             </button>
           {/each}
         </div>
+
       </div>
     </header>
 
@@ -3355,6 +3484,7 @@ npm run dev</pre>
       </section>
     {:else}
       <section class="grid gap-6 xl:grid-cols-[minmax(0,1.65fr)_24rem]">
+        <div class="space-y-6">
         <div class="overflow-hidden rounded-[0.5rem] border border-stone-300 bg-white">
           <div class="flex flex-col gap-4 border-b border-stone-200 px-4 py-4 sm:px-5">
             <div class="flex flex-wrap items-center justify-between gap-4">
@@ -3444,6 +3574,114 @@ npm run dev</pre>
               </div>
             {/if}
           </div>
+        </div>
+
+        <section class="rounded-[0.5rem] border border-stone-200 bg-white p-4">
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <p class="text-xs font-semibold uppercase tracking-[0.2em] text-blue-600">Dodaj własny vibe</p>
+              <p class="mt-1 text-xs leading-5 text-stone-500">
+                Ustaw własne proporcje metryk 0-100. Dodatnia waga wzmacnia metrykę, ujemna odwraca ją do <code class="rounded-[0.2rem] bg-stone-100 px-1">100 - metryka</code>.
+              </p>
+            </div>
+            <button
+              class="rounded-[0.3rem] bg-stone-100 px-2.5 py-1 text-[11px] font-semibold text-stone-600 transition hover:bg-stone-200"
+              onclick={resetCustomVibeDraft}
+              type="button"
+            >
+              reset
+            </button>
+          </div>
+
+          <div class="mt-4 grid gap-3 sm:grid-cols-[minmax(0,1fr)_5.5rem]">
+            <label class="space-y-1">
+              <span class="text-xs font-semibold text-stone-700">Nazwa</span>
+              <input
+                bind:value={customVibeLabel}
+                class="w-full rounded-[0.35rem] border border-stone-300 bg-white px-3 py-2 text-sm text-stone-900 outline-none transition focus:border-blue-500"
+                type="text"
+              />
+            </label>
+            <label class="space-y-1">
+              <span class="text-xs font-semibold text-stone-700">Kolor</span>
+              <input
+                bind:value={customVibeColor}
+                class="h-10 w-full rounded-[0.35rem] border border-stone-300 bg-white px-2 py-2"
+                type="color"
+              />
+            </label>
+          </div>
+
+          <div class="mt-4 grid gap-2">
+            {#each vibeMetricMeta as metric}
+              <label class="rounded-[0.35rem] border border-stone-200 bg-stone-50 px-3 py-2">
+                <div class="flex items-center justify-between gap-3">
+                  <div class="min-w-0">
+                    <p class="text-sm font-semibold text-stone-900">{metric.label}</p>
+                    <p class="mt-0.5 text-[11px] leading-5 text-stone-500">{metric.note}</p>
+                  </div>
+                  <span class="shrink-0 text-xs font-semibold text-blue-700">{customVibeWeights[metric.key]}</span>
+                </div>
+                <input
+                  class="mt-2 w-full accent-blue-600"
+                  max="100"
+                  min="-100"
+                  step="5"
+                  type="range"
+                  value={customVibeWeights[metric.key]}
+                  oninput={(event) =>
+                    (customVibeWeights = {
+                      ...customVibeWeights,
+                      [metric.key]: Number((event.currentTarget as HTMLInputElement).value),
+                    })}
+                />
+              </label>
+            {/each}
+          </div>
+
+          <div class="mt-4 flex justify-end">
+            <button
+              class="rounded-[0.35rem] bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700"
+              onclick={addCustomVibe}
+              type="button"
+            >
+              Dodaj vibe
+            </button>
+          </div>
+
+          {#if customVibes.length > 0}
+            <div class="mt-4 space-y-2 border-t border-stone-200 pt-3">
+              <p class="text-xs font-semibold uppercase tracking-[0.2em] text-stone-500">Twoje vibe</p>
+              {#each customVibes as vibe (vibe.id)}
+                <div class={`rounded-[0.35rem] border px-3 py-2 ${isVibeEnabled(vibe.id) ? 'border-blue-300 bg-blue-50' : 'border-stone-200 bg-white'}`}>
+                  <div class="flex items-start justify-between gap-3">
+                    <div class="min-w-0">
+                      <p class="text-sm font-semibold text-stone-900">{vibe.label}</p>
+                      <p class="mt-1 text-xs leading-5 text-stone-500">{vibe.formula}</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                      <span class="size-4 shrink-0 rounded-[0.2rem]" style={`background:${vibe.color}`}></span>
+                      <button
+                        class={`rounded-[0.3rem] px-2.5 py-1 text-[11px] font-semibold transition ${isVibeEnabled(vibe.id) ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-stone-100 text-stone-600 hover:bg-stone-200'}`}
+                        onclick={() => toggleVibe(vibe.id)}
+                        type="button"
+                      >
+                        {isVibeEnabled(vibe.id) ? 'aktywne' : 'dodaj'}
+                      </button>
+                      <button
+                        class="rounded-[0.3rem] bg-stone-100 px-2.5 py-1 text-[11px] font-semibold text-stone-600 transition hover:bg-stone-200"
+                        onclick={() => removeCustomVibe(vibe.id)}
+                        type="button"
+                      >
+                        usun
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              {/each}
+            </div>
+          {/if}
+        </section>
         </div>
 
         <aside class="space-y-4">
@@ -3647,112 +3885,6 @@ npm run dev</pre>
                       {/if}
                     </div>
 
-                    <div class="space-y-3 border-t border-stone-200 pt-3">
-                      <div class="flex items-start justify-between gap-3">
-                        <div>
-                          <p class="text-xs font-semibold uppercase tracking-[0.2em] text-blue-600">Dodaj własny vibe</p>
-                          <p class="mt-1 text-xs leading-5 text-stone-500">
-                            Ustaw własne proporcje metryk 0-100. Dodatnia waga wzmacnia metrykę, ujemna odwraca ją do <code class="rounded-[0.2rem] bg-stone-100 px-1">100 - metryka</code>.
-                          </p>
-                        </div>
-                        <button
-                          class="rounded-[0.3rem] bg-stone-100 px-2.5 py-1 text-[11px] font-semibold text-stone-600 transition hover:bg-stone-200"
-                          onclick={resetCustomVibeDraft}
-                          type="button"
-                        >
-                          reset
-                        </button>
-                      </div>
-
-                      <div class="grid gap-3 sm:grid-cols-[minmax(0,1fr)_5.5rem]">
-                        <label class="space-y-1">
-                          <span class="text-xs font-semibold text-stone-700">Nazwa</span>
-                          <input
-                            bind:value={customVibeLabel}
-                            class="w-full rounded-[0.35rem] border border-stone-300 bg-white px-3 py-2 text-sm text-stone-900 outline-none transition focus:border-blue-500"
-                            type="text"
-                          />
-                        </label>
-                        <label class="space-y-1">
-                          <span class="text-xs font-semibold text-stone-700">Kolor</span>
-                          <input
-                            bind:value={customVibeColor}
-                            class="h-10 w-full rounded-[0.35rem] border border-stone-300 bg-white px-2 py-2"
-                            type="color"
-                          />
-                        </label>
-                      </div>
-
-                      <div class="grid gap-2">
-                        {#each vibeMetricMeta as metric}
-                          <label class="rounded-[0.35rem] border border-stone-200 bg-white px-3 py-2">
-                            <div class="flex items-center justify-between gap-3">
-                              <div class="min-w-0">
-                                <p class="text-sm font-semibold text-stone-900">{metric.label}</p>
-                                <p class="mt-0.5 text-[11px] leading-5 text-stone-500">{metric.note}</p>
-                              </div>
-                              <span class="shrink-0 text-xs font-semibold text-blue-700">{customVibeWeights[metric.key]}</span>
-                            </div>
-                            <input
-                              class="mt-2 w-full accent-blue-600"
-                              max="100"
-                              min="-100"
-                              step="5"
-                              type="range"
-                              value={customVibeWeights[metric.key]}
-                              oninput={(event) =>
-                                (customVibeWeights = {
-                                  ...customVibeWeights,
-                                  [metric.key]: Number((event.currentTarget as HTMLInputElement).value),
-                                })}
-                            />
-                          </label>
-                        {/each}
-                      </div>
-
-                      <div class="flex justify-end">
-                        <button
-                          class="rounded-[0.35rem] bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700"
-                          onclick={addCustomVibe}
-                          type="button"
-                        >
-                          Dodaj vibe
-                        </button>
-                      </div>
-
-                      {#if customVibes.length > 0}
-                        <div class="space-y-2 border-t border-stone-200 pt-3">
-                          <p class="text-xs font-semibold uppercase tracking-[0.2em] text-stone-500">Twoje vibe</p>
-                          {#each customVibes as vibe (vibe.id)}
-                            <div class={`rounded-[0.35rem] border px-3 py-2 ${isVibeEnabled(vibe.id) ? 'border-blue-300 bg-blue-50' : 'border-stone-200 bg-white'}`}>
-                              <div class="flex items-start justify-between gap-3">
-                                <div class="min-w-0">
-                                  <p class="text-sm font-semibold text-stone-900">{vibe.label}</p>
-                                  <p class="mt-1 text-xs leading-5 text-stone-500">{vibe.formula}</p>
-                                </div>
-                                <div class="flex items-center gap-2">
-                                  <span class="size-4 shrink-0 rounded-[0.2rem]" style={`background:${vibe.color}`}></span>
-                                  <button
-                                    class={`rounded-[0.3rem] px-2.5 py-1 text-[11px] font-semibold transition ${isVibeEnabled(vibe.id) ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-stone-100 text-stone-600 hover:bg-stone-200'}`}
-                                    onclick={() => toggleVibe(vibe.id)}
-                                    type="button"
-                                  >
-                                    {isVibeEnabled(vibe.id) ? 'aktywne' : 'dodaj'}
-                                  </button>
-                                  <button
-                                    class="rounded-[0.3rem] bg-stone-100 px-2.5 py-1 text-[11px] font-semibold text-stone-600 transition hover:bg-stone-200"
-                                    onclick={() => removeCustomVibe(vibe.id)}
-                                    type="button"
-                                  >
-                                    usun
-                                  </button>
-                                </div>
-                              </div>
-                            </div>
-                          {/each}
-                        </div>
-                      {/if}
-                    </div>
                   </div>
                 </div>
 
@@ -5083,4 +5215,102 @@ npm run dev</pre>
       </section>
     {/if}
   </main>
+
+  <div class="fixed bottom-5 right-5 z-50 flex flex-col items-end gap-3">
+    {#if showMockAssistant}
+      <div class="w-[min(24rem,calc(100vw-2rem))] rounded-[0.5rem] border border-stone-200 bg-white p-4 shadow-lg shadow-stone-200/70">
+        <div class="flex items-start justify-between gap-3">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-[0.24em] text-blue-600">
+              Asystent vibe
+            </p>
+            <p class="mt-1 text-xs leading-5 text-stone-500">
+              Wpisz kilka slow o przejezdzie i zobacz rekomendacje vibe.
+            </p>
+          </div>
+          <button
+            aria-label="Zamknij asystenta vibe"
+            class="rounded-[0.3rem] bg-stone-100 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-stone-600 transition hover:bg-stone-200"
+            onclick={() => (showMockAssistant = false)}
+            type="button"
+          >
+            zamknij
+          </button>
+        </div>
+
+        <div class="mt-3 space-y-2">
+          {#each mockAssistantMessages as message (message.id)}
+            <div class={`flex ${message.role === 'assistant' ? 'justify-start' : 'justify-end'}`}>
+              <div class={`max-w-[85%] rounded-[0.35rem] px-3 py-2 text-xs leading-5 ${message.role === 'assistant' ? 'bg-stone-50 text-stone-700 ring-1 ring-stone-200' : 'bg-blue-600 text-white'}`}>
+                {#if message.role === 'assistant' && message.isRecommendation}
+                  <div class="mb-2 flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-blue-600">
+                    <span>Analiza vibe</span>
+                    <span class="flex items-center gap-1">
+                      <span class="size-1.5 rounded-full bg-blue-600 animate-pulse"></span>
+                      <span class="size-1.5 rounded-full bg-blue-600 animate-pulse [animation-delay:120ms]"></span>
+                      <span class="size-1.5 rounded-full bg-blue-600 animate-pulse [animation-delay:240ms]"></span>
+                    </span>
+                  </div>
+                {/if}
+                {#if message.isPending}
+                  <span class="inline-flex items-center gap-2 text-stone-500">
+                    <span>Analizuje vibe</span>
+                    <span class="flex items-center gap-1">
+                      <span class="size-1.5 rounded-full bg-blue-600 animate-pulse"></span>
+                      <span class="size-1.5 rounded-full bg-blue-600 animate-pulse [animation-delay:120ms]"></span>
+                      <span class="size-1.5 rounded-full bg-blue-600 animate-pulse [animation-delay:240ms]"></span>
+                    </span>
+                  </span>
+                {:else}
+                  <span>{message.text}</span>
+                  {#if message.role === 'assistant' && message.isRecommendation && isMockAssistantStreaming}
+                    <span class="ml-0.5 inline-block h-4 w-[1px] animate-pulse bg-blue-600 align-[-2px]"></span>
+                  {/if}
+                {/if}
+              </div>
+            </div>
+          {/each}
+        </div>
+
+        <form
+          class="mt-3 space-y-2"
+          onsubmit={(event) => {
+            event.preventDefault()
+            submitMockAssistantPrompt()
+          }}
+        >
+          <input
+            bind:value={mockAssistantInput}
+            class="w-full rounded-[0.35rem] border border-stone-300 bg-white px-3 py-2 text-sm text-stone-900 outline-none transition focus:border-blue-500"
+            disabled={isMockAssistantStreaming}
+            placeholder="Np. chce klimat jak z filmu, spokojny przejazd albo cos mrocznego..."
+            type="text"
+          />
+          <div class="flex items-center justify-between gap-3">
+            <p class="text-[11px] leading-5 text-stone-500">
+              {isMockAssistantStreaming
+                ? 'Asystent dopasowuje rekomendacje...'
+                : 'Demo rozmowy z rekomendacja vibe.'}
+            </p>
+            <button
+              class="rounded-[0.35rem] bg-blue-600 px-3 py-2 text-xs font-semibold text-white transition hover:bg-blue-700"
+              disabled={isMockAssistantStreaming}
+              type="submit"
+            >
+              {isMockAssistantStreaming ? 'Analizuje...' : 'Zapytaj'}
+            </button>
+          </div>
+        </form>
+      </div>
+    {/if}
+
+    <button
+      aria-expanded={showMockAssistant}
+      class="rounded-[0.5rem] bg-blue-600 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-200/70 transition hover:bg-blue-700"
+      onclick={() => (showMockAssistant = !showMockAssistant)}
+      type="button"
+    >
+      {showMockAssistant ? 'Ukryj asystenta' : 'Asystent vibe'}
+    </button>
+  </div>
 </div>
