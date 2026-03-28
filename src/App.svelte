@@ -1816,13 +1816,25 @@
     const vibes = activeRouteVibes()
     const vibeWeightsArray: VibeWeights[] = vibes.map((v) => ({ weights: v.weights }))
     const cells = rawHexes.features.map((f) => f.properties)
+    const alpha = routeVibeAlphaValue(routeVibeLevel)
+
+    console.log(`[route] Computing: alpha=${alpha}, activeRouteVibes=${vibes.length} (${vibes.map(v => v.id).join(', ')})`)
+    console.log(`[route] Edges with H3: ${routingGraph.edges.filter(e => e.edge_h3_index !== null).length}/${routingGraph.edges.length}`)
 
     const edgeCosts = buildVibeEdgeCosts(
       routingGraph,
       cells,
       vibeWeightsArray,
-      routeVibeAlphaValue(routeVibeLevel),
+      alpha,
     )
+
+    // Debug: sample edge costs
+    const baseCosts = routingGraph.edges.map(e => e.length_m)
+    let diffCount = 0
+    for (let i = 0; i < edgeCosts.length; i++) {
+      if (Math.abs(edgeCosts[i] - baseCosts[i]) > 0.01) diffCount++
+    }
+    console.log(`[route] Edge costs differing from pure distance: ${diffCount}/${edgeCosts.length}`)
 
     const result = astar(routingGraph, routeStart.node_id, routeEnd.node_id, edgeCosts)
 
