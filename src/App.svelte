@@ -525,9 +525,11 @@
   let catalogVibeList: VibeDefinition[] = []
   let activeVibeList: VibeDefinition[] = []
   let availableRouteVibeList: VibeDefinition[] = []
+  let hasVisiblePointMarkers = true
 
   $: catalogVibeList = [...mixedVibes, ...pureMetricVibes, ...customVibes]
   $: activeVibeList = catalogVibeList.filter((vibe) => enabledVibeIds.includes(vibe.id))
+  $: hasVisiblePointMarkers = showRacks || showInfrastructure || showHotspots
   $: {
     const query = normalizeSearchValue(routeVibeSearch)
     availableRouteVibeList = catalogVibeList.filter((vibe) => {
@@ -2174,6 +2176,13 @@
     })
   }
 
+  function toggleAllPointMarkers() {
+    const nextVisibility = !hasVisiblePointMarkers
+    showRacks = nextVisibility
+    showInfrastructure = nextVisibility
+    showHotspots = nextVisibility
+  }
+
   function buildPreviewBounds(bounds: [number, number, number, number] | null): MapBoundsLike | undefined {
     if (!bounds) {
       return undefined
@@ -3277,13 +3286,13 @@
         </span>
         <div class="space-y-3">
           <h1 class="max-w-4xl text-4xl font-semibold leading-tight tracking-tight text-stone-950 sm:text-5xl">
-            Znajdz rowerowa trase, ktora pasuje do Twojego nastroju.
+            Wybierz vibe i znajdz trase, ktora najlepiej pasuje do Twojego przejazdu.
           </h1>
           <p class="max-w-3xl text-base leading-8 text-stone-700 sm:text-lg">
-            Wybierz vibe, kliknij punkt <span class="font-semibold text-stone-950">A</span> i
-            <span class="font-semibold text-stone-950">B</span> na mapie Krakowa i jedz po trasie
-            policzonej na istniejacej sieci rowerowej. Kolor heksow H3 i koszt routingu korzystaja
-            z tego samego zestawu aktywnych vibe.
+            Ustaw klimat przejazdu, zaznacz punkt <span class="font-semibold text-stone-950">A</span> i
+            <span class="font-semibold text-stone-950">B</span>, a aplikacja wyznaczy trase po
+            istniejacej sieci rowerowej w Krakowie. Wybrany vibe wplywa na wyglad mapy i na to,
+            jak aplikacja dobiera trase.
           </p>
         </div>
       </div>
@@ -3345,28 +3354,37 @@ npm run dev</pre>
               </div>
 
               <div class="flex flex-wrap gap-2">
-                <label class={`inline-flex cursor-pointer items-center gap-2 rounded-[0.35rem] px-4 py-2 text-sm font-medium transition ${showHexes ? 'bg-blue-600 text-white' : 'bg-stone-100 text-stone-700'}`}>
+                <label class={`inline-flex cursor-pointer items-center gap-2 rounded-[0.35rem] px-4 py-2 text-sm font-medium transition ${showHexes ? 'bg-blue-600 text-white' : 'bg-stone-100 text-stone-700'}`} title="Pokazuje siatke obszarow H3 pokolorowanych wedlug aktywnego vibe">
                   <input bind:checked={showHexes} class="sr-only" type="checkbox" />
-                  <span>Siatka vibe</span>
+                  <span>Obszary vibe</span>
                 </label>
-                <label class={`inline-flex cursor-pointer items-center gap-2 rounded-[0.35rem] px-4 py-2 text-sm font-medium transition ${showRacks ? 'bg-stone-900 text-stone-50' : 'bg-stone-100 text-stone-700'}`}>
+                <label class={`inline-flex cursor-pointer items-center gap-2 rounded-[0.35rem] px-4 py-2 text-sm font-medium transition ${showRacks ? 'bg-stone-900 text-stone-50' : 'bg-stone-100 text-stone-700'}`} title="Pokazuje stojaki rowerowe z danych ZTP">
                   <input bind:checked={showRacks} class="sr-only" type="checkbox" />
-                  <span>Stojaki</span>
+                  <span>Stojaki rowerowe</span>
                 </label>
-                <label class={`inline-flex cursor-pointer items-center gap-2 rounded-[0.35rem] px-4 py-2 text-sm font-medium transition ${showInfrastructure ? 'bg-stone-900 text-stone-50' : 'bg-stone-100 text-stone-700'}`}>
+                <label class={`inline-flex cursor-pointer items-center gap-2 rounded-[0.35rem] px-4 py-2 text-sm font-medium transition ${showInfrastructure ? 'bg-stone-900 text-stone-50' : 'bg-stone-100 text-stone-700'}`} title="Pokazuje punktowa infrastrukture rowerowa z danych ZTP, inna niz stojaki">
                   <input bind:checked={showInfrastructure} class="sr-only" type="checkbox" />
-                  <span>Punkty</span>
+                  <span>Infrastruktura punktowa</span>
                 </label>
-                <label class={`inline-flex cursor-pointer items-center gap-2 rounded-[0.35rem] px-4 py-2 text-sm font-medium transition ${showHotspots ? 'bg-orange-500 text-white' : 'bg-stone-100 text-stone-700'}`}>
+                <label class={`inline-flex cursor-pointer items-center gap-2 rounded-[0.35rem] px-4 py-2 text-sm font-medium transition ${showHotspots ? 'bg-orange-500 text-white' : 'bg-stone-100 text-stone-700'}`} title="Pokazuje glowne huby H3 uzywane do rekomendowanych tras">
                   <input bind:checked={showHotspots} class="sr-only" type="checkbox" />
-                  <span>Huby H3</span>
+                  <span>Huby tras</span>
                 </label>
                 <button
+                  title={hasVisiblePointMarkers ? 'Ukrywa wszystkie punktowe znaczniki: stojaki, infrastrukture punktowa i huby tras' : 'Pokazuje wszystkie punktowe znaczniki: stojaki, infrastrukture punktowa i huby tras'}
+                  class={`rounded-[0.35rem] px-4 py-2 text-sm font-medium transition ${hasVisiblePointMarkers ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-stone-100 text-stone-700 hover:bg-stone-200'}`}
+                  onclick={toggleAllPointMarkers}
+                  type="button"
+                >
+                  {hasVisiblePointMarkers ? 'Ukryj znaczniki' : 'Pokaz znaczniki'}
+                </button>
+                <button
+                  title="Przywraca widok na Krakow i dane z calego obszaru"
                   class="rounded-[0.35rem] bg-white px-4 py-2 text-sm font-medium text-stone-700 ring-1 ring-stone-300 transition hover:bg-stone-50"
                   onclick={resetView}
                   type="button"
                 >
-                  Widok Krakow
+                  Reset widoku
                 </button>
               </div>
             </div>
@@ -3403,6 +3421,10 @@ npm run dev</pre>
               <p class="mt-1">
                 <span class="font-semibold text-stone-900">Kolor heksow H3</span>
                 = miks aktywnych vibe. Ten sam zestaw vibe steruje tez kosztem trasy A -> B.
+              </p>
+              <p class="mt-1">
+                <span class="font-semibold text-stone-900">Infrastruktura punktowa</span>
+                = punktowe obiekty rowerowe z danych ZTP, inne niz stojaki rowerowe.
               </p>
             </div>
           </div>
