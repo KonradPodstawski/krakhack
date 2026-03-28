@@ -3410,7 +3410,7 @@ npm run dev</pre>
               {/each}
               <div class="inline-flex items-center gap-2 rounded-[0.35rem] bg-blue-100 px-3 py-1 text-xs font-medium text-blue-800">
                 <span class="size-2.5 rounded-full bg-blue-600"></span>
-                <span>Kraków / OSM</span>
+                <span>Podklad mapy</span>
               </div>
               <div class="inline-flex items-center gap-2 rounded-[0.35rem] bg-blue-100 px-3 py-1 text-xs font-medium text-blue-900">
                 <span class="size-2.5 rounded-full bg-blue-600"></span>
