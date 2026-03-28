@@ -4,6 +4,7 @@
   import {
     KRAKOW_CENTER,
     MAP_STYLE,
+    formatCount,
     formatDistance,
     formatKilometers,
     formatNoise,
@@ -11,6 +12,8 @@
     formatPercent,
     formatScore,
     scoreColor,
+    type HotspotSummary,
+    type RecommendedCorridor,
     type Summary,
     type TopSegment,
   } from './lib/smart-city'
@@ -18,6 +21,8 @@
   const SUMMARY_URL = '/generated/cycling-smart-city/summary.json'
   const SEGMENTS_URL = '/generated/cycling-smart-city/segments.geojson'
   const POINTS_URL = '/generated/cycling-smart-city/points.geojson'
+  const HOTSPOTS_URL = '/generated/cycling-smart-city/hotspots.geojson'
+  const CORRIDORS_URL = '/generated/cycling-smart-city/corridors.geojson'
 
   let mapContainer: HTMLDivElement
   let maplibreModule: typeof import('maplibre-gl') | null = null
@@ -26,12 +31,15 @@
 
   let summary: Summary | null = null
   let selectedSegment: TopSegment | null = null
+  let selectedCorridor: RecommendedCorridor | null = null
   let error: string | null = null
   let isLoading = true
   let isMapReady = false
 
   let showRacks = true
   let showInfrastructure = true
+  let showHotspots = true
+  let showCorridors = true
   let onlyTopSegments = false
 
   const scoreLegend = [
@@ -74,8 +82,11 @@
 
   afterUpdate(() => {
     syncPointVisibility()
+    syncHotspotVisibility()
+    syncCorridorVisibility()
     syncSegmentFilter()
     syncSelectedSegment()
+    syncSelectedCorridor()
   })
 
   async function initialize() {
@@ -86,6 +97,7 @@
     try {
       summary = await fetchJson<Summary>(SUMMARY_URL)
       selectedSegment = summary.top_segments[0] ?? null
+      selectedCorridor = summary.corridor_recommendations.recommended[0] ?? null
 
       maplibreModule = await import('maplibre-gl')
 
@@ -110,8 +122,11 @@
         bindMapEvents(map)
         isMapReady = true
         syncPointVisibility()
+        syncHotspotVisibility()
+        syncCorridorVisibility()
         syncSegmentFilter()
         syncSelectedSegment()
+        syncSelectedCorridor()
         resetView()
 
         isLoading = false
@@ -132,6 +147,17 @@
     currentMap.addSource('points', {
       type: 'geojson',
       data: POINTS_URL,
+    })
+
+    currentMap.addSource('hotspots', {
+      type: 'geojson',
+      data: HOTSPOTS_URL,
+    })
+
+    currentMap.addSource('corridors', {
+      type: 'geojson',
+      data: CORRIDORS_URL,
+      lineMetrics: true,
     })
   }
 
@@ -164,6 +190,40 @@
           100,
           5.9,
         ],
+      },
+    })
+
+    currentMap.addLayer({
+      id: 'corridors-base',
+      type: 'line',
+      source: 'corridors',
+      paint: {
+        'line-color': '#111827',
+        'line-opacity': 0.92,
+        'line-width': 10,
+      },
+    })
+
+    currentMap.addLayer({
+      id: 'corridors-fill',
+      type: 'line',
+      source: 'corridors',
+      paint: {
+        'line-color': '#38bdf8',
+        'line-opacity': 0.96,
+        'line-width': 6.5,
+      },
+    })
+
+    currentMap.addLayer({
+      id: 'corridors-selected',
+      type: 'line',
+      source: 'corridors',
+      filter: ['==', ['get', 'corridor_id'], -1],
+      paint: {
+        'line-color': '#f97316',
+        'line-opacity': 1,
+        'line-width': 8.5,
       },
     })
 
@@ -228,10 +288,38 @@
         'circle-stroke-width': 1.5,
       },
     })
+
+    currentMap.addLayer({
+      id: 'hotspots',
+      type: 'circle',
+      source: 'hotspots',
+      paint: {
+        'circle-color': '#f97316',
+        'circle-radius': [
+          'interpolate',
+          ['linear'],
+          ['coalesce', ['get', 'density_score'], 0],
+          0,
+          6,
+          15,
+          12,
+        ],
+        'circle-opacity': 0.94,
+        'circle-stroke-color': '#fff7ed',
+        'circle-stroke-width': 2,
+      },
+    })
   }
 
   function bindMapEvents(currentMap: MapLibreMap) {
-    for (const layerId of ['segments-base', 'segments-top-fill', 'points-racks', 'points-infrastructure']) {
+    for (const layerId of [
+      'segments-base',
+      'segments-top-fill',
+      'points-racks',
+      'points-infrastructure',
+      'corridors-fill',
+      'hotspots',
+    ]) {
       currentMap.on('mouseenter', layerId, () => {
         currentMap.getCanvas().style.cursor = 'pointer'
       })
@@ -256,6 +344,26 @@
 
     currentMap.on('click', 'segments-base', handleSegmentClick)
     currentMap.on('click', 'segments-top-fill', handleSegmentClick)
+
+    currentMap.on('click', 'corridors-fill', (event) => {
+      const feature = event.features?.[0]
+      if (!feature) {
+        return
+      }
+
+      const corridor = toRecommendedCorridor(feature)
+      selectedCorridor = corridor
+      renderPopup(event.lngLat, buildCorridorPopup(corridor))
+    })
+
+    currentMap.on('click', 'hotspots', (event) => {
+      const feature = event.features?.[0]
+      if (!feature) {
+        return
+      }
+
+      renderPopup(event.lngLat, buildHotspotPopup(toHotspotSummary(feature.properties)))
+    })
 
     currentMap.on('click', 'points-racks', (event) => {
       const feature = event.features?.[0]
@@ -302,6 +410,24 @@
     setLayerVisibility('points-infrastructure', showInfrastructure)
   }
 
+  function syncHotspotVisibility() {
+    if (!map || !isMapReady) {
+      return
+    }
+
+    setLayerVisibility('hotspots', showHotspots)
+  }
+
+  function syncCorridorVisibility() {
+    if (!map || !isMapReady) {
+      return
+    }
+
+    setLayerVisibility('corridors-base', showCorridors)
+    setLayerVisibility('corridors-fill', showCorridors)
+    setLayerVisibility('corridors-selected', showCorridors)
+  }
+
   function syncSegmentFilter() {
     if (!map || !isMapReady) {
       return
@@ -327,6 +453,18 @@
     ])
   }
 
+  function syncSelectedCorridor() {
+    if (!map?.getLayer('corridors-selected')) {
+      return
+    }
+
+    map.setFilter('corridors-selected', [
+      '==',
+      ['get', 'corridor_id'],
+      selectedCorridor?.corridor_id ?? -1,
+    ])
+  }
+
   function setLayerVisibility(layerId: string, visible: boolean) {
     if (!map?.getLayer(layerId)) {
       return
@@ -345,6 +483,39 @@
     map.easeTo({
       center: segment.center,
       zoom: 15,
+      duration: 0,
+    })
+  }
+
+  function focusCorridor(corridor: RecommendedCorridor) {
+    selectedCorridor = corridor
+
+    if (!map) {
+      return
+    }
+
+    if (corridor.bounds) {
+      map.fitBounds(
+        [
+          [corridor.bounds[0], corridor.bounds[1]],
+          [corridor.bounds[2], corridor.bounds[3]],
+        ],
+        {
+          padding: 72,
+          duration: 0,
+          maxZoom: 14.5,
+        },
+      )
+      return
+    }
+
+    if (!corridor.center) {
+      return
+    }
+
+    map.easeTo({
+      center: corridor.center,
+      zoom: 13.5,
       duration: 0,
     })
   }
@@ -403,6 +574,51 @@
     }
   }
 
+  function toRecommendedCorridor(feature: MapGeoJSONFeature): RecommendedCorridor {
+    const properties = feature.properties ?? {}
+
+    return {
+      bounds: parseBounds(properties.bounds),
+      center: parseCoordinate(properties.center),
+      corridor_id: toNumber(properties.corridor_id),
+      corridor_rank: toNumber(properties.corridor_rank),
+      direct_distance_km: toNumber(properties.direct_distance_km),
+      from_hub_id: toNumber(properties.from_hub_id),
+      from_label: toNullableString(properties.from_label) ?? 'brak',
+      label: toNullableString(properties.label) ?? 'brak',
+      max_noise_db: toNullableNumber(properties.max_noise_db),
+      mean_greenery_ratio: toNumber(properties.mean_greenery_ratio),
+      mean_infrastructure_distance_m: toNullableNumber(properties.mean_infrastructure_distance_m),
+      mean_rack_distance_m: toNullableNumber(properties.mean_rack_distance_m),
+      mean_segment_score: toNumber(properties.mean_segment_score),
+      min_segment_score: toNumber(properties.min_segment_score),
+      pair_priority: toNumber(properties.pair_priority),
+      path_cost: toNumber(properties.path_cost),
+      path_length_km: toNumber(properties.path_length_km),
+      segment_count: toNumber(properties.segment_count),
+      to_hub_id: toNumber(properties.to_hub_id),
+      to_label: toNullableString(properties.to_label) ?? 'brak',
+    }
+  }
+
+  function toHotspotSummary(
+    properties: Record<string, unknown> | undefined,
+  ): HotspotSummary {
+    return {
+      center: parseCoordinate(properties?.center) ?? KRAKOW_CENTER,
+      cell_id: toNullableString(properties?.cell_id) ?? 'brak',
+      density_score: toNumber(properties?.density_score),
+      graph_node_id: toNumber(properties?.graph_node_id),
+      hub_id: toNumber(properties?.hub_id),
+      infrastructure_count: toNumber(properties?.infrastructure_count),
+      label: toNullableString(properties?.label) ?? 'brak',
+      point_count: toNumber(properties?.point_count),
+      rack_count: toNumber(properties?.rack_count),
+      snap_distance_m: toNumber(properties?.snap_distance_m),
+      total_weight: toNumber(properties?.total_weight),
+    }
+  }
+
   function segmentBreakdown(segment: TopSegment) {
     const weights = summary?.explainability.scoring.weights
 
@@ -450,6 +666,18 @@
     return `${Math.round(weight * 100)}%`
   }
 
+  function formatCoordinatePair(coordinate: [number, number] | null) {
+    if (!coordinate) {
+      return 'brak'
+    }
+
+    return `${coordinate[0].toFixed(4)}, ${coordinate[1].toFixed(4)}`
+  }
+
+  function formatFixed(value: number | null | undefined, digits = 2) {
+    return value == null || !Number.isFinite(value) ? 'brak' : value.toFixed(digits)
+  }
+
   function buildSegmentPopup(segment: TopSegment) {
     const breakdownHtml = segmentBreakdown(segment)
       .map(
@@ -491,6 +719,46 @@
     `
   }
 
+  function buildCorridorPopup(corridor: RecommendedCorridor) {
+    return `
+      <div class="w-[19rem] bg-white p-4 text-stone-900">
+        <div class="mb-3 flex items-start justify-between gap-3">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-[0.2em] text-stone-500">Korytarz #${corridor.corridor_rank}</p>
+            <h3 class="mt-1 text-lg font-semibold text-stone-950">${escapeHtml(corridor.label)}</h3>
+          </div>
+          <span class="rounded-full bg-sky-600 px-3 py-1 text-sm font-semibold text-white">${formatScore(corridor.mean_segment_score)}</span>
+        </div>
+        <dl class="grid grid-cols-2 gap-3 text-sm text-stone-700">
+          <div><dt class="text-stone-500">Dlugosc trasy</dt><dd class="font-medium text-stone-900">${formatKilometers(corridor.path_length_km)}</dd></div>
+          <div><dt class="text-stone-500">Odcinki</dt><dd class="font-medium text-stone-900">${formatCount(corridor.segment_count)}</dd></div>
+          <div><dt class="text-stone-500">Dystans prosty</dt><dd class="font-medium text-stone-900">${formatKilometers(corridor.direct_distance_km)}</dd></div>
+          <div><dt class="text-stone-500">Koszt sciezki</dt><dd class="font-medium text-stone-900">${corridor.path_cost.toFixed(1)}</dd></div>
+          <div><dt class="text-stone-500">Sredni score</dt><dd class="font-medium text-stone-900">${formatScore(corridor.mean_segment_score)}</dd></div>
+          <div><dt class="text-stone-500">Min score</dt><dd class="font-medium text-stone-900">${formatScore(corridor.min_segment_score)}</dd></div>
+          <div><dt class="text-stone-500">Srednia zielen</dt><dd class="font-medium text-stone-900">${formatPercent(corridor.mean_greenery_ratio)}</dd></div>
+          <div><dt class="text-stone-500">Max halas</dt><dd class="font-medium text-stone-900">${formatNoise(corridor.max_noise_db)}</dd></div>
+        </dl>
+      </div>
+    `
+  }
+
+  function buildHotspotPopup(hotspot: HotspotSummary) {
+    return `
+      <div class="w-[16rem] bg-white p-4 text-stone-900">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-stone-500">Hotspot popytu</p>
+        <h3 class="mt-1 text-base font-semibold text-stone-950">${escapeHtml(hotspot.label)}</h3>
+        <dl class="mt-3 space-y-2 text-sm text-stone-700">
+          <div><dt class="text-stone-500">Density score</dt><dd class="font-medium text-stone-900">${hotspot.density_score.toFixed(2)}</dd></div>
+          <div><dt class="text-stone-500">Wszystkie punkty</dt><dd class="font-medium text-stone-900">${formatCount(hotspot.point_count)}</dd></div>
+          <div><dt class="text-stone-500">Stojaki</dt><dd class="font-medium text-stone-900">${formatCount(hotspot.rack_count)}</dd></div>
+          <div><dt class="text-stone-500">Infrastruktura</dt><dd class="font-medium text-stone-900">${formatCount(hotspot.infrastructure_count)}</dd></div>
+          <div><dt class="text-stone-500">Snap do grafu</dt><dd class="font-medium text-stone-900">${formatDistance(hotspot.snap_distance_m)}</dd></div>
+        </dl>
+      </div>
+    `
+  }
+
   function buildPointPopup(properties: Record<string, unknown> | undefined) {
     const pointKind = toNullableString(properties?.point_kind) === 'rack' ? 'Stojak' : 'Punkt infrastruktury'
     const name = escapeHtml(toNullableString(properties?.name) ?? 'brak nazwy')
@@ -520,6 +788,17 @@
     }
 
     return (await response.json()) as T
+  }
+
+  function parseBounds(value: unknown) {
+    if (!Array.isArray(value) || value.length !== 4) {
+      return null
+    }
+
+    const parsed = value.map((item) => Number(item))
+    return parsed.every((item) => Number.isFinite(item))
+      ? (parsed as [number, number, number, number])
+      : null
   }
 
   function parseCoordinate(value: unknown) {
@@ -635,6 +914,14 @@ npm run dev</pre>
                   <input bind:checked={showInfrastructure} class="sr-only" type="checkbox" />
                   <span>Punkty</span>
                 </label>
+                <label class={`inline-flex cursor-pointer items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition ${showHotspots ? 'bg-orange-500 text-white' : 'bg-stone-100 text-stone-700'}`}>
+                  <input bind:checked={showHotspots} class="sr-only" type="checkbox" />
+                  <span>Hotspoty</span>
+                </label>
+                <label class={`inline-flex cursor-pointer items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition ${showCorridors ? 'bg-sky-600 text-white' : 'bg-stone-100 text-stone-700'}`}>
+                  <input bind:checked={showCorridors} class="sr-only" type="checkbox" />
+                  <span>Korytarze</span>
+                </label>
                 <button
                   class={`rounded-full px-4 py-2 text-sm font-medium transition ${onlyTopSegments ? 'bg-amber-500 text-stone-950' : 'bg-stone-100 text-stone-700'}`}
                   onclick={() => (onlyTopSegments = !onlyTopSegments)}
@@ -662,6 +949,14 @@ npm run dev</pre>
               <div class="inline-flex items-center gap-2 rounded-full bg-sky-100 px-3 py-1 text-xs font-medium text-sky-800">
                 <span class="size-2.5 rounded-full bg-sky-600"></span>
                 <span>Krakow / OSM</span>
+              </div>
+              <div class="inline-flex items-center gap-2 rounded-full bg-orange-100 px-3 py-1 text-xs font-medium text-orange-900">
+                <span class="size-2.5 rounded-full bg-orange-500"></span>
+                <span>Hotspot popytu</span>
+              </div>
+              <div class="inline-flex items-center gap-2 rounded-full bg-sky-100 px-3 py-1 text-xs font-medium text-sky-900">
+                <span class="size-2.5 rounded-full bg-sky-500"></span>
+                <span>Rekomendowany korytarz</span>
               </div>
             </div>
           </div>
@@ -733,6 +1028,142 @@ npm run dev</pre>
                 </div>
               </dl>
             </section>
+
+            <section class="rounded-[1.5rem] border border-stone-300 bg-white/82 p-5 shadow-lg shadow-amber-100/50 backdrop-blur">
+              <div class="flex items-center justify-between gap-4">
+                <div>
+                  <p class="text-xs font-semibold uppercase tracking-[0.24em] text-stone-500">Corridor Engine</p>
+                  <h3 class="mt-1 text-xl font-semibold tracking-tight text-stone-950">
+                    Graf + MCDA + Dijkstra
+                  </h3>
+                </div>
+                <span class="rounded-full bg-sky-600 px-3 py-1 text-sm font-semibold text-white">
+                  {summary.corridor_recommendations.recommended.length} tras
+                </span>
+              </div>
+              <dl class="mt-4 grid grid-cols-2 gap-3 text-sm text-stone-700">
+                <div class="rounded-2xl bg-stone-50 px-4 py-3">
+                  <dt class="text-stone-500">Wezly grafu</dt>
+                  <dd class="mt-1 text-lg font-semibold text-stone-950">
+                    {summary.network_analysis.nodes}
+                  </dd>
+                </div>
+                <div class="rounded-2xl bg-stone-50 px-4 py-3">
+                  <dt class="text-stone-500">Krawedzie grafu</dt>
+                  <dd class="mt-1 text-lg font-semibold text-stone-950">
+                    {summary.network_analysis.edges}
+                  </dd>
+                </div>
+                <div class="rounded-2xl bg-stone-50 px-4 py-3">
+                  <dt class="text-stone-500">Komponenty</dt>
+                  <dd class="mt-1 text-lg font-semibold text-stone-950">
+                    {summary.network_analysis.connected_components}
+                  </dd>
+                </div>
+                <div class="rounded-2xl bg-stone-50 px-4 py-3">
+                  <dt class="text-stone-500">Hotspoty</dt>
+                  <dd class="mt-1 text-lg font-semibold text-stone-950">
+                    {summary.corridor_recommendations.hotspots.length}
+                  </dd>
+                </div>
+              </dl>
+            </section>
+
+            <section class="rounded-[1.5rem] border border-stone-300 bg-white/82 p-5 shadow-lg shadow-amber-100/50 backdrop-blur">
+              <div class="flex items-center justify-between gap-3">
+                <div>
+                  <p class="text-xs font-semibold uppercase tracking-[0.24em] text-stone-500">Korytarze</p>
+                  <h3 class="mt-1 text-xl font-semibold tracking-tight text-stone-950">
+                    Rekomendowane polaczenia
+                  </h3>
+                </div>
+                <span class="text-sm text-stone-500">klik = focus</span>
+              </div>
+
+              <div class="mt-4 space-y-2">
+                {#each summary.corridor_recommendations.recommended as corridor}
+                  <button
+                    class={`w-full rounded-[1.25rem] border px-4 py-3 text-left transition ${selectedCorridor?.corridor_id === corridor.corridor_id ? 'border-sky-700 bg-sky-700 text-white shadow-lg shadow-sky-300/40' : 'border-stone-200 bg-stone-50 text-stone-800 hover:border-stone-300 hover:bg-white'}`}
+                    onclick={() => focusCorridor(corridor)}
+                    type="button"
+                  >
+                    <div class="flex items-start justify-between gap-3">
+                      <div>
+                        <p class={`text-xs font-semibold uppercase tracking-[0.2em] ${selectedCorridor?.corridor_id === corridor.corridor_id ? 'text-sky-100' : 'text-stone-500'}`}>
+                          #{corridor.corridor_rank} {corridor.from_label} -> {corridor.to_label}
+                        </p>
+                        <p class="mt-1 text-sm font-semibold">
+                          {corridor.path_length_km.toFixed(2)} km • {corridor.segment_count} odc.
+                        </p>
+                        <p class={`mt-1 text-xs ${selectedCorridor?.corridor_id === corridor.corridor_id ? 'text-sky-100' : 'text-stone-500'}`}>
+                          score {formatScore(corridor.mean_segment_score)} • koszt {corridor.path_cost.toFixed(1)}
+                        </p>
+                      </div>
+                      <span
+                        class="rounded-full px-3 py-1 text-sm font-semibold"
+                        style={`background:${selectedCorridor?.corridor_id === corridor.corridor_id ? 'rgba(255,255,255,0.14)' : '#0ea5e9'}; color:#ffffff`}
+                      >
+                        {corridor.corridor_rank}
+                      </span>
+                    </div>
+                  </button>
+                {/each}
+              </div>
+            </section>
+
+            {#if selectedCorridor}
+              <section class="rounded-[1.5rem] border border-stone-300 bg-white/82 p-5 shadow-lg shadow-amber-100/50 backdrop-blur">
+                <p class="text-xs font-semibold uppercase tracking-[0.24em] text-stone-500">Wybrany korytarz</p>
+                <div class="mt-2 flex items-start justify-between gap-3">
+                  <div>
+                    <h3 class="text-xl font-semibold tracking-tight text-stone-950">
+                      {selectedCorridor.label}
+                    </h3>
+                    <p class="mt-1 text-sm text-stone-500">
+                      Korytarz #{selectedCorridor.corridor_rank}
+                    </p>
+                  </div>
+                  <span class="rounded-full bg-sky-600 px-3 py-1 text-sm font-semibold text-white">
+                    {formatScore(selectedCorridor.mean_segment_score)}
+                  </span>
+                </div>
+
+                <dl class="mt-4 grid grid-cols-2 gap-3 text-sm text-stone-700">
+                  <div class="rounded-2xl bg-stone-50 px-4 py-3">
+                    <dt class="text-stone-500">Dlugosc trasy</dt>
+                    <dd class="mt-1 font-semibold text-stone-950">{formatKilometers(selectedCorridor.path_length_km)}</dd>
+                  </div>
+                  <div class="rounded-2xl bg-stone-50 px-4 py-3">
+                    <dt class="text-stone-500">Dystans prosty</dt>
+                    <dd class="mt-1 font-semibold text-stone-950">{formatKilometers(selectedCorridor.direct_distance_km)}</dd>
+                  </div>
+                  <div class="rounded-2xl bg-stone-50 px-4 py-3">
+                    <dt class="text-stone-500">Koszt Dijkstra</dt>
+                    <dd class="mt-1 font-semibold text-stone-950">{selectedCorridor.path_cost.toFixed(1)}</dd>
+                  </div>
+                  <div class="rounded-2xl bg-stone-50 px-4 py-3">
+                    <dt class="text-stone-500">Liczba odcinkow</dt>
+                    <dd class="mt-1 font-semibold text-stone-950">{selectedCorridor.segment_count}</dd>
+                  </div>
+                  <div class="rounded-2xl bg-stone-50 px-4 py-3">
+                    <dt class="text-stone-500">Sredni score</dt>
+                    <dd class="mt-1 font-semibold text-stone-950">{formatScore(selectedCorridor.mean_segment_score)}</dd>
+                  </div>
+                  <div class="rounded-2xl bg-stone-50 px-4 py-3">
+                    <dt class="text-stone-500">Min score</dt>
+                    <dd class="mt-1 font-semibold text-stone-950">{formatScore(selectedCorridor.min_segment_score)}</dd>
+                  </div>
+                  <div class="rounded-2xl bg-stone-50 px-4 py-3">
+                    <dt class="text-stone-500">Srednia zielen</dt>
+                    <dd class="mt-1 font-semibold text-stone-950">{formatPercent(selectedCorridor.mean_greenery_ratio)}</dd>
+                  </div>
+                  <div class="rounded-2xl bg-stone-50 px-4 py-3">
+                    <dt class="text-stone-500">Max halas</dt>
+                    <dd class="mt-1 font-semibold text-stone-950">{formatNoise(selectedCorridor.max_noise_db)}</dd>
+                  </div>
+                </dl>
+              </section>
+            {/if}
 
             <section class="rounded-[1.5rem] border border-stone-300 bg-white/82 p-5 shadow-lg shadow-amber-100/50 backdrop-blur">
               <div class="flex items-center justify-between gap-3">
@@ -854,6 +1285,70 @@ npm run dev</pre>
             {/if}
 
             <section class="rounded-[1.5rem] border border-stone-300 bg-white/82 p-5 shadow-lg shadow-amber-100/50 backdrop-blur">
+              <p class="text-xs font-semibold uppercase tracking-[0.24em] text-stone-500">Hotspoty popytu</p>
+              <div class="mt-4 space-y-2">
+                {#each summary.corridor_recommendations.hotspots as hotspot}
+                  <div class="rounded-[1.25rem] border border-stone-200 bg-stone-50 px-4 py-3">
+                    <div class="flex items-start justify-between gap-3">
+                      <div>
+                        <p class="text-sm font-semibold text-stone-950">{hotspot.label}</p>
+                        <p class="mt-1 text-xs text-stone-500">
+                          {hotspot.point_count} punktow • stojaki {hotspot.rack_count} • infrastruktura {hotspot.infrastructure_count}
+                        </p>
+                      </div>
+                      <div class="text-right">
+                        <p class="text-sm font-semibold text-stone-950">{hotspot.density_score.toFixed(2)}</p>
+                        <p class="mt-1 text-xs text-stone-500">density</p>
+                      </div>
+                    </div>
+                    <p class="mt-2 text-xs text-stone-600">
+                      Snap do wezla grafu: {formatDistance(hotspot.snap_distance_m)}
+                    </p>
+                  </div>
+                {/each}
+              </div>
+            </section>
+
+            <section class="rounded-[1.5rem] border border-stone-300 bg-white/82 p-5 shadow-lg shadow-amber-100/50 backdrop-blur">
+              <p class="text-xs font-semibold uppercase tracking-[0.24em] text-stone-500">Spatial Stats</p>
+              <div class="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
+                <div class="rounded-[1.25rem] border border-stone-200 bg-stone-50 px-4 py-3">
+                  <p class="text-sm font-semibold text-stone-950">Punkty popytu</p>
+                  <p class="mt-1 text-xs text-stone-500">
+                    mean center: {formatCoordinatePair(summary.spatial_statistics.demand_points.mean_center)}
+                  </p>
+                  <p class="mt-2 text-sm text-stone-700">
+                    NNI {formatFixed(summary.spatial_statistics.demand_points.nearest_neighbor_index?.nni, 3)} • {summary.spatial_statistics.demand_points.nearest_neighbor_index?.pattern ?? 'brak'}
+                  </p>
+                </div>
+                <div class="rounded-[1.25rem] border border-stone-200 bg-stone-50 px-4 py-3">
+                  <p class="text-sm font-semibold text-stone-950">Stojaki</p>
+                  <p class="mt-1 text-xs text-stone-500">
+                    mean center: {formatCoordinatePair(summary.spatial_statistics.bike_racks.mean_center)}
+                  </p>
+                  <p class="mt-2 text-sm text-stone-700">
+                    NNI {formatFixed(summary.spatial_statistics.bike_racks.nearest_neighbor_index?.nni, 3)} • {summary.spatial_statistics.bike_racks.nearest_neighbor_index?.pattern ?? 'brak'}
+                  </p>
+                </div>
+                <div class="rounded-[1.25rem] border border-stone-200 bg-stone-50 px-4 py-3">
+                  <p class="text-sm font-semibold text-stone-950">Infrastruktura</p>
+                  <p class="mt-1 text-xs text-stone-500">
+                    mean center: {formatCoordinatePair(summary.spatial_statistics.bike_infrastructure.mean_center)}
+                  </p>
+                  <p class="mt-2 text-sm text-stone-700">
+                    NNI {formatFixed(summary.spatial_statistics.bike_infrastructure.nearest_neighbor_index?.nni, 3)} • {summary.spatial_statistics.bike_infrastructure.nearest_neighbor_index?.pattern ?? 'brak'}
+                  </p>
+                </div>
+                <div class="rounded-[1.25rem] border border-stone-200 bg-stone-50 px-4 py-3">
+                  <p class="text-sm font-semibold text-stone-950">Elipsa hotspotow</p>
+                  <p class="mt-2 text-sm text-stone-700">
+                    major {formatFixed(summary.spatial_statistics.hotspot_centers.standard_deviational_ellipse?.major_axis_sd_m, 0)} m • minor {formatFixed(summary.spatial_statistics.hotspot_centers.standard_deviational_ellipse?.minor_axis_sd_m, 0)} m
+                  </p>
+                </div>
+              </div>
+            </section>
+
+            <section class="rounded-[1.5rem] border border-stone-300 bg-white/82 p-5 shadow-lg shadow-amber-100/50 backdrop-blur">
               <p class="text-xs font-semibold uppercase tracking-[0.24em] text-stone-500">Explainability</p>
               <div class="mt-3 space-y-4 text-sm leading-7 text-stone-700">
                 <div class="rounded-[1.25rem] border border-stone-200 bg-stone-50 px-4 py-3">
@@ -861,6 +1356,19 @@ npm run dev</pre>
                   <p class="mt-2 font-medium text-stone-950">{summary.explainability.scoring.formula}</p>
                   <p class="mt-2 text-stone-600">
                     Probkowanie: co {summary.explainability.scoring.sample_step_meters} m • zakres wyniku {summary.explainability.scoring.output_range[0]}-{summary.explainability.scoring.output_range[1]}
+                  </p>
+                </div>
+
+                <div class="rounded-[1.25rem] border border-stone-200 bg-stone-50 px-4 py-3">
+                  <p class="text-xs font-semibold uppercase tracking-[0.2em] text-stone-500">Corridor Optimization</p>
+                  <p class="mt-2 font-medium text-stone-950">
+                    {summary.explainability.corridor_optimization.scenario.edge_cost_formula}
+                  </p>
+                  <p class="mt-2 text-stone-600">
+                    Priorytet pary: {summary.explainability.corridor_optimization.scenario.pair_priority_formula}
+                  </p>
+                  <p class="mt-2 text-stone-600">
+                    Snap grafu: {summary.explainability.corridor_optimization.graph_snap_decimals} cyfr • siatka hotspotow {summary.explainability.corridor_optimization.scenario.hotspot_grid_meters} m
                   </p>
                 </div>
 

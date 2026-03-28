@@ -7,6 +7,7 @@ export const KRAKOW_CENTER: Coordinate = [19.94498, 50.06143]
 export interface SegmentProperties {
   center: Coordinate | null
   comfort_score: number
+  corridor_usage_count?: number
   greenery_ratio: number
   greenery_points: number
   greenery_score: number
@@ -104,13 +105,115 @@ export interface ScoringMeta {
   weights: ScoringWeights
 }
 
+export interface CorridorScenarioMeta {
+  edge_cost_formula: string
+  hotspot_bandwidth_meters: number
+  hotspot_count: number
+  hotspot_grid_meters: number
+  id: string
+  label: string
+  max_hub_snap_distance_meters: number
+  min_hotspot_separation_meters: number
+  min_pair_distance_meters: number
+  pair_priority_formula: string
+  recommended_corridor_count: number
+}
+
 export interface ExplainabilityMeta {
+  corridor_optimization: {
+    graph_snap_decimals: number
+    scenario: CorridorScenarioMeta
+  }
   data_sources: DataSourceMeta[]
   limitations: string[]
   map_layers: MapLayerMeta[]
   nondeterminism: string[]
   processing_steps: ProcessingStepMeta[]
   scoring: ScoringMeta
+}
+
+export interface NearestNeighborIndexMeta {
+  expected_mean_distance_m: number
+  nni: number
+  observed_mean_distance_m: number
+  pattern: string
+}
+
+export interface StandardDeviationalEllipseMeta {
+  center: Coordinate | null
+  major_axis_sd_m: number
+  minor_axis_sd_m: number
+  rotation_deg: number
+}
+
+export interface SpatialPointSetSummary {
+  count: number
+  mean_center: Coordinate | null
+  nearest_neighbor_index: NearestNeighborIndexMeta | null
+  standard_deviational_ellipse: StandardDeviationalEllipseMeta | null
+}
+
+export interface SpatialStatisticsSummary {
+  bike_infrastructure: SpatialPointSetSummary
+  bike_racks: SpatialPointSetSummary
+  demand_points: SpatialPointSetSummary
+  hotspot_centers: SpatialPointSetSummary
+  segment_centers: SpatialPointSetSummary
+}
+
+export interface NetworkAnalysisSummary {
+  average_degree: number
+  connected_components: number
+  edges: number
+  largest_component_edges: number
+  largest_component_nodes: number
+  max_corridor_usage_count: number
+  nodes: number
+  self_loop_edges: number
+  total_network_length_km: number
+}
+
+export interface HotspotSummary {
+  center: Coordinate
+  cell_id: string
+  density_score: number
+  graph_node_id: number
+  hub_id: number
+  infrastructure_count: number
+  label: string
+  point_count: number
+  rack_count: number
+  snap_distance_m: number
+  total_weight: number
+}
+
+export interface RecommendedCorridor {
+  bounds: Bounds | null
+  center: Coordinate | null
+  corridor_id: number
+  corridor_rank: number
+  direct_distance_km: number
+  from_hub_id: number
+  from_label: string
+  label: string
+  max_noise_db: number | null
+  mean_greenery_ratio: number
+  mean_infrastructure_distance_m: number | null
+  mean_rack_distance_m: number | null
+  mean_segment_score: number
+  min_segment_score: number
+  pair_priority: number
+  path_cost: number
+  path_length_km: number
+  segment_count: number
+  to_hub_id: number
+  to_label: string
+}
+
+export interface CorridorRecommendationsSummary {
+  hotspots: HotspotSummary[]
+  recommended: RecommendedCorridor[]
+  scenario: CorridorScenarioMeta
 }
 
 export interface SegmentFeatureCollection {
@@ -156,13 +259,16 @@ export interface Summary {
     greenery_polygons: number
     noise_polygons: number
   }
+  corridor_recommendations: CorridorRecommendationsSummary
   explainability: ExplainabilityMeta
+  network_analysis: NetworkAnalysisSummary
   score: {
     max: number
     mean: number
     median: number
     min: number
   }
+  spatial_statistics: SpatialStatisticsSummary
   top_score_threshold: number
   top_segments: TopSegment[]
 }
@@ -232,6 +338,14 @@ export function formatScore(value: number) {
 
 export function formatPoints(value: number) {
   return `${value.toFixed(1)} pkt`
+}
+
+export function formatCount(value: number | null) {
+  if (value == null) {
+    return 'brak'
+  }
+
+  return `${Math.round(value)}`
 }
 
 export function scoreColor(score: number) {

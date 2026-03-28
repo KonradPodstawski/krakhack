@@ -18,6 +18,383 @@
     "mean": 42.44,
     "median": 39.7
   },
+  "spatial_statistics": {
+    "bike_racks": {
+      "count": 3066,
+      "mean_center": [
+        19.957518,
+        50.064113
+      ],
+      "standard_deviational_ellipse": {
+        "center": [
+          19.957518,
+          50.064113
+        ],
+        "major_axis_sd_m": 3465.24,
+        "minor_axis_sd_m": 2069.26,
+        "rotation_deg": 16.36
+      },
+      "nearest_neighbor_index": {
+        "observed_mean_distance_m": 42.87,
+        "expected_mean_distance_m": 174.16,
+        "nni": 0.246,
+        "pattern": "clustered"
+      }
+    },
+    "bike_infrastructure": {
+      "count": 177,
+      "mean_center": [
+        19.949872,
+        50.055479
+      ],
+      "standard_deviational_ellipse": {
+        "center": [
+          19.949872,
+          50.055479
+        ],
+        "major_axis_sd_m": 4036.79,
+        "minor_axis_sd_m": 3031.73,
+        "rotation_deg": 16.37
+      },
+      "nearest_neighbor_index": {
+        "observed_mean_distance_m": 527.37,
+        "expected_mean_distance_m": 724.86,
+        "nni": 0.728,
+        "pattern": "clustered"
+      }
+    },
+    "demand_points": {
+      "count": 3243,
+      "mean_center": [
+        19.9571,
+        50.063642
+      ],
+      "standard_deviational_ellipse": {
+        "center": [
+          19.9571,
+          50.063642
+        ],
+        "major_axis_sd_m": 3503.51,
+        "minor_axis_sd_m": 2140.12,
+        "rotation_deg": 16.6
+      },
+      "nearest_neighbor_index": {
+        "observed_mean_distance_m": 45.62,
+        "expected_mean_distance_m": 169.34,
+        "nni": 0.269,
+        "pattern": "clustered"
+      }
+    },
+    "segment_centers": {
+      "count": 3525,
+      "mean_center": [
+        19.966678,
+        50.060808
+      ],
+      "standard_deviational_ellipse": {
+        "center": [
+          19.966678,
+          50.060808
+        ],
+        "major_axis_sd_m": 3619.84,
+        "minor_axis_sd_m": 2946.23,
+        "rotation_deg": 11.9
+      },
+      "nearest_neighbor_index": {
+        "observed_mean_distance_m": 50.96,
+        "expected_mean_distance_m": 162.43,
+        "nni": 0.314,
+        "pattern": "clustered"
+      }
+    },
+    "hotspot_centers": {
+      "count": 5,
+      "mean_center": [
+        19.998131,
+        50.072811
+      ],
+      "standard_deviational_ellipse": {
+        "center": [
+          19.998131,
+          50.072811
+        ],
+        "major_axis_sd_m": 2363.75,
+        "minor_axis_sd_m": 632.78,
+        "rotation_deg": 46.29
+      },
+      "nearest_neighbor_index": {
+        "observed_mean_distance_m": 1696.6,
+        "expected_mean_distance_m": 4312.79,
+        "nni": 0.393,
+        "pattern": "clustered"
+      }
+    }
+  },
+  "network_analysis": {
+    "nodes": 3986,
+    "edges": 3525,
+    "self_loop_edges": 12,
+    "connected_components": 579,
+    "largest_component_nodes": 594,
+    "largest_component_edges": 619,
+    "average_degree": 1.76,
+    "total_network_length_km": 416.38,
+    "max_corridor_usage_count": 5
+  },
+  "corridor_recommendations": {
+    "scenario": {
+      "id": "balanced_corridor_v1",
+      "label": "Balanced corridor priority",
+      "hotspot_grid_meters": 1200,
+      "hotspot_bandwidth_meters": 900,
+      "hotspot_count": 6,
+      "min_hotspot_separation_meters": 1400,
+      "max_hub_snap_distance_meters": 700,
+      "min_pair_distance_meters": 2000,
+      "recommended_corridor_count": 5,
+      "edge_cost_formula": "edge_cost = length_m * (1 + (100 - segment_score) / 100)",
+      "pair_priority_formula": "pair_priority = (from_density_score + to_density_score) * direct_distance_km"
+    },
+    "hotspots": [
+      {
+        "center": [
+          20.031706,
+          50.081435
+        ],
+        "density_score": 1102.004,
+        "total_weight": 383,
+        "point_count": 102,
+        "rack_count": 99,
+        "infrastructure_count": 3,
+        "graph_node_id": 2833,
+        "snap_distance_m": 76.56,
+        "cell_id": "13:8",
+        "component_id": 19,
+        "hub_id": 1,
+        "label": "Hub 1"
+      },
+      {
+        "center": [
+          19.964555,
+          50.049095
+        ],
+        "density_score": 795.336,
+        "total_weight": 120.5,
+        "point_count": 35,
+        "rack_count": 32,
+        "infrastructure_count": 3,
+        "graph_node_id": 1342,
+        "snap_distance_m": 152.5,
+        "cell_id": "9:5",
+        "component_id": 19,
+        "hub_id": 2,
+        "label": "Hub 2"
+      },
+      {
+        "center": [
+          20.014919,
+          50.092214
+        ],
+        "density_score": 612.133,
+        "total_weight": 197.5,
+        "point_count": 47,
+        "rack_count": 44,
+        "infrastructure_count": 3,
+        "graph_node_id": 523,
+        "snap_distance_m": 39.61,
+        "cell_id": "12:9",
+        "component_id": 19,
+        "hub_id": 3,
+        "label": "Hub 3"
+      },
+      {
+        "center": [
+          19.981343,
+          50.059875
+        ],
+        "density_score": 384.731,
+        "total_weight": 123,
+        "point_count": 24,
+        "rack_count": 22,
+        "infrastructure_count": 2,
+        "graph_node_id": 1244,
+        "snap_distance_m": 146.94,
+        "cell_id": "10:6",
+        "component_id": 19,
+        "hub_id": 4,
+        "label": "Hub 4"
+      },
+      {
+        "center": [
+          19.998131,
+          50.081435
+        ],
+        "density_score": 364.733,
+        "total_weight": 23,
+        "point_count": 3,
+        "rack_count": 3,
+        "infrastructure_count": 0,
+        "graph_node_id": 3629,
+        "snap_distance_m": 50.5,
+        "cell_id": "11:8",
+        "component_id": 19,
+        "hub_id": 5,
+        "label": "Hub 5"
+      }
+    ],
+    "recommended": [
+      {
+        "corridor_id": 1,
+        "corridor_rank": 1,
+        "label": "Hub 1 -> Hub 2",
+        "from_hub_id": 1,
+        "to_hub_id": 2,
+        "from_label": "Hub 1",
+        "to_label": "Hub 2",
+        "direct_distance_km": 6,
+        "path_length_km": 8.71,
+        "path_cost": 13202.59,
+        "pair_priority": 11381.82,
+        "segment_count": 96,
+        "mean_segment_score": 45.06,
+        "min_segment_score": 21.95,
+        "max_noise_db": 75,
+        "mean_greenery_ratio": 0.258,
+        "mean_rack_distance_m": 127.39,
+        "mean_infrastructure_distance_m": 139.5,
+        "center": [
+          19.996442598433184,
+          50.06573030552006
+        ],
+        "bounds": [
+          19.958508808127483,
+          50.050042600783904,
+          20.032506572564404,
+          50.084500016468475
+        ]
+      },
+      {
+        "corridor_id": 2,
+        "corridor_rank": 2,
+        "label": "Hub 2 -> Hub 3",
+        "from_hub_id": 2,
+        "to_hub_id": 3,
+        "from_label": "Hub 2",
+        "to_label": "Hub 3",
+        "direct_distance_km": 6,
+        "path_length_km": 8.8,
+        "path_cost": 13299.45,
+        "pair_priority": 8443.56,
+        "segment_count": 110,
+        "mean_segment_score": 44.27,
+        "min_segment_score": 21.95,
+        "max_noise_db": 75,
+        "mean_greenery_ratio": 0.2191,
+        "mean_rack_distance_m": 123.45,
+        "mean_infrastructure_distance_m": 147.96,
+        "center": [
+          19.99230603312518,
+          50.065025144837925
+        ],
+        "bounds": [
+          19.958508808127483,
+          50.050042600783904,
+          20.021372759494035,
+          50.092297901226814
+        ]
+      },
+      {
+        "corridor_id": 3,
+        "corridor_rank": 3,
+        "label": "Hub 1 -> Hub 4",
+        "from_hub_id": 1,
+        "to_hub_id": 4,
+        "from_label": "Hub 1",
+        "to_label": "Hub 4",
+        "direct_distance_km": 4.33,
+        "path_length_km": 6.21,
+        "path_cost": 9340.71,
+        "pair_priority": 6430.71,
+        "segment_count": 75,
+        "mean_segment_score": 43.69,
+        "min_segment_score": 21.95,
+        "max_noise_db": 75,
+        "mean_greenery_ratio": 0.2524,
+        "mean_rack_distance_m": 151.86,
+        "mean_infrastructure_distance_m": 151.33,
+        "center": [
+          20.00423219964194,
+          50.072540000638874
+        ],
+        "bounds": [
+          19.97927555184466,
+          50.06069378876044,
+          20.032506572564404,
+          50.084500016468475
+        ]
+      },
+      {
+        "corridor_id": 4,
+        "corridor_rank": 4,
+        "label": "Hub 2 -> Hub 5",
+        "from_hub_id": 2,
+        "to_hub_id": 5,
+        "from_label": "Hub 2",
+        "to_label": "Hub 5",
+        "direct_distance_km": 4.33,
+        "path_length_km": 6.34,
+        "path_cost": 9690.09,
+        "pair_priority": 5018.84,
+        "segment_count": 76,
+        "mean_segment_score": 43.46,
+        "min_segment_score": 12.38,
+        "max_noise_db": 75,
+        "mean_greenery_ratio": 0.289,
+        "mean_rack_distance_m": 167.47,
+        "mean_infrastructure_distance_m": 188.68,
+        "center": [
+          19.984270499639493,
+          50.06339040113211
+        ],
+        "bounds": [
+          19.958508808127483,
+          50.050042600783904,
+          20.00446549982785,
+          50.08143164518066
+        ]
+      },
+      {
+        "corridor_id": 5,
+        "corridor_rank": 5,
+        "label": "Hub 3 -> Hub 4",
+        "from_hub_id": 3,
+        "to_hub_id": 4,
+        "from_label": "Hub 3",
+        "to_label": "Hub 4",
+        "direct_distance_km": 4.33,
+        "path_length_km": 6.3,
+        "path_cost": 9437.57,
+        "pair_priority": 4312.37,
+        "segment_count": 89,
+        "mean_segment_score": 42.93,
+        "min_segment_score": 21.95,
+        "max_noise_db": 75,
+        "mean_greenery_ratio": 0.2052,
+        "mean_rack_distance_m": 143.13,
+        "mean_infrastructure_distance_m": 159.93,
+        "center": [
+          20.002995906006785,
+          50.07396999002089
+        ],
+        "bounds": [
+          19.97927555184466,
+          50.06069378876044,
+          20.021372759494035,
+          50.092297901226814
+        ]
+      }
+    ]
+  },
   "explainability": {
     "data_sources": [
       {
@@ -135,30 +512,54 @@
       },
       {
         "order": 3,
+        "id": "corridors-base",
+        "role": "recommended corridor outline",
+        "data_source": "corridors.geojson"
+      },
+      {
+        "order": 4,
+        "id": "corridors-fill",
+        "role": "recommended corridor highlight",
+        "data_source": "corridors.geojson"
+      },
+      {
+        "order": 5,
+        "id": "corridors-selected",
+        "role": "selected corridor highlight",
+        "data_source": "corridors.geojson"
+      },
+      {
+        "order": 6,
         "id": "segments-top-casing",
         "role": "top segment outline",
         "data_source": "segments.geojson"
       },
       {
-        "order": 4,
+        "order": 7,
         "id": "segments-top-fill",
         "role": "top segment highlight",
         "data_source": "segments.geojson"
       },
       {
-        "order": 5,
+        "order": 8,
         "id": "segments-selected",
         "role": "selected segment highlight",
         "data_source": "segments.geojson"
       },
       {
-        "order": 6,
+        "order": 9,
+        "id": "hotspots",
+        "role": "demand hotspots",
+        "data_source": "hotspots.geojson"
+      },
+      {
+        "order": 10,
         "id": "points-racks",
         "role": "bike racks",
         "data_source": "points.geojson"
       },
       {
-        "order": 7,
+        "order": 11,
         "id": "points-infrastructure",
         "role": "bike infrastructure points",
         "data_source": "points.geojson"
@@ -201,10 +602,28 @@
       },
       "formula": "score = greenery_score*0.35 + noise_score*0.30 + rack_score*0.20 + infrastructure_score*0.15"
     },
+    "corridor_optimization": {
+      "scenario": {
+        "id": "balanced_corridor_v1",
+        "label": "Balanced corridor priority",
+        "hotspot_grid_meters": 1200,
+        "hotspot_bandwidth_meters": 900,
+        "hotspot_count": 6,
+        "min_hotspot_separation_meters": 1400,
+        "max_hub_snap_distance_meters": 700,
+        "min_pair_distance_meters": 2000,
+        "recommended_corridor_count": 5,
+        "edge_cost_formula": "edge_cost = length_m * (1 + (100 - segment_score) / 100)",
+        "pair_priority_formula": "pair_priority = (from_density_score + to_density_score) * direct_distance_km"
+      },
+      "graph_snap_decimals": 5
+    },
     "limitations": [
       "Zielen i halas sa oceniane przez probkowanie linii co staly krok, a nie przez pelne przeciecie bufora powierzchniowego.",
       "Podklad OSM sluzy tylko do orientacji przestrzennej i nie wchodzi do score.",
-      "Brak warstwy ruchu drogowego, nachylenia i bezpieczenstwa skrzyzowan, wiec ranking nie jest pelna ocena jakosci trasy."
+      "Brak warstwy ruchu drogowego, nachylenia i bezpieczenstwa skrzyzowan, wiec ranking nie jest pelna ocena jakosci trasy.",
+      "Rekomendowane korytarze poruszaja sie po istniejacej geometrii sieci rowerowej; nie projektuja nowych linii przez tereny bez danych sieciowych.",
+      "Hotspoty popytu sa estymowane z punktow infrastruktury i stojakow, a nie z danych demograficznych ani ruchowych."
     ],
     "nondeterminism": [
       "Jedyny runtime zewnetrzny na froncie to raster OSM; wynik analityczny i ranking sa lokalne i statyczne."
