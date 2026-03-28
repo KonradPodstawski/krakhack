@@ -12,7 +12,9 @@
     formatPercent,
     formatScore,
     scoreColor,
+    type H3CellSummary,
     type HotspotSummary,
+    type RecommendedConnector,
     type RecommendedCorridor,
     type Summary,
     type TopSegment,
@@ -21,8 +23,10 @@
   const SUMMARY_URL = '/generated/cycling-smart-city/summary.json'
   const SEGMENTS_URL = '/generated/cycling-smart-city/segments.geojson'
   const POINTS_URL = '/generated/cycling-smart-city/points.geojson'
+  const HEXES_URL = '/generated/cycling-smart-city/hexes.geojson'
   const HOTSPOTS_URL = '/generated/cycling-smart-city/hotspots.geojson'
   const CORRIDORS_URL = '/generated/cycling-smart-city/corridors.geojson'
+  const CONNECTORS_URL = '/generated/cycling-smart-city/connectors.geojson'
 
   let mapContainer: HTMLDivElement
   let maplibreModule: typeof import('maplibre-gl') | null = null
@@ -32,14 +36,18 @@
   let summary: Summary | null = null
   let selectedSegment: TopSegment | null = null
   let selectedCorridor: RecommendedCorridor | null = null
+  let selectedConnector: RecommendedConnector | null = null
+  let selectedHex: H3CellSummary | null = null
   let error: string | null = null
   let isLoading = true
   let isMapReady = false
 
+  let showHexes = true
   let showRacks = true
   let showInfrastructure = true
   let showHotspots = true
   let showCorridors = true
+  let showConnectors = true
   let onlyTopSegments = false
 
   const scoreLegend = [
@@ -81,12 +89,15 @@
   })
 
   afterUpdate(() => {
+    syncHexVisibility()
     syncPointVisibility()
     syncHotspotVisibility()
     syncCorridorVisibility()
+    syncConnectorVisibility()
     syncSegmentFilter()
     syncSelectedSegment()
     syncSelectedCorridor()
+    syncSelectedConnector()
   })
 
   async function initialize() {
@@ -98,6 +109,8 @@
       summary = await fetchJson<Summary>(SUMMARY_URL)
       selectedSegment = summary.top_segments[0] ?? null
       selectedCorridor = summary.corridor_recommendations.recommended[0] ?? null
+      selectedConnector = summary.off_network_connectors.recommended[0] ?? null
+      selectedHex = summary.h3_grid.top_cells[0] ?? null
 
       maplibreModule = await import('maplibre-gl')
 
@@ -121,12 +134,15 @@
         addLayers(map)
         bindMapEvents(map)
         isMapReady = true
+        syncHexVisibility()
         syncPointVisibility()
         syncHotspotVisibility()
         syncCorridorVisibility()
+        syncConnectorVisibility()
         syncSegmentFilter()
         syncSelectedSegment()
         syncSelectedCorridor()
+        syncSelectedConnector()
         resetView()
 
         isLoading = false
@@ -138,6 +154,11 @@
   }
 
   function addSources(currentMap: MapLibreMap) {
+    currentMap.addSource('hexes', {
+      type: 'geojson',
+      data: HEXES_URL,
+    })
+
     currentMap.addSource('segments', {
       type: 'geojson',
       data: SEGMENTS_URL,
@@ -159,9 +180,40 @@
       data: CORRIDORS_URL,
       lineMetrics: true,
     })
+
+    currentMap.addSource('connectors', {
+      type: 'geojson',
+      data: CONNECTORS_URL,
+      lineMetrics: true,
+    })
   }
 
   function addLayers(currentMap: MapLibreMap) {
+    currentMap.addLayer({
+      id: 'hexes-fill',
+      type: 'fill',
+      source: 'hexes',
+      paint: {
+        'fill-color': [
+          'interpolate',
+          ['linear'],
+          ['coalesce', ['get', 'hex_score'], 0],
+          0,
+          '#f5f5f4',
+          40,
+          '#fde68a',
+          60,
+          '#fb923c',
+          80,
+          '#f97316',
+          100,
+          '#dc2626',
+        ],
+        'fill-opacity': 0.2,
+        'fill-outline-color': '#a8a29e',
+      },
+    })
+
     currentMap.addLayer({
       id: 'segments-base',
       type: 'line',
@@ -224,6 +276,42 @@
         'line-color': '#f97316',
         'line-opacity': 1,
         'line-width': 8.5,
+      },
+    })
+
+    currentMap.addLayer({
+      id: 'connectors-base',
+      type: 'line',
+      source: 'connectors',
+      paint: {
+        'line-color': '#111827',
+        'line-opacity': 0.9,
+        'line-width': 8,
+      },
+    })
+
+    currentMap.addLayer({
+      id: 'connectors-fill',
+      type: 'line',
+      source: 'connectors',
+      paint: {
+        'line-color': '#ef4444',
+        'line-opacity': 0.95,
+        'line-width': 4.5,
+        'line-dasharray': [2, 1.2],
+      },
+    })
+
+    currentMap.addLayer({
+      id: 'connectors-selected',
+      type: 'line',
+      source: 'connectors',
+      filter: ['==', ['get', 'connector_id'], -1],
+      paint: {
+        'line-color': '#f59e0b',
+        'line-opacity': 1,
+        'line-width': 6.5,
+        'line-dasharray': [2, 1],
       },
     })
 
@@ -313,11 +401,13 @@
 
   function bindMapEvents(currentMap: MapLibreMap) {
     for (const layerId of [
+      'hexes-fill',
       'segments-base',
       'segments-top-fill',
       'points-racks',
       'points-infrastructure',
       'corridors-fill',
+      'connectors-fill',
       'hotspots',
     ]) {
       currentMap.on('mouseenter', layerId, () => {
@@ -327,6 +417,17 @@
         currentMap.getCanvas().style.cursor = ''
       })
     }
+
+    currentMap.on('click', 'hexes-fill', (event) => {
+      const feature = event.features?.[0]
+      if (!feature) {
+        return
+      }
+
+      const hex = toH3CellSummary(feature)
+      selectedHex = hex
+      renderPopup(event.lngLat, buildHexPopup(hex))
+    })
 
     const handleSegmentClick = (event: {
       features?: MapGeoJSONFeature[]
@@ -354,6 +455,17 @@
       const corridor = toRecommendedCorridor(feature)
       selectedCorridor = corridor
       renderPopup(event.lngLat, buildCorridorPopup(corridor))
+    })
+
+    currentMap.on('click', 'connectors-fill', (event) => {
+      const feature = event.features?.[0]
+      if (!feature) {
+        return
+      }
+
+      const connector = toRecommendedConnector(feature)
+      selectedConnector = connector
+      renderPopup(event.lngLat, buildConnectorPopup(connector))
     })
 
     currentMap.on('click', 'hotspots', (event) => {
@@ -418,6 +530,14 @@
     setLayerVisibility('hotspots', showHotspots)
   }
 
+  function syncHexVisibility() {
+    if (!map || !isMapReady) {
+      return
+    }
+
+    setLayerVisibility('hexes-fill', showHexes)
+  }
+
   function syncCorridorVisibility() {
     if (!map || !isMapReady) {
       return
@@ -426,6 +546,16 @@
     setLayerVisibility('corridors-base', showCorridors)
     setLayerVisibility('corridors-fill', showCorridors)
     setLayerVisibility('corridors-selected', showCorridors)
+  }
+
+  function syncConnectorVisibility() {
+    if (!map || !isMapReady) {
+      return
+    }
+
+    setLayerVisibility('connectors-base', showConnectors)
+    setLayerVisibility('connectors-fill', showConnectors)
+    setLayerVisibility('connectors-selected', showConnectors)
   }
 
   function syncSegmentFilter() {
@@ -462,6 +592,18 @@
       '==',
       ['get', 'corridor_id'],
       selectedCorridor?.corridor_id ?? -1,
+    ])
+  }
+
+  function syncSelectedConnector() {
+    if (!map?.getLayer('connectors-selected')) {
+      return
+    }
+
+    map.setFilter('connectors-selected', [
+      '==',
+      ['get', 'connector_id'],
+      selectedConnector?.connector_id ?? -1,
     ])
   }
 
@@ -515,6 +657,68 @@
 
     map.easeTo({
       center: corridor.center,
+      zoom: 13.5,
+      duration: 0,
+    })
+  }
+
+  function focusConnector(connector: RecommendedConnector) {
+    selectedConnector = connector
+
+    if (!map) {
+      return
+    }
+
+    if (connector.bounds) {
+      map.fitBounds(
+        [
+          [connector.bounds[0], connector.bounds[1]],
+          [connector.bounds[2], connector.bounds[3]],
+        ],
+        {
+          padding: 88,
+          duration: 0,
+          maxZoom: 15,
+        },
+      )
+      return
+    }
+
+    if (!connector.center) {
+      return
+    }
+
+    map.easeTo({
+      center: connector.center,
+      zoom: 14,
+      duration: 0,
+    })
+  }
+
+  function focusHex(hex: H3CellSummary) {
+    selectedHex = hex
+
+    if (!map) {
+      return
+    }
+
+    if (hex.bounds) {
+      map.fitBounds(
+        [
+          [hex.bounds[0], hex.bounds[1]],
+          [hex.bounds[2], hex.bounds[3]],
+        ],
+        {
+          padding: 88,
+          duration: 0,
+          maxZoom: 14.5,
+        },
+      )
+      return
+    }
+
+    map.easeTo({
+      center: hex.center,
       zoom: 13.5,
       duration: 0,
     })
@@ -583,21 +787,59 @@
       corridor_id: toNumber(properties.corridor_id),
       corridor_rank: toNumber(properties.corridor_rank),
       direct_distance_km: toNumber(properties.direct_distance_km),
+      from_h3_index: toNullableString(properties.from_h3_index) ?? 'brak',
       from_hub_id: toNumber(properties.from_hub_id),
       from_label: toNullableString(properties.from_label) ?? 'brak',
       label: toNullableString(properties.label) ?? 'brak',
       max_noise_db: toNullableNumber(properties.max_noise_db),
       mean_greenery_ratio: toNumber(properties.mean_greenery_ratio),
+      mean_h3_score: toNumber(properties.mean_h3_score),
       mean_infrastructure_distance_m: toNullableNumber(properties.mean_infrastructure_distance_m),
       mean_rack_distance_m: toNullableNumber(properties.mean_rack_distance_m),
       mean_segment_score: toNumber(properties.mean_segment_score),
+      min_h3_score: toNumber(properties.min_h3_score),
       min_segment_score: toNumber(properties.min_segment_score),
       pair_priority: toNumber(properties.pair_priority),
       path_cost: toNumber(properties.path_cost),
       path_length_km: toNumber(properties.path_length_km),
       segment_count: toNumber(properties.segment_count),
+      to_h3_index: toNullableString(properties.to_h3_index) ?? 'brak',
       to_hub_id: toNumber(properties.to_hub_id),
       to_label: toNullableString(properties.to_label) ?? 'brak',
+    }
+  }
+
+  function toRecommendedConnector(feature: MapGeoJSONFeature): RecommendedConnector {
+    const properties = feature.properties ?? {}
+
+    return {
+      bounds: parseBounds(properties.bounds),
+      center: parseCoordinate(properties.center),
+      connector_id: toNumber(properties.connector_id),
+      connector_rank: toNumber(properties.connector_rank),
+      crossing_penalty_points: toNumber(properties.crossing_penalty_points),
+      demand_gain_points: toNumber(properties.demand_gain_points),
+      distance_points: toNumber(properties.distance_points),
+      environment_points: toNumber(properties.environment_points),
+      greenery_ratio: toNumber(properties.greenery_ratio),
+      label: toNullableString(properties.label) ?? 'brak',
+      length_km: toNumber(properties.length_km),
+      length_m: toNumber(properties.length_m),
+      max_noise_db: toNullableNumber(properties.max_noise_db),
+      network_crossings_count: toNumber(properties.network_crossings_count),
+      network_gain_points: toNumber(properties.network_gain_points),
+      noise_score: toNumber(properties.noise_score),
+      priority_score: toNumber(properties.priority_score),
+      source_component_demand_weight: toNumber(properties.source_component_demand_weight),
+      source_component_id: toNumber(properties.source_component_id),
+      source_component_label: toNullableString(properties.source_component_label) ?? 'brak',
+      source_node_id: toNumber(properties.source_node_id),
+      target_component_demand_weight: toNumber(properties.target_component_demand_weight),
+      target_component_edges: toNumber(properties.target_component_edges),
+      target_component_id: toNumber(properties.target_component_id),
+      target_component_label: toNullableString(properties.target_component_label) ?? 'brak',
+      target_component_nodes: toNumber(properties.target_component_nodes),
+      target_node_id: toNumber(properties.target_node_id),
     }
   }
 
@@ -609,13 +851,44 @@
       cell_id: toNullableString(properties?.cell_id) ?? 'brak',
       density_score: toNumber(properties?.density_score),
       graph_node_id: toNumber(properties?.graph_node_id),
+      h3_index: toNullableString(properties?.h3_index) ?? 'brak',
+      h3_resolution: toNumber(properties?.h3_resolution),
+      hex_score: toNumber(properties?.hex_score),
       hub_id: toNumber(properties?.hub_id),
       infrastructure_count: toNumber(properties?.infrastructure_count),
       label: toNullableString(properties?.label) ?? 'brak',
+      mean_segment_score: toNumber(properties?.mean_segment_score),
+      network_score: toNumber(properties?.network_score),
       point_count: toNumber(properties?.point_count),
+      quality_score: toNumber(properties?.quality_score),
       rack_count: toNumber(properties?.rack_count),
       snap_distance_m: toNumber(properties?.snap_distance_m),
+      demand_score: toNumber(properties?.demand_score),
       total_weight: toNumber(properties?.total_weight),
+    }
+  }
+
+  function toH3CellSummary(feature: MapGeoJSONFeature): H3CellSummary {
+    const properties = feature.properties ?? {}
+
+    return {
+      bounds: parseBounds(properties.bounds),
+      center: parseCoordinate(properties.center) ?? KRAKOW_CENTER,
+      covered_segment_count: toNumber(properties.covered_segment_count),
+      demand_score: toNumber(properties.demand_score),
+      demand_weight: toNumber(properties.demand_weight),
+      h3_index: toNullableString(properties.h3_index) ?? 'brak',
+      h3_resolution: toNumber(properties.h3_resolution),
+      hex_score: toNumber(properties.hex_score),
+      infrastructure_count: toNumber(properties.infrastructure_count),
+      max_noise_db: toNullableNumber(properties.max_noise_db),
+      mean_greenery_ratio: toNumber(properties.mean_greenery_ratio),
+      mean_segment_score: toNumber(properties.mean_segment_score),
+      network_score: toNumber(properties.network_score),
+      point_count: toNumber(properties.point_count),
+      quality_score: toNumber(properties.quality_score),
+      rack_count: toNumber(properties.rack_count),
+      segment_sample_count: toNumber(properties.segment_sample_count),
     }
   }
 
@@ -735,6 +1008,7 @@
           <div><dt class="text-stone-500">Dystans prosty</dt><dd class="font-medium text-stone-900">${formatKilometers(corridor.direct_distance_km)}</dd></div>
           <div><dt class="text-stone-500">Koszt sciezki</dt><dd class="font-medium text-stone-900">${corridor.path_cost.toFixed(1)}</dd></div>
           <div><dt class="text-stone-500">Sredni score</dt><dd class="font-medium text-stone-900">${formatScore(corridor.mean_segment_score)}</dd></div>
+          <div><dt class="text-stone-500">Sredni H3</dt><dd class="font-medium text-stone-900">${formatScore(corridor.mean_h3_score)}</dd></div>
           <div><dt class="text-stone-500">Min score</dt><dd class="font-medium text-stone-900">${formatScore(corridor.min_segment_score)}</dd></div>
           <div><dt class="text-stone-500">Srednia zielen</dt><dd class="font-medium text-stone-900">${formatPercent(corridor.mean_greenery_ratio)}</dd></div>
           <div><dt class="text-stone-500">Max halas</dt><dd class="font-medium text-stone-900">${formatNoise(corridor.max_noise_db)}</dd></div>
@@ -743,17 +1017,60 @@
     `
   }
 
+  function buildConnectorPopup(connector: RecommendedConnector) {
+    return `
+      <div class="w-[19rem] bg-white p-4 text-stone-900">
+        <div class="mb-3 flex items-start justify-between gap-3">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-[0.2em] text-stone-500">Lacznik #${connector.connector_rank}</p>
+            <h3 class="mt-1 text-lg font-semibold text-stone-950">${escapeHtml(connector.label)}</h3>
+          </div>
+          <span class="rounded-full bg-red-500 px-3 py-1 text-sm font-semibold text-white">${formatScore(connector.priority_score)}</span>
+        </div>
+        <dl class="grid grid-cols-2 gap-3 text-sm text-stone-700">
+          <div><dt class="text-stone-500">Dlugosc</dt><dd class="font-medium text-stone-900">${formatKilometers(connector.length_km)}</dd></div>
+          <div><dt class="text-stone-500">Crossingi sieci</dt><dd class="font-medium text-stone-900">${formatCount(connector.network_crossings_count)}</dd></div>
+          <div><dt class="text-stone-500">Zielen</dt><dd class="font-medium text-stone-900">${formatPercent(connector.greenery_ratio)}</dd></div>
+          <div><dt class="text-stone-500">Max halas</dt><dd class="font-medium text-stone-900">${formatNoise(connector.max_noise_db)}</dd></div>
+          <div><dt class="text-stone-500">Komponent docelowy</dt><dd class="font-medium text-stone-900">${escapeHtml(connector.target_component_label)}</dd></div>
+          <div><dt class="text-stone-500">Priorytet</dt><dd class="font-medium text-stone-900">${formatScore(connector.priority_score)}</dd></div>
+        </dl>
+      </div>
+    `
+  }
+
   function buildHotspotPopup(hotspot: HotspotSummary) {
     return `
       <div class="w-[16rem] bg-white p-4 text-stone-900">
-        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-stone-500">Hotspot popytu</p>
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-stone-500">H3 hub</p>
         <h3 class="mt-1 text-base font-semibold text-stone-950">${escapeHtml(hotspot.label)}</h3>
         <dl class="mt-3 space-y-2 text-sm text-stone-700">
-          <div><dt class="text-stone-500">Density score</dt><dd class="font-medium text-stone-900">${hotspot.density_score.toFixed(2)}</dd></div>
+          <div><dt class="text-stone-500">H3 score</dt><dd class="font-medium text-stone-900">${formatScore(hotspot.hex_score)}</dd></div>
+          <div><dt class="text-stone-500">H3 index</dt><dd class="font-medium text-stone-900">${escapeHtml(hotspot.h3_index)}</dd></div>
           <div><dt class="text-stone-500">Wszystkie punkty</dt><dd class="font-medium text-stone-900">${formatCount(hotspot.point_count)}</dd></div>
           <div><dt class="text-stone-500">Stojaki</dt><dd class="font-medium text-stone-900">${formatCount(hotspot.rack_count)}</dd></div>
           <div><dt class="text-stone-500">Infrastruktura</dt><dd class="font-medium text-stone-900">${formatCount(hotspot.infrastructure_count)}</dd></div>
+          <div><dt class="text-stone-500">Sredni score segmentu</dt><dd class="font-medium text-stone-900">${formatScore(hotspot.mean_segment_score)}</dd></div>
           <div><dt class="text-stone-500">Snap do grafu</dt><dd class="font-medium text-stone-900">${formatDistance(hotspot.snap_distance_m)}</dd></div>
+        </dl>
+      </div>
+    `
+  }
+
+  function buildHexPopup(hex: H3CellSummary) {
+    return `
+      <div class="w-[18rem] bg-white p-4 text-stone-900">
+        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-stone-500">H3 cell</p>
+        <h3 class="mt-1 text-base font-semibold text-stone-950">${escapeHtml(hex.h3_index)}</h3>
+        <dl class="mt-3 space-y-2 text-sm text-stone-700">
+          <div><dt class="text-stone-500">Hex score</dt><dd class="font-medium text-stone-900">${formatScore(hex.hex_score)}</dd></div>
+          <div><dt class="text-stone-500">Demand score</dt><dd class="font-medium text-stone-900">${formatScore(hex.demand_score)}</dd></div>
+          <div><dt class="text-stone-500">Network score</dt><dd class="font-medium text-stone-900">${formatScore(hex.network_score)}</dd></div>
+          <div><dt class="text-stone-500">Quality score</dt><dd class="font-medium text-stone-900">${formatScore(hex.quality_score)}</dd></div>
+          <div><dt class="text-stone-500">Punkty popytu</dt><dd class="font-medium text-stone-900">${formatCount(hex.point_count)}</dd></div>
+          <div><dt class="text-stone-500">Probki segmentow</dt><dd class="font-medium text-stone-900">${formatCount(hex.segment_sample_count)}</dd></div>
+          <div><dt class="text-stone-500">Sredni score segmentu</dt><dd class="font-medium text-stone-900">${formatScore(hex.mean_segment_score)}</dd></div>
+          <div><dt class="text-stone-500">Max halas</dt><dd class="font-medium text-stone-900">${formatNoise(hex.max_noise_db)}</dd></div>
         </dl>
       </div>
     `
@@ -901,11 +1218,15 @@ npm run dev</pre>
               <div>
                 <p class="text-xs font-semibold uppercase tracking-[0.24em] text-stone-500">Mapa</p>
                 <h2 class="text-2xl font-semibold tracking-tight text-stone-950">
-                  Segmenty po score + punkty infrastruktury
+                  Segmenty, H3 i routing po score komorki
                 </h2>
               </div>
 
               <div class="flex flex-wrap gap-2">
+                <label class={`inline-flex cursor-pointer items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition ${showHexes ? 'bg-amber-500 text-stone-950' : 'bg-stone-100 text-stone-700'}`}>
+                  <input bind:checked={showHexes} class="sr-only" type="checkbox" />
+                  <span>H3</span>
+                </label>
                 <label class={`inline-flex cursor-pointer items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition ${showRacks ? 'bg-stone-900 text-stone-50' : 'bg-stone-100 text-stone-700'}`}>
                   <input bind:checked={showRacks} class="sr-only" type="checkbox" />
                   <span>Stojaki</span>
@@ -916,11 +1237,15 @@ npm run dev</pre>
                 </label>
                 <label class={`inline-flex cursor-pointer items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition ${showHotspots ? 'bg-orange-500 text-white' : 'bg-stone-100 text-stone-700'}`}>
                   <input bind:checked={showHotspots} class="sr-only" type="checkbox" />
-                  <span>Hotspoty</span>
+                  <span>Huby H3</span>
                 </label>
                 <label class={`inline-flex cursor-pointer items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition ${showCorridors ? 'bg-sky-600 text-white' : 'bg-stone-100 text-stone-700'}`}>
                   <input bind:checked={showCorridors} class="sr-only" type="checkbox" />
                   <span>Korytarze</span>
+                </label>
+                <label class={`inline-flex cursor-pointer items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition ${showConnectors ? 'bg-red-500 text-white' : 'bg-stone-100 text-stone-700'}`}>
+                  <input bind:checked={showConnectors} class="sr-only" type="checkbox" />
+                  <span>Laczniki</span>
                 </label>
                 <button
                   class={`rounded-full px-4 py-2 text-sm font-medium transition ${onlyTopSegments ? 'bg-amber-500 text-stone-950' : 'bg-stone-100 text-stone-700'}`}
@@ -950,13 +1275,21 @@ npm run dev</pre>
                 <span class="size-2.5 rounded-full bg-sky-600"></span>
                 <span>Krakow / OSM</span>
               </div>
+              <div class="inline-flex items-center gap-2 rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-900">
+                <span class="size-2.5 rounded-full bg-amber-500"></span>
+                <span>H3 score grid</span>
+              </div>
               <div class="inline-flex items-center gap-2 rounded-full bg-orange-100 px-3 py-1 text-xs font-medium text-orange-900">
                 <span class="size-2.5 rounded-full bg-orange-500"></span>
-                <span>Hotspot popytu</span>
+                <span>H3 hub</span>
               </div>
               <div class="inline-flex items-center gap-2 rounded-full bg-sky-100 px-3 py-1 text-xs font-medium text-sky-900">
                 <span class="size-2.5 rounded-full bg-sky-500"></span>
                 <span>Rekomendowany korytarz</span>
+              </div>
+              <div class="inline-flex items-center gap-2 rounded-full bg-red-100 px-3 py-1 text-xs font-medium text-red-900">
+                <span class="size-2.5 rounded-full bg-red-500"></span>
+                <span>Nowy lacznik</span>
               </div>
             </div>
           </div>
@@ -1034,7 +1367,7 @@ npm run dev</pre>
                 <div>
                   <p class="text-xs font-semibold uppercase tracking-[0.24em] text-stone-500">Corridor Engine</p>
                   <h3 class="mt-1 text-xl font-semibold tracking-tight text-stone-950">
-                    Graf + MCDA + Dijkstra
+                    H3 + graf + Dijkstra
                   </h3>
                 </div>
                 <span class="rounded-full bg-sky-600 px-3 py-1 text-sm font-semibold text-white">
@@ -1055,19 +1388,115 @@ npm run dev</pre>
                   </dd>
                 </div>
                 <div class="rounded-2xl bg-stone-50 px-4 py-3">
+                  <dt class="text-stone-500">Aktywne heksy H3</dt>
+                  <dd class="mt-1 text-lg font-semibold text-stone-950">
+                    {summary.h3_grid.active_cells}
+                  </dd>
+                </div>
+                <div class="rounded-2xl bg-stone-50 px-4 py-3">
                   <dt class="text-stone-500">Komponenty</dt>
                   <dd class="mt-1 text-lg font-semibold text-stone-950">
                     {summary.network_analysis.connected_components}
                   </dd>
                 </div>
-                <div class="rounded-2xl bg-stone-50 px-4 py-3">
-                  <dt class="text-stone-500">Hotspoty</dt>
-                  <dd class="mt-1 text-lg font-semibold text-stone-950">
-                    {summary.corridor_recommendations.hotspots.length}
-                  </dd>
-                </div>
               </dl>
             </section>
+
+            <section class="rounded-[1.5rem] border border-stone-300 bg-white/82 p-5 shadow-lg shadow-amber-100/50 backdrop-blur">
+              <div class="flex items-center justify-between gap-3">
+                <div>
+                  <p class="text-xs font-semibold uppercase tracking-[0.24em] text-stone-500">H3 Grid</p>
+                  <h3 class="mt-1 text-xl font-semibold tracking-tight text-stone-950">
+                    Najmocniejsze komorki
+                  </h3>
+                </div>
+                <span class="text-sm text-stone-500">klik = focus</span>
+              </div>
+
+              <div class="mt-4 space-y-2">
+                {#each summary.h3_grid.top_cells.slice(0, 8) as hex}
+                  <button
+                    class={`w-full rounded-[1.25rem] border px-4 py-3 text-left transition ${selectedHex?.h3_index === hex.h3_index ? 'border-amber-500 bg-amber-500 text-stone-950 shadow-lg shadow-amber-300/40' : 'border-stone-200 bg-stone-50 text-stone-800 hover:border-stone-300 hover:bg-white'}`}
+                    onclick={() => focusHex(hex)}
+                    type="button"
+                  >
+                    <div class="flex items-start justify-between gap-3">
+                      <div>
+                        <p class={`text-xs font-semibold uppercase tracking-[0.2em] ${selectedHex?.h3_index === hex.h3_index ? 'text-amber-950/70' : 'text-stone-500'}`}>
+                          res {hex.h3_resolution} • {hex.h3_index}
+                        </p>
+                        <p class="mt-1 text-sm font-semibold">
+                          hex {formatScore(hex.hex_score)} • demand {formatScore(hex.demand_score)}
+                        </p>
+                        <p class={`mt-1 text-xs ${selectedHex?.h3_index === hex.h3_index ? 'text-amber-950/70' : 'text-stone-500'}`}>
+                          punkty {formatCount(hex.point_count)} • probki {formatCount(hex.segment_sample_count)}
+                        </p>
+                      </div>
+                      <span
+                        class="rounded-full px-3 py-1 text-sm font-semibold"
+                        style={`background:${selectedHex?.h3_index === hex.h3_index ? 'rgba(255,255,255,0.35)' : '#f59e0b'}; color:${selectedHex?.h3_index === hex.h3_index ? '#1c1917' : '#ffffff'}`}
+                      >
+                        {formatScore(hex.hex_score)}
+                      </span>
+                    </div>
+                  </button>
+                {/each}
+              </div>
+            </section>
+
+            {#if selectedHex}
+              <section class="rounded-[1.5rem] border border-stone-300 bg-white/82 p-5 shadow-lg shadow-amber-100/50 backdrop-blur">
+                <p class="text-xs font-semibold uppercase tracking-[0.24em] text-stone-500">Wybrany H3 cell</p>
+                <div class="mt-2 flex items-start justify-between gap-3">
+                  <div>
+                    <h3 class="text-xl font-semibold tracking-tight text-stone-950">
+                      {selectedHex.h3_index}
+                    </h3>
+                    <p class="mt-1 text-sm text-stone-500">
+                      resolution {selectedHex.h3_resolution}
+                    </p>
+                  </div>
+                  <span class="rounded-full bg-amber-500 px-3 py-1 text-sm font-semibold text-stone-950">
+                    {formatScore(selectedHex.hex_score)}
+                  </span>
+                </div>
+
+                <dl class="mt-4 grid grid-cols-2 gap-3 text-sm text-stone-700">
+                  <div class="rounded-2xl bg-stone-50 px-4 py-3">
+                    <dt class="text-stone-500">Demand score</dt>
+                    <dd class="mt-1 font-semibold text-stone-950">{formatScore(selectedHex.demand_score)}</dd>
+                  </div>
+                  <div class="rounded-2xl bg-stone-50 px-4 py-3">
+                    <dt class="text-stone-500">Network score</dt>
+                    <dd class="mt-1 font-semibold text-stone-950">{formatScore(selectedHex.network_score)}</dd>
+                  </div>
+                  <div class="rounded-2xl bg-stone-50 px-4 py-3">
+                    <dt class="text-stone-500">Quality score</dt>
+                    <dd class="mt-1 font-semibold text-stone-950">{formatScore(selectedHex.quality_score)}</dd>
+                  </div>
+                  <div class="rounded-2xl bg-stone-50 px-4 py-3">
+                    <dt class="text-stone-500">Waga popytu</dt>
+                    <dd class="mt-1 font-semibold text-stone-950">{formatFixed(selectedHex.demand_weight, 1)}</dd>
+                  </div>
+                  <div class="rounded-2xl bg-stone-50 px-4 py-3">
+                    <dt class="text-stone-500">Punkty</dt>
+                    <dd class="mt-1 font-semibold text-stone-950">{formatCount(selectedHex.point_count)}</dd>
+                  </div>
+                  <div class="rounded-2xl bg-stone-50 px-4 py-3">
+                    <dt class="text-stone-500">Probki segmentow</dt>
+                    <dd class="mt-1 font-semibold text-stone-950">{formatCount(selectedHex.segment_sample_count)}</dd>
+                  </div>
+                  <div class="rounded-2xl bg-stone-50 px-4 py-3">
+                    <dt class="text-stone-500">Sredni score segmentu</dt>
+                    <dd class="mt-1 font-semibold text-stone-950">{formatScore(selectedHex.mean_segment_score)}</dd>
+                  </div>
+                  <div class="rounded-2xl bg-stone-50 px-4 py-3">
+                    <dt class="text-stone-500">Max halas</dt>
+                    <dd class="mt-1 font-semibold text-stone-950">{formatNoise(selectedHex.max_noise_db)}</dd>
+                  </div>
+                </dl>
+              </section>
+            {/if}
 
             <section class="rounded-[1.5rem] border border-stone-300 bg-white/82 p-5 shadow-lg shadow-amber-100/50 backdrop-blur">
               <div class="flex items-center justify-between gap-3">
@@ -1150,6 +1579,10 @@ npm run dev</pre>
                     <dd class="mt-1 font-semibold text-stone-950">{formatScore(selectedCorridor.mean_segment_score)}</dd>
                   </div>
                   <div class="rounded-2xl bg-stone-50 px-4 py-3">
+                    <dt class="text-stone-500">Sredni H3</dt>
+                    <dd class="mt-1 font-semibold text-stone-950">{formatScore(selectedCorridor.mean_h3_score)}</dd>
+                  </div>
+                  <div class="rounded-2xl bg-stone-50 px-4 py-3">
                     <dt class="text-stone-500">Min score</dt>
                     <dd class="mt-1 font-semibold text-stone-950">{formatScore(selectedCorridor.min_segment_score)}</dd>
                   </div>
@@ -1160,6 +1593,102 @@ npm run dev</pre>
                   <div class="rounded-2xl bg-stone-50 px-4 py-3">
                     <dt class="text-stone-500">Max halas</dt>
                     <dd class="mt-1 font-semibold text-stone-950">{formatNoise(selectedCorridor.max_noise_db)}</dd>
+                  </div>
+                </dl>
+              </section>
+            {/if}
+
+            <section class="rounded-[1.5rem] border border-stone-300 bg-white/82 p-5 shadow-lg shadow-amber-100/50 backdrop-blur">
+              <div class="flex items-center justify-between gap-3">
+                <div>
+                  <p class="text-xs font-semibold uppercase tracking-[0.24em] text-stone-500">Laczniki</p>
+                  <h3 class="mt-1 text-xl font-semibold tracking-tight text-stone-950">
+                    Propozycje nowych polaczen
+                  </h3>
+                </div>
+                <span class="text-sm text-stone-500">klik = focus</span>
+              </div>
+
+              <div class="mt-4 space-y-2">
+                {#each summary.off_network_connectors.recommended as connector}
+                  <button
+                    class={`w-full rounded-[1.25rem] border px-4 py-3 text-left transition ${selectedConnector?.connector_id === connector.connector_id ? 'border-red-600 bg-red-600 text-white shadow-lg shadow-red-300/40' : 'border-stone-200 bg-stone-50 text-stone-800 hover:border-stone-300 hover:bg-white'}`}
+                    onclick={() => focusConnector(connector)}
+                    type="button"
+                  >
+                    <div class="flex items-start justify-between gap-3">
+                      <div>
+                        <p class={`text-xs font-semibold uppercase tracking-[0.2em] ${selectedConnector?.connector_id === connector.connector_id ? 'text-red-100' : 'text-stone-500'}`}>
+                          #{connector.connector_rank} {connector.source_component_label} -> {connector.target_component_label}
+                        </p>
+                        <p class="mt-1 text-sm font-semibold">
+                          {formatKilometers(connector.length_km)} • crossingi {formatCount(connector.network_crossings_count)}
+                        </p>
+                        <p class={`mt-1 text-xs ${selectedConnector?.connector_id === connector.connector_id ? 'text-red-100' : 'text-stone-500'}`}>
+                          priorytet {formatScore(connector.priority_score)} • komponent {connector.target_component_id}
+                        </p>
+                      </div>
+                      <span
+                        class="rounded-full px-3 py-1 text-sm font-semibold"
+                        style={`background:${selectedConnector?.connector_id === connector.connector_id ? 'rgba(255,255,255,0.14)' : '#ef4444'}; color:#ffffff`}
+                      >
+                        {connector.connector_rank}
+                      </span>
+                    </div>
+                  </button>
+                {/each}
+              </div>
+            </section>
+
+            {#if selectedConnector}
+              <section class="rounded-[1.5rem] border border-stone-300 bg-white/82 p-5 shadow-lg shadow-amber-100/50 backdrop-blur">
+                <p class="text-xs font-semibold uppercase tracking-[0.24em] text-stone-500">Wybrany lacznik</p>
+                <div class="mt-2 flex items-start justify-between gap-3">
+                  <div>
+                    <h3 class="text-xl font-semibold tracking-tight text-stone-950">
+                      {selectedConnector.label}
+                    </h3>
+                    <p class="mt-1 text-sm text-stone-500">
+                      Lacznik #{selectedConnector.connector_rank}
+                    </p>
+                  </div>
+                  <span class="rounded-full bg-red-500 px-3 py-1 text-sm font-semibold text-white">
+                    {formatScore(selectedConnector.priority_score)}
+                  </span>
+                </div>
+
+                <dl class="mt-4 grid grid-cols-2 gap-3 text-sm text-stone-700">
+                  <div class="rounded-2xl bg-stone-50 px-4 py-3">
+                    <dt class="text-stone-500">Dlugosc</dt>
+                    <dd class="mt-1 font-semibold text-stone-950">{formatKilometers(selectedConnector.length_km)}</dd>
+                  </div>
+                  <div class="rounded-2xl bg-stone-50 px-4 py-3">
+                    <dt class="text-stone-500">Crossingi sieci</dt>
+                    <dd class="mt-1 font-semibold text-stone-950">{formatCount(selectedConnector.network_crossings_count)}</dd>
+                  </div>
+                  <div class="rounded-2xl bg-stone-50 px-4 py-3">
+                    <dt class="text-stone-500">Zielen</dt>
+                    <dd class="mt-1 font-semibold text-stone-950">{formatPercent(selectedConnector.greenery_ratio)}</dd>
+                  </div>
+                  <div class="rounded-2xl bg-stone-50 px-4 py-3">
+                    <dt class="text-stone-500">Max halas</dt>
+                    <dd class="mt-1 font-semibold text-stone-950">{formatNoise(selectedConnector.max_noise_db)}</dd>
+                  </div>
+                  <div class="rounded-2xl bg-stone-50 px-4 py-3">
+                    <dt class="text-stone-500">Demand gain</dt>
+                    <dd class="mt-1 font-semibold text-stone-950">{formatPoints(selectedConnector.demand_gain_points)}</dd>
+                  </div>
+                  <div class="rounded-2xl bg-stone-50 px-4 py-3">
+                    <dt class="text-stone-500">Network gain</dt>
+                    <dd class="mt-1 font-semibold text-stone-950">{formatPoints(selectedConnector.network_gain_points)}</dd>
+                  </div>
+                  <div class="rounded-2xl bg-stone-50 px-4 py-3">
+                    <dt class="text-stone-500">Distance points</dt>
+                    <dd class="mt-1 font-semibold text-stone-950">{formatPoints(selectedConnector.distance_points)}</dd>
+                  </div>
+                  <div class="rounded-2xl bg-stone-50 px-4 py-3">
+                    <dt class="text-stone-500">Crossing penalty</dt>
+                    <dd class="mt-1 font-semibold text-stone-950">{formatPoints(selectedConnector.crossing_penalty_points)}</dd>
                   </div>
                 </dl>
               </section>
@@ -1285,7 +1814,7 @@ npm run dev</pre>
             {/if}
 
             <section class="rounded-[1.5rem] border border-stone-300 bg-white/82 p-5 shadow-lg shadow-amber-100/50 backdrop-blur">
-              <p class="text-xs font-semibold uppercase tracking-[0.24em] text-stone-500">Hotspoty popytu</p>
+              <p class="text-xs font-semibold uppercase tracking-[0.24em] text-stone-500">H3 huby</p>
               <div class="mt-4 space-y-2">
                 {#each summary.corridor_recommendations.hotspots as hotspot}
                   <div class="rounded-[1.25rem] border border-stone-200 bg-stone-50 px-4 py-3">
@@ -1295,14 +1824,17 @@ npm run dev</pre>
                         <p class="mt-1 text-xs text-stone-500">
                           {hotspot.point_count} punktow • stojaki {hotspot.rack_count} • infrastruktura {hotspot.infrastructure_count}
                         </p>
+                        <p class="mt-1 text-xs text-stone-500">
+                          H3 {hotspot.h3_index}
+                        </p>
                       </div>
                       <div class="text-right">
-                        <p class="text-sm font-semibold text-stone-950">{hotspot.density_score.toFixed(2)}</p>
-                        <p class="mt-1 text-xs text-stone-500">density</p>
+                        <p class="text-sm font-semibold text-stone-950">{formatScore(hotspot.hex_score)}</p>
+                        <p class="mt-1 text-xs text-stone-500">hex score</p>
                       </div>
                     </div>
                     <p class="mt-2 text-xs text-stone-600">
-                      Snap do wezla grafu: {formatDistance(hotspot.snap_distance_m)}
+                      Snap do wezla grafu: {formatDistance(hotspot.snap_distance_m)} • quality {formatScore(hotspot.quality_score)}
                     </p>
                   </div>
                 {/each}
@@ -1340,7 +1872,7 @@ npm run dev</pre>
                   </p>
                 </div>
                 <div class="rounded-[1.25rem] border border-stone-200 bg-stone-50 px-4 py-3">
-                  <p class="text-sm font-semibold text-stone-950">Elipsa hotspotow</p>
+                  <p class="text-sm font-semibold text-stone-950">Elipsa hubow H3</p>
                   <p class="mt-2 text-sm text-stone-700">
                     major {formatFixed(summary.spatial_statistics.hotspot_centers.standard_deviational_ellipse?.major_axis_sd_m, 0)} m • minor {formatFixed(summary.spatial_statistics.hotspot_centers.standard_deviational_ellipse?.minor_axis_sd_m, 0)} m
                   </p>
@@ -1360,6 +1892,22 @@ npm run dev</pre>
                 </div>
 
                 <div class="rounded-[1.25rem] border border-stone-200 bg-stone-50 px-4 py-3">
+                  <p class="text-xs font-semibold uppercase tracking-[0.2em] text-stone-500">H3 Indexing</p>
+                  <p class="mt-2 font-medium text-stone-950">
+                    {summary.explainability.h3_indexing.scenario.cell_score_formula}
+                  </p>
+                  <p class="mt-2 text-stone-600">
+                    resolution {summary.explainability.h3_indexing.scenario.resolution} • huby {summary.explainability.h3_indexing.scenario.hub_count}
+                  </p>
+                  <p class="mt-2 text-stone-600">
+                    demand: {summary.explainability.h3_indexing.scenario.demand_score_formula}
+                  </p>
+                  <p class="mt-2 text-stone-600">
+                    network: {summary.explainability.h3_indexing.scenario.network_score_formula} • quality: {summary.explainability.h3_indexing.scenario.quality_score_formula}
+                  </p>
+                </div>
+
+                <div class="rounded-[1.25rem] border border-stone-200 bg-stone-50 px-4 py-3">
                   <p class="text-xs font-semibold uppercase tracking-[0.2em] text-stone-500">Corridor Optimization</p>
                   <p class="mt-2 font-medium text-stone-950">
                     {summary.explainability.corridor_optimization.scenario.edge_cost_formula}
@@ -1368,7 +1916,20 @@ npm run dev</pre>
                     Priorytet pary: {summary.explainability.corridor_optimization.scenario.pair_priority_formula}
                   </p>
                   <p class="mt-2 text-stone-600">
-                    Snap grafu: {summary.explainability.corridor_optimization.graph_snap_decimals} cyfr • siatka hotspotow {summary.explainability.corridor_optimization.scenario.hotspot_grid_meters} m
+                    Snap grafu: {summary.explainability.corridor_optimization.graph_snap_decimals} cyfr • H3 res {summary.explainability.corridor_optimization.scenario.h3_resolution} • huby {summary.explainability.corridor_optimization.scenario.hub_count}
+                  </p>
+                </div>
+
+                <div class="rounded-[1.25rem] border border-stone-200 bg-stone-50 px-4 py-3">
+                  <p class="text-xs font-semibold uppercase tracking-[0.2em] text-stone-500">Connector Optimization</p>
+                  <p class="mt-2 font-medium text-stone-950">
+                    {summary.explainability.connector_optimization.scenario.priority_formula}
+                  </p>
+                  <p class="mt-2 text-stone-600">
+                    Dlugosc {summary.explainability.connector_optimization.scenario.min_connector_length_meters}-{summary.explainability.connector_optimization.scenario.max_connector_length_meters} m • targety {summary.explainability.connector_optimization.scenario.target_component_limit}
+                  </p>
+                  <p class="mt-2 text-stone-600">
+                    Crossing method: {summary.explainability.connector_optimization.scenario.crossing_method}
                   </p>
                 </div>
 

@@ -6,26 +6,33 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          20.031706,
-          50.081435
+          20.026612,
+          50.0766
         ]
       },
       "properties": {
         "hub_id": 1,
-        "label": "Hub 1",
-        "cell_id": "13:8",
+        "label": "H3 Hub 1",
+        "cell_id": "881e2e6ae5fffff",
+        "h3_index": "881e2e6ae5fffff",
+        "h3_resolution": 8,
         "center": [
-          20.031706,
-          50.081435
+          20.026612,
+          50.0766
         ],
-        "density_score": 1102.004,
-        "total_weight": 383,
-        "point_count": 102,
-        "rack_count": 99,
-        "infrastructure_count": 3,
-        "graph_node_id": 2833,
+        "density_score": 49.33,
+        "hex_score": 49.33,
+        "demand_score": 40.77,
+        "network_score": 67.35,
+        "quality_score": 50.06,
+        "total_weight": 266,
+        "point_count": 66,
+        "rack_count": 65,
+        "infrastructure_count": 1,
+        "mean_segment_score": 50.06,
+        "graph_node_id": 123,
         "component_id": 19,
-        "snap_distance_m": 76.56
+        "snap_distance_m": 226.19
       }
     },
     {
@@ -33,26 +40,33 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          19.964555,
-          50.049095
+          19.964018,
+          50.053248
         ]
       },
       "properties": {
         "hub_id": 2,
-        "label": "Hub 2",
-        "cell_id": "9:5",
+        "label": "H3 Hub 2",
+        "cell_id": "881e2e6869fffff",
+        "h3_index": "881e2e6869fffff",
+        "h3_resolution": 8,
         "center": [
-          19.964555,
-          50.049095
+          19.964018,
+          50.053248
         ],
-        "density_score": 795.336,
-        "total_weight": 120.5,
-        "point_count": 35,
-        "rack_count": 32,
-        "infrastructure_count": 3,
-        "graph_node_id": 1342,
+        "density_score": 35.88,
+        "hex_score": 35.88,
+        "demand_score": 11.65,
+        "network_score": 61.22,
+        "quality_score": 52.55,
+        "total_weight": 76,
+        "point_count": 19,
+        "rack_count": 17,
+        "infrastructure_count": 2,
+        "mean_segment_score": 52.55,
+        "graph_node_id": 1266,
         "component_id": 19,
-        "snap_distance_m": 152.5
+        "snap_distance_m": 185.83
       }
     },
     {
@@ -60,26 +74,33 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          20.014919,
-          50.092214
+          20.021961,
+          50.091983
         ]
       },
       "properties": {
         "hub_id": 3,
-        "label": "Hub 3",
-        "cell_id": "12:9",
+        "label": "H3 Hub 3",
+        "cell_id": "881e2e6a17fffff",
+        "h3_index": "881e2e6a17fffff",
+        "h3_resolution": 8,
         "center": [
-          20.014919,
-          50.092214
+          20.021961,
+          50.091983
         ],
-        "density_score": 612.133,
-        "total_weight": 197.5,
-        "point_count": 47,
-        "rack_count": 44,
-        "infrastructure_count": 3,
-        "graph_node_id": 523,
+        "density_score": 35.72,
+        "hex_score": 35.72,
+        "demand_score": 25.44,
+        "network_score": 42.86,
+        "quality_score": 44.87,
+        "total_weight": 166,
+        "point_count": 34,
+        "rack_count": 32,
+        "infrastructure_count": 2,
+        "mean_segment_score": 44.87,
+        "graph_node_id": 757,
         "component_id": 19,
-        "snap_distance_m": 39.61
+        "snap_distance_m": 137.03
       }
     },
     {
@@ -87,26 +108,33 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          19.981343,
-          50.059875
+          20.004191,
+          50.073949
         ]
       },
       "properties": {
         "hub_id": 4,
-        "label": "Hub 4",
-        "cell_id": "10:6",
+        "label": "H3 Hub 4",
+        "cell_id": "881e2e6a37fffff",
+        "h3_index": "881e2e6a37fffff",
+        "h3_resolution": 8,
         "center": [
-          19.981343,
-          50.059875
+          20.004191,
+          50.073949
         ],
-        "density_score": 384.731,
-        "total_weight": 123,
-        "point_count": 24,
-        "rack_count": 22,
+        "density_score": 33.92,
+        "hex_score": 33.92,
+        "demand_score": 4.6,
+        "network_score": 80.95,
+        "quality_score": 44.74,
+        "total_weight": 30,
+        "point_count": 8,
+        "rack_count": 6,
         "infrastructure_count": 2,
-        "graph_node_id": 1244,
+        "mean_segment_score": 44.74,
+        "graph_node_id": 3669,
         "component_id": 19,
-        "snap_distance_m": 146.94
+        "snap_distance_m": 11.1
       }
     },
     {
@@ -114,26 +142,67 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          19.998131,
-          50.081435
+          19.999535,
+          50.089331
         ]
       },
       "properties": {
         "hub_id": 5,
-        "label": "Hub 5",
-        "cell_id": "11:8",
+        "label": "H3 Hub 5",
+        "cell_id": "881e2e6a39fffff",
+        "h3_index": "881e2e6a39fffff",
+        "h3_resolution": 8,
         "center": [
-          19.998131,
-          50.081435
+          19.999535,
+          50.089331
         ],
-        "density_score": 364.733,
-        "total_weight": 23,
-        "point_count": 3,
-        "rack_count": 3,
-        "infrastructure_count": 0,
-        "graph_node_id": 3629,
+        "density_score": 29.88,
+        "hex_score": 29.88,
+        "demand_score": 6.21,
+        "network_score": 82.31,
+        "quality_score": 30.35,
+        "total_weight": 40.5,
+        "point_count": 11,
+        "rack_count": 10,
+        "infrastructure_count": 1,
+        "mean_segment_score": 30.35,
+        "graph_node_id": 2773,
         "component_id": 19,
-        "snap_distance_m": 50.5
+        "snap_distance_m": 188.57
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          19.984101,
+          50.063601
+        ]
+      },
+      "properties": {
+        "hub_id": 6,
+        "label": "H3 Hub 6",
+        "cell_id": "881e2e6841fffff",
+        "h3_index": "881e2e6841fffff",
+        "h3_resolution": 8,
+        "center": [
+          19.984101,
+          50.063601
+        ],
+        "density_score": 29.14,
+        "hex_score": 29.14,
+        "demand_score": 8.97,
+        "network_score": 69.39,
+        "quality_score": 32.07,
+        "total_weight": 58.5,
+        "point_count": 9,
+        "rack_count": 8,
+        "infrastructure_count": 1,
+        "mean_segment_score": 32.07,
+        "graph_node_id": 1246,
+        "component_id": 19,
+        "snap_distance_m": 31.07
       }
     }
   ]

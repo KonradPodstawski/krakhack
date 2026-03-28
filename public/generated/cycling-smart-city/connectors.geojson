@@ -1,0 +1,323 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            19.979874,
+            50.085665
+          ],
+          [
+            19.974632,
+            50.08895
+          ]
+        ]
+      },
+      "properties": {
+        "connector_id": 1,
+        "connector_rank": 1,
+        "label": "Component 19 (largest) -> Component 1",
+        "source_component_id": 19,
+        "target_component_id": 1,
+        "source_component_label": "Component 19 (largest)",
+        "target_component_label": "Component 1",
+        "source_node_id": 3698,
+        "target_node_id": 2059,
+        "length_m": 523.36,
+        "length_km": 0.523,
+        "demand_gain_points": 15.93,
+        "network_gain_points": 18.98,
+        "distance_points": 14.84,
+        "environment_points": 5,
+        "crossing_penalty_points": 0,
+        "priority_score": 54.75,
+        "greenery_ratio": 0.25,
+        "max_noise_db": 75,
+        "noise_score": 25,
+        "network_crossings_count": 0,
+        "source_component_demand_weight": 1723.5,
+        "target_component_demand_weight": 610,
+        "target_component_nodes": 450,
+        "target_component_edges": 473,
+        "center": [
+          19.977252999999997,
+          50.087307499999994
+        ],
+        "bounds": [
+          19.974632,
+          50.085665,
+          19.979874,
+          50.08895
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            19.946201,
+            50.057031
+          ],
+          [
+            19.938948,
+            50.054114
+          ]
+        ]
+      },
+      "properties": {
+        "connector_id": 2,
+        "connector_rank": 2,
+        "label": "Component 19 (largest) -> Component 6",
+        "source_component_id": 19,
+        "target_component_id": 6,
+        "source_component_label": "Component 19 (largest)",
+        "target_component_label": "Component 6",
+        "source_node_id": 3021,
+        "target_node_id": 370,
+        "length_m": 611.69,
+        "length_km": 0.612,
+        "demand_gain_points": 4.03,
+        "network_gain_points": 5.74,
+        "distance_points": 13.82,
+        "environment_points": 4.5,
+        "crossing_penalty_points": 3,
+        "priority_score": 25.09,
+        "greenery_ratio": 0.2,
+        "max_noise_db": 75,
+        "noise_score": 25,
+        "network_crossings_count": 1,
+        "source_component_demand_weight": 1723.5,
+        "target_component_demand_weight": 154.5,
+        "target_component_nodes": 136,
+        "target_component_edges": 143,
+        "center": [
+          19.9425745,
+          50.0555725
+        ],
+        "bounds": [
+          19.938948,
+          50.054114,
+          19.946201,
+          50.057031
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            20.038385,
+            50.085091
+          ],
+          [
+            20.041219,
+            50.083225
+          ]
+        ]
+      },
+      "properties": {
+        "connector_id": 4,
+        "connector_rank": 3,
+        "label": "Component 19 (largest) -> Component 32",
+        "source_component_id": 19,
+        "target_component_id": 32,
+        "source_component_label": "Component 19 (largest)",
+        "target_component_label": "Component 32",
+        "source_node_id": 1511,
+        "target_node_id": 1006,
+        "length_m": 290.05,
+        "length_km": 0.29,
+        "demand_gain_points": 3.73,
+        "network_gain_points": 0.11,
+        "distance_points": 17.56,
+        "environment_points": 2.75,
+        "crossing_penalty_points": 0,
+        "priority_score": 24.15,
+        "greenery_ratio": 0,
+        "max_noise_db": 74,
+        "noise_score": 27.5,
+        "network_crossings_count": 0,
+        "source_component_demand_weight": 1723.5,
+        "target_component_demand_weight": 143,
+        "target_component_nodes": 3,
+        "target_component_edges": 2,
+        "center": [
+          20.039802,
+          50.084158
+        ],
+        "bounds": [
+          20.038385,
+          50.083225,
+          20.041219,
+          50.085091
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            20.038385,
+            50.085091
+          ],
+          [
+            20.043971,
+            50.08258
+          ]
+        ]
+      },
+      "properties": {
+        "connector_id": 5,
+        "connector_rank": 4,
+        "label": "Component 19 (largest) -> Component 40",
+        "source_component_id": 19,
+        "target_component_id": 40,
+        "source_component_label": "Component 19 (largest)",
+        "target_component_label": "Component 40",
+        "source_node_id": 1511,
+        "target_node_id": 255,
+        "length_m": 487.18,
+        "length_km": 0.487,
+        "demand_gain_points": 3.16,
+        "network_gain_points": 0.23,
+        "distance_points": 15.27,
+        "environment_points": 5.25,
+        "crossing_penalty_points": 0,
+        "priority_score": 23.91,
+        "greenery_ratio": 0.25,
+        "max_noise_db": 74,
+        "noise_score": 27.5,
+        "network_crossings_count": 0,
+        "source_component_demand_weight": 1723.5,
+        "target_component_demand_weight": 121,
+        "target_component_nodes": 6,
+        "target_component_edges": 5,
+        "center": [
+          20.041178000000002,
+          50.0838355
+        ],
+        "bounds": [
+          20.038385,
+          50.08258,
+          20.043971,
+          50.085091
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            19.949626,
+            50.068764
+          ],
+          [
+            19.939172,
+            50.07142
+          ]
+        ]
+      },
+      "properties": {
+        "connector_id": 3,
+        "connector_rank": 5,
+        "label": "Component 19 (largest) -> Component 313",
+        "source_component_id": 19,
+        "target_component_id": 313,
+        "source_component_label": "Component 19 (largest)",
+        "target_component_label": "Component 313",
+        "source_node_id": 2656,
+        "target_node_id": 1947,
+        "length_m": 803.33,
+        "length_km": 0.803,
+        "demand_gain_points": 3.92,
+        "network_gain_points": 0.31,
+        "distance_points": 11.59,
+        "environment_points": 2.5,
+        "crossing_penalty_points": 3,
+        "priority_score": 15.32,
+        "greenery_ratio": 0,
+        "max_noise_db": 75,
+        "noise_score": 25,
+        "network_crossings_count": 1,
+        "source_component_demand_weight": 1723.5,
+        "target_component_demand_weight": 150,
+        "target_component_nodes": 8,
+        "target_component_edges": 7,
+        "center": [
+          19.944398999999997,
+          50.070092
+        ],
+        "bounds": [
+          19.939172,
+          50.068764,
+          19.949626,
+          50.07142
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            19.976469,
+            50.054704
+          ],
+          [
+            19.991712,
+            50.045413
+          ]
+        ]
+      },
+      "properties": {
+        "connector_id": 6,
+        "connector_rank": 6,
+        "label": "Component 19 (largest) -> Component 212",
+        "source_component_id": 19,
+        "target_component_id": 212,
+        "source_component_label": "Component 19 (largest)",
+        "target_component_label": "Component 212",
+        "source_node_id": 3351,
+        "target_node_id": 1698,
+        "length_m": 1502.3,
+        "length_km": 1.502,
+        "demand_gain_points": 2.92,
+        "network_gain_points": 0.07,
+        "distance_points": 3.46,
+        "environment_points": 8.25,
+        "crossing_penalty_points": 6,
+        "priority_score": 8.7,
+        "greenery_ratio": 0.5,
+        "max_noise_db": 72,
+        "noise_score": 32.5,
+        "network_crossings_count": 2,
+        "source_component_demand_weight": 1723.5,
+        "target_component_demand_weight": 112,
+        "target_component_nodes": 2,
+        "target_component_edges": 1,
+        "center": [
+          19.9840905,
+          50.050058500000006
+        ],
+        "bounds": [
+          19.976469,
+          50.045413,
+          19.991712,
+          50.054704
+        ]
+      }
+    }
+  ]
+}

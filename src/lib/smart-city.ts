@@ -107,22 +107,57 @@ export interface ScoringMeta {
 
 export interface CorridorScenarioMeta {
   edge_cost_formula: string
-  hotspot_bandwidth_meters: number
-  hotspot_count: number
-  hotspot_grid_meters: number
+  edge_score_formula: string
+  h3_resolution: number
+  hub_count: number
+  hub_source: string
   id: string
   label: string
   max_hub_snap_distance_meters: number
-  min_hotspot_separation_meters: number
+  min_hub_separation_meters: number
   min_pair_distance_meters: number
   pair_priority_formula: string
   recommended_corridor_count: number
 }
 
+export interface H3ScenarioMeta {
+  cell_score_formula: string
+  demand_score_formula: string
+  edge_score_formula: string
+  hub_count: number
+  id: string
+  label: string
+  max_hub_snap_distance_meters: number
+  min_hub_separation_meters: number
+  network_score_formula: string
+  quality_score_formula: string
+  resolution: number
+  top_cell_count: number
+}
+
+export interface ConnectorScenarioMeta {
+  crossing_method: string
+  id: string
+  label: string
+  max_connector_length_meters: number
+  min_connector_length_meters: number
+  priority_formula: string
+  recommended_connector_count: number
+  source_component: string
+  target_component_limit: number
+}
+
 export interface ExplainabilityMeta {
+  connector_optimization: {
+    endpoint_proximity_tolerance_meters: number
+    scenario: ConnectorScenarioMeta
+  }
   corridor_optimization: {
     graph_snap_decimals: number
     scenario: CorridorScenarioMeta
+  }
+  h3_indexing: {
+    scenario: H3ScenarioMeta
   }
   data_sources: DataSourceMeta[]
   limitations: string[]
@@ -163,6 +198,7 @@ export interface SpatialStatisticsSummary {
 
 export interface NetworkAnalysisSummary {
   average_degree: number
+  component_summaries: ComponentSummary[]
   connected_components: number
   edges: number
   largest_component_edges: number
@@ -173,17 +209,38 @@ export interface NetworkAnalysisSummary {
   total_network_length_km: number
 }
 
+export interface ComponentSummary {
+  bounds: Bounds | null
+  center: Coordinate | null
+  component_id: number
+  demand_point_count: number
+  demand_weight: number
+  edge_count: number
+  infrastructure_count: number
+  label: string
+  node_count: number
+  rack_count: number
+  total_edge_length_km: number
+}
+
 export interface HotspotSummary {
   center: Coordinate
   cell_id: string
   density_score: number
   graph_node_id: number
+  h3_index: string
+  h3_resolution: number
+  hex_score: number
   hub_id: number
   infrastructure_count: number
   label: string
+  mean_segment_score: number
+  network_score: number
   point_count: number
+  quality_score: number
   rack_count: number
   snap_distance_m: number
+  demand_score: number
   total_weight: number
 }
 
@@ -193,19 +250,23 @@ export interface RecommendedCorridor {
   corridor_id: number
   corridor_rank: number
   direct_distance_km: number
+  from_h3_index: string
   from_hub_id: number
   from_label: string
   label: string
   max_noise_db: number | null
   mean_greenery_ratio: number
+  mean_h3_score: number
   mean_infrastructure_distance_m: number | null
   mean_rack_distance_m: number | null
   mean_segment_score: number
+  min_h3_score: number
   min_segment_score: number
   pair_priority: number
   path_cost: number
   path_length_km: number
   segment_count: number
+  to_h3_index: string
   to_hub_id: number
   to_label: string
 }
@@ -214,6 +275,68 @@ export interface CorridorRecommendationsSummary {
   hotspots: HotspotSummary[]
   recommended: RecommendedCorridor[]
   scenario: CorridorScenarioMeta
+}
+
+export interface RecommendedConnector {
+  bounds: Bounds | null
+  center: Coordinate | null
+  connector_id: number
+  connector_rank: number
+  crossing_penalty_points: number
+  demand_gain_points: number
+  distance_points: number
+  environment_points: number
+  greenery_ratio: number
+  label: string
+  length_km: number
+  length_m: number
+  max_noise_db: number | null
+  network_crossings_count: number
+  network_gain_points: number
+  noise_score: number
+  priority_score: number
+  source_component_demand_weight: number
+  source_component_id: number
+  source_component_label: string
+  source_node_id: number
+  target_component_demand_weight: number
+  target_component_edges: number
+  target_component_id: number
+  target_component_label: string
+  target_component_nodes: number
+  target_node_id: number
+}
+
+export interface OffNetworkConnectorsSummary {
+  recommended: RecommendedConnector[]
+  scenario: ConnectorScenarioMeta
+}
+
+export interface H3CellSummary {
+  bounds: Bounds | null
+  center: Coordinate
+  covered_segment_count: number
+  demand_score: number
+  demand_weight: number
+  h3_index: string
+  h3_resolution: number
+  hex_score: number
+  infrastructure_count: number
+  max_noise_db: number | null
+  mean_greenery_ratio: number
+  mean_segment_score: number
+  network_score: number
+  point_count: number
+  quality_score: number
+  rack_count: number
+  segment_sample_count: number
+}
+
+export interface H3GridSummary {
+  active_cells: number
+  hubs: HotspotSummary[]
+  scenario: H3ScenarioMeta
+  top_cells: H3CellSummary[]
 }
 
 export interface SegmentFeatureCollection {
@@ -261,7 +384,9 @@ export interface Summary {
   }
   corridor_recommendations: CorridorRecommendationsSummary
   explainability: ExplainabilityMeta
+  h3_grid: H3GridSummary
   network_analysis: NetworkAnalysisSummary
+  off_network_connectors: OffNetworkConnectorsSummary
   score: {
     max: number
     mean: number
