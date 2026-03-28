@@ -82,6 +82,7 @@
   let isGraphBuilding = false
   let routeVibeLevel = 2
   let showRoute = true
+  let routeVibeSearch = ''
   const MIN_ROUTE_VIBE_LEVEL = 1
   const MAX_ROUTE_VIBE_LEVEL = 10
 
@@ -485,6 +486,30 @@
   let customVibeColor = '#7c3aed'
   let customVibeWeights = createEmptyVibeWeights()
   let selectedCorridorScenarioId: string | null = null
+  let catalogVibeList: VibeDefinition[] = []
+  let activeVibeList: VibeDefinition[] = []
+  let availableRouteVibeList: VibeDefinition[] = []
+
+  $: catalogVibeList = [...mixedVibes, ...pureMetricVibes, ...customVibes]
+  $: activeVibeList = catalogVibeList.filter((vibe) => enabledVibeIds.includes(vibe.id))
+  $: {
+    const query = normalizeSearchValue(routeVibeSearch)
+    availableRouteVibeList = catalogVibeList.filter((vibe) => {
+      if (enabledVibeIds.includes(vibe.id)) {
+        return false
+      }
+
+      if (!query) {
+        return false
+      }
+
+      const searchable = normalizeSearchValue(
+        `${vibe.label} ${vibe.formula} ${vibeKindLabel(vibe)}`,
+      )
+
+      return searchable.includes(query)
+    })
+  }
 
   onMount(() => {
     void initialize()
@@ -1239,11 +1264,11 @@
   }
 
   function catalogVibes() {
-    return [...mixedVibes, ...pureMetricVibes, ...customVibes]
+    return catalogVibeList
   }
 
   function activeVibes() {
-    return catalogVibes().filter((vibe) => enabledVibeIds.includes(vibe.id))
+    return activeVibeList
   }
 
   function isVibeEnabled(vibeId: string) {
@@ -1254,6 +1279,65 @@
     enabledVibeIds = isVibeEnabled(vibeId)
       ? enabledVibeIds.filter((id) => id !== vibeId)
       : [...enabledVibeIds, vibeId]
+    rerouteIfReady()
+  }
+
+  function isRouteVibeEnabled(vibeId: string) {
+    return isVibeEnabled(vibeId)
+  }
+
+  function rerouteIfReady() {
+    if (routeStart && routeEnd && routingMode === 'idle') {
+      computeRoute()
+    }
+  }
+
+  function activeRouteVibes() {
+    return activeVibes()
+  }
+
+  function addRouteVibe(vibeId: string) {
+    if (isVibeEnabled(vibeId)) {
+      routeVibeSearch = ''
+      return
+    }
+
+    enabledVibeIds = [...enabledVibeIds, vibeId]
+    routeVibeSearch = ''
+    rerouteIfReady()
+  }
+
+  function removeRouteVibe(vibeId: string) {
+    if (!isVibeEnabled(vibeId)) {
+      return
+    }
+
+    enabledVibeIds = enabledVibeIds.filter((id) => id !== vibeId)
+    rerouteIfReady()
+  }
+
+  function normalizeSearchValue(value: string) {
+    return value
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .trim()
+  }
+
+  function vibeKindLabel(vibe: VibeDefinition) {
+    if (vibe.isCustom) {
+      return 'Wlasny vibe'
+    }
+
+    if (vibe.id.startsWith('pure_')) {
+      return 'Czysta metryka'
+    }
+
+    return 'Bazowy vibe'
+  }
+
+  function availableRouteVibes() {
+    return availableRouteVibeList
   }
 
   function corridorScenarioList() {
@@ -1485,13 +1569,18 @@
       },
     ]
     enabledVibeIds = [...enabledVibeIds, `custom_${nextIndex}`]
+    rerouteIfReady()
 
     resetCustomVibeDraft()
   }
 
   function removeCustomVibe(vibeId: string) {
+    const wasEnabled = isVibeEnabled(vibeId)
     customVibes = customVibes.filter((vibe) => vibe.id !== vibeId)
     enabledVibeIds = enabledVibeIds.filter((id) => id !== vibeId)
+    if (wasEnabled) {
+      rerouteIfReady()
+    }
   }
 
   function syncCorridorVisibility() {
@@ -1655,7 +1744,7 @@
       return
     }
 
-    const vibes = activeVibes()
+    const vibes = activeRouteVibes()
     const vibeWeightsArray: VibeWeights[] = vibes.map((v) => ({ weights: v.weights }))
     const cells = rawHexes.features.map((f) => f.properties)
 
@@ -3402,7 +3491,7 @@ npm run dev</pre>
 
                   <div class="space-y-2">
                     <div class="flex items-center justify-between text-sm text-stone-700">
-                      <span>Wplyw vibe na trase</span>
+                      <span>Sila vibe</span>
                       <span class="font-semibold text-violet-700">{routeAlphaLabel(routeVibeLevel)}</span>
                     </div>
                     <input
@@ -3416,12 +3505,90 @@ npm run dev</pre>
                       class="w-full accent-violet-600"
                     />
                     <div class="flex justify-between text-xs text-stone-400">
-                      <span>1 = najkrotsza droga</span>
-                      <span>10 = vibe-first</span>
+                      <span>1 = najkrotsza</span>
+                      <span>10 = max vibe</span>
                     </div>
-                    <div class="rounded-xl bg-white px-4 py-3 text-xs leading-6 text-stone-600 ring-1 ring-violet-200">
-                      <p><span class="font-semibold text-stone-900">Poziom {routeVibeLevel}/10</span> • α = {routeVibeAlphaValue(routeVibeLevel).toFixed(2)} • {routeAlphaDescription(routeVibeLevel)}</p>
-                      <p class="mt-1">Mapowanie jest jawne: <code class="rounded bg-stone-100 px-1">α = poziom - 1</code>. Poziom 1 daje czystą najkrótszą trasę, a poziom 10 daje bardzo silny tryb vibe-first.</p>
+                  </div>
+
+                  <div class="space-y-2 rounded-xl bg-white p-3 ring-1 ring-violet-200">
+                    <div class="flex items-start justify-between gap-3">
+                      <div>
+                        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-violet-600">Vibe dla mapy i routingu</p>
+                        <p class="mt-1 text-xs leading-5 text-stone-500">
+                          Ten sam zestaw steruje jednoczesnie kolorem H3 i kosztem trasy.
+                        </p>
+                      </div>
+                      <span class="rounded-full bg-violet-50 px-2.5 py-1 text-[11px] font-semibold text-violet-700">
+                        {activeVibeList.length} aktywne
+                      </span>
+                    </div>
+
+                    {#if activeVibeList.length === 0}
+                      <p class="text-xs text-stone-400">Brak aktywnych vibe — routing uzywa tylko dystansu.</p>
+                    {:else}
+                      <div class="flex flex-wrap gap-2">
+                        {#each activeVibeList as vibe (vibe.id)}
+                          <div
+                            class="inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold text-white shadow-sm"
+                            style={`background:${vibe.color}`}
+                          >
+                            <span>{vibe.label}</span>
+                            <button
+                              aria-label={`Usun vibe ${vibe.label}`}
+                              class="inline-flex size-5 items-center justify-center rounded-full bg-white/20 text-[11px] font-bold text-white transition hover:bg-white/30"
+                              onclick={(event) => { event.stopPropagation(); removeRouteVibe(vibe.id) }}
+                              type="button"
+                            >
+                              x
+                            </button>
+                          </div>
+                        {/each}
+                      </div>
+                    {/if}
+
+                    <div class="space-y-2 pt-2">
+                      <label class="block space-y-1">
+                        <span class="text-xs font-semibold text-stone-700">Dodaj vibe przez wyszukanie</span>
+                        <input
+                          bind:value={routeVibeSearch}
+                          class="w-full rounded-2xl border border-stone-300 bg-stone-50 px-3 py-2 text-sm text-stone-900 outline-none transition focus:border-violet-500 focus:bg-white"
+                          placeholder="Szukaj bazowego, czystego albo wlasnego vibe..."
+                          type="text"
+                        />
+                      </label>
+
+                      {#if !routeVibeSearch.trim()}
+                        <p class="text-xs leading-5 text-stone-400">
+                          Wpisz nazwe albo fragment opisu, zeby dodac bazowy, czysty albo wlasny vibe. Gdy pole jest puste, panel nie pokazuje domyslnych vibe do dodania.
+                        </p>
+                      {:else if availableRouteVibeList.length === 0}
+                        <p class="text-xs text-stone-400">
+                          Brak vibe pasujacych do wyszukiwania.
+                        </p>
+                      {:else}
+                        <div class="max-h-48 space-y-2 overflow-y-auto pr-1">
+                          {#each availableRouteVibeList as vibe (vibe.id)}
+                            <button
+                              class="w-full rounded-[1rem] border border-stone-200 bg-stone-50 px-3 py-2 text-left transition hover:border-violet-300 hover:bg-violet-50"
+                              onclick={() => addRouteVibe(vibe.id)}
+                              type="button"
+                            >
+                              <div class="flex items-start justify-between gap-3">
+                                <div class="min-w-0">
+                                  <div class="flex flex-wrap items-center gap-2">
+                                    <span class="text-sm font-semibold text-stone-900">{vibe.label}</span>
+                                    <span class="rounded-full bg-white px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-stone-500 ring-1 ring-stone-200">
+                                      {vibeKindLabel(vibe)}
+                                    </span>
+                                  </div>
+                                  <p class="mt-1 text-xs leading-5 text-stone-500">{vibe.formula}</p>
+                                </div>
+                                <span class="mt-0.5 size-5 shrink-0 rounded-full ring-1 ring-black/5" style={`background:${vibe.color}`}></span>
+                              </div>
+                            </button>
+                          {/each}
+                        </div>
+                      {/if}
                     </div>
                   </div>
                 </div>
