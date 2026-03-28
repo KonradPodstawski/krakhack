@@ -1,8 +1,10 @@
 import type {
   AdjacencyEntry,
+  CentralityResult,
   Coordinate,
   GraphEdge,
   GraphNode,
+  IsochroneResult,
   RouteMarker,
   RouteResult,
   RoutingGraph,
@@ -759,13 +761,27 @@ export function buildVibeEdgeCosts(
     cellByIndex.set(cell.h3_index, cell)
   }
 
+  // Cost formula: length_m × (1 + alpha × penalty(vibeScore))
+  //
+  // penalty uses exponential curve so low-vibe segments are strongly avoided:
+  //   penalty(vibe) = ((100 - vibe) / 100) ^ 1.5
+  //
+  // Examples at different alpha values:
+  //   alpha=0 → pure distance (no vibe influence)
+  //   alpha=1, vibe=50 → cost = length × 1.35  (mild preference)
+  //   alpha=1, vibe=0  → cost = length × 2.0   (double cost)
+  //   alpha=3, vibe=50 → cost = length × 2.06  (noticeable detours)
+  //   alpha=3, vibe=0  → cost = length × 4.0   (strong avoidance)
+  //   alpha=9, vibe=50 → cost = length × 4.18  (heavy vibe-first)
+  //   alpha=9, vibe=0  → cost = length × 10.0  (extreme avoidance)
+
   return graph.edges.map((edge) => {
     const cell = edge.edge_h3_index ? cellByIndex.get(edge.edge_h3_index) : null
-    const vibeScore = cell ? computeVibeScore(cell, activeVibes) : edge.segment_score
+    const vibeScore = cell ? computeVibeScore(cell, activeVibes) : 50 // no cell = neutral
 
-    // Blend between pure distance (alpha=0) and vibe-weighted (alpha=1)
-    // cost = length_m * (1 + alpha * (100 - vibeScore) / 100)
-    const vibeMultiplier = 1 + alpha * (100 - vibeScore) / 100
+    const deficit = (100 - vibeScore) / 100 // 0 (perfect vibe) to 1 (worst vibe)
+    const penalty = deficit ** 1.5 // exponential: makes bad vibes disproportionately costly
+    const vibeMultiplier = 1 + alpha * penalty
     return edge.length_m * vibeMultiplier
   })
 }
@@ -867,6 +883,222 @@ function buildRouteResult(
     coordinates,
     segment_ids: segmentIds,
     steps,
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Isochrones — reachability polygons from a start point
+// ---------------------------------------------------------------------------
+
+export function computeIsochrone(
+  graph: RoutingGraph,
+  startNodeId: number,
+  bands: Array<{ cost_limit: number; label: string }>,
+): IsochroneResult | null {
+  if (!startNodeId || bands.length === 0) return null
+
+  const startNode = graph.nodes[startNodeId - 1]
+  if (!startNode) return null
+
+  const maxCost = Math.max(...bands.map((b) => b.cost_limit))
+
+  // Run Dijkstra from start (no target — explore entire reachable set)
+  const nodeCount = graph.nodes.length + 1
+  const distances = new Float64Array(nodeCount).fill(Number.POSITIVE_INFINITY)
+  const heap = new MinHeap()
+
+  distances[startNodeId] = 0
+  heap.push({ node_id: startNodeId, distance: 0 })
+
+  while (!heap.isEmpty()) {
+    const current = heap.pop()!
+    if (current.distance > distances[current.node_id]) continue
+    if (current.distance > maxCost) continue
+
+    for (const neighbor of graph.adjacency[current.node_id]) {
+      // Use length_m as cost for isochrones (physical distance)
+      const edgeLengthM = graph.edges[neighbor.edge_index].length_m
+      const nextDistance = current.distance + edgeLengthM
+
+      if (nextDistance >= distances[neighbor.to_node_id] || nextDistance > maxCost) continue
+
+      distances[neighbor.to_node_id] = nextDistance
+      heap.push({ node_id: neighbor.to_node_id, distance: nextDistance })
+    }
+  }
+
+  // Build convex hull for each band
+  const result: IsochroneResult = {
+    origin: startNode.coordinate,
+    bands: [],
+  }
+
+  for (const band of bands.sort((a, b) => b.cost_limit - a.cost_limit)) {
+    const reachableCoords: Coordinate[] = []
+
+    for (let i = 0; i < graph.nodes.length; i++) {
+      if (distances[i + 1] <= band.cost_limit) {
+        reachableCoords.push(graph.nodes[i].coordinate)
+      }
+    }
+
+    if (reachableCoords.length < 3) continue
+
+    result.bands.push({
+      cost_limit: band.cost_limit,
+      label: band.label,
+      coordinates: convexHull(reachableCoords),
+    })
+  }
+
+  return result
+}
+
+function convexHull(points: Coordinate[]): Coordinate[] {
+  if (points.length < 3) return points
+
+  // Andrew's monotone chain algorithm
+  const sorted = [...points].sort((a, b) => a[0] - b[0] || a[1] - b[1])
+
+  const cross = (o: Coordinate, a: Coordinate, b: Coordinate) =>
+    (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0])
+
+  // Lower hull
+  const lower: Coordinate[] = []
+  for (const p of sorted) {
+    while (lower.length >= 2 && cross(lower[lower.length - 2], lower[lower.length - 1], p) <= 0) {
+      lower.pop()
+    }
+    lower.push(p)
+  }
+
+  // Upper hull
+  const upper: Coordinate[] = []
+  for (let i = sorted.length - 1; i >= 0; i--) {
+    const p = sorted[i]
+    while (upper.length >= 2 && cross(upper[upper.length - 2], upper[upper.length - 1], p) <= 0) {
+      upper.pop()
+    }
+    upper.push(p)
+  }
+
+  // Remove last point of each half because it's repeated
+  lower.pop()
+  upper.pop()
+
+  const hull = [...lower, ...upper]
+  // Close the polygon
+  if (hull.length > 0) hull.push(hull[0])
+
+  return hull
+}
+
+// ---------------------------------------------------------------------------
+// Network Centrality — Betweenness & Closeness
+// ---------------------------------------------------------------------------
+
+export function computeCentrality(
+  graph: RoutingGraph,
+  sampleSize = 200,
+): CentralityResult {
+  const nodeCount = graph.nodes.length
+  const edgeCount = graph.edges.length
+  const betweenness = new Float64Array(edgeCount)
+  const closenessSum = new Float64Array(nodeCount + 1)
+  const closenessReachable = new Uint32Array(nodeCount + 1)
+
+  // Sample nodes for approximate centrality (exact is O(V*E), too slow for >3000 nodes)
+  const sampleNodes: number[] = []
+  const step = Math.max(1, Math.floor(nodeCount / sampleSize))
+  for (let i = 0; i < nodeCount; i += step) {
+    sampleNodes.push(graph.nodes[i].node_id)
+  }
+
+  // Brandes algorithm (modified for edge betweenness) on sampled sources
+  for (const source of sampleNodes) {
+    // BFS/Dijkstra from source
+    const dist = new Float64Array(nodeCount + 1).fill(Number.POSITIVE_INFINITY)
+    const sigma = new Float64Array(nodeCount + 1) // number of shortest paths
+    const pred: number[][] = Array.from({ length: nodeCount + 1 }, () => [])
+    const predEdge: number[][] = Array.from({ length: nodeCount + 1 }, () => [])
+    const stack: number[] = []
+    const heap = new MinHeap()
+
+    dist[source] = 0
+    sigma[source] = 1
+    heap.push({ node_id: source, distance: 0 })
+
+    while (!heap.isEmpty()) {
+      const current = heap.pop()!
+      if (current.distance > dist[current.node_id]) continue
+      stack.push(current.node_id)
+
+      for (const neighbor of graph.adjacency[current.node_id]) {
+        const edgeCost = graph.edges[neighbor.edge_index].length_m
+        const newDist = dist[current.node_id] + edgeCost
+
+        // New shorter path found
+        if (newDist < dist[neighbor.to_node_id] - 0.01) {
+          dist[neighbor.to_node_id] = newDist
+          sigma[neighbor.to_node_id] = sigma[current.node_id]
+          pred[neighbor.to_node_id] = [current.node_id]
+          predEdge[neighbor.to_node_id] = [neighbor.edge_index]
+          heap.push({ node_id: neighbor.to_node_id, distance: newDist })
+        } else if (Math.abs(newDist - dist[neighbor.to_node_id]) < 0.01) {
+          // Equal-cost path
+          sigma[neighbor.to_node_id] += sigma[current.node_id]
+          pred[neighbor.to_node_id].push(current.node_id)
+          predEdge[neighbor.to_node_id].push(neighbor.edge_index)
+        }
+      }
+    }
+
+    // Accumulate closeness for this source
+    for (let i = 1; i <= nodeCount; i++) {
+      if (Number.isFinite(dist[i]) && dist[i] > 0) {
+        closenessSum[source] += dist[i]
+        closenessReachable[source]++
+      }
+    }
+
+    // Back-propagation for edge betweenness
+    const delta = new Float64Array(nodeCount + 1)
+
+    while (stack.length > 0) {
+      const w = stack.pop()!
+      for (let pi = 0; pi < pred[w].length; pi++) {
+        const v = pred[w][pi]
+        const ei = predEdge[w][pi]
+        const contribution = (sigma[v] / sigma[w]) * (1 + delta[w])
+        betweenness[ei] += contribution
+        delta[v] += contribution
+      }
+    }
+  }
+
+  // Normalize betweenness by sample size
+  const scaleFactor = nodeCount / sampleNodes.length
+  let maxBetweenness = 0
+  for (let i = 0; i < edgeCount; i++) {
+    betweenness[i] *= scaleFactor
+    if (betweenness[i] > maxBetweenness) maxBetweenness = betweenness[i]
+  }
+
+  // Compute closeness centrality: C(v) = reachable / sum_of_distances
+  const closeness = new Float64Array(nodeCount + 1)
+  let maxCloseness = 0
+  for (const nodeId of sampleNodes) {
+    if (closenessSum[nodeId] > 0 && closenessReachable[nodeId] > 1) {
+      closeness[nodeId] = closenessReachable[nodeId] / closenessSum[nodeId]
+      if (closeness[nodeId] > maxCloseness) maxCloseness = closeness[nodeId]
+    }
+  }
+
+  return {
+    betweenness_by_edge: betweenness,
+    closeness_by_node: closeness,
+    max_betweenness: maxBetweenness,
+    max_closeness: maxCloseness,
   }
 }
 

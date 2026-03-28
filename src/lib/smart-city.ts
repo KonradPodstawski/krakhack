@@ -593,3 +593,19 @@ export interface RouteMarker {
   node_id: number
   snap_distance_m: number
 }
+
+export interface IsochroneResult {
+  origin: Coordinate
+  bands: Array<{
+    cost_limit: number
+    label: string
+    coordinates: Coordinate[]
+  }>
+}
+
+export interface CentralityResult {
+  betweenness_by_edge: Float64Array
+  closeness_by_node: Float64Array
+  max_betweenness: number
+  max_closeness: number
+}

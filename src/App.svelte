@@ -34,9 +34,12 @@
     findNearestNode,
     astar,
     buildVibeEdgeCosts,
+    computeIsochrone,
+    computeCentrality,
     preloadH3,
     type VibeWeights,
   } from './lib/routing'
+  import type { IsochroneResult, CentralityResult } from './lib/smart-city'
 
   const SUMMARY_URL = '/generated/cycling-smart-city/summary.json'
   const SEGMENTS_URL = '/generated/cycling-smart-city/segments.geojson'
@@ -77,8 +80,20 @@
   let routeResult: RouteResult | null = null
   let routeError: string | null = null
   let isGraphBuilding = false
-  let routeVibeAlpha = 0.5
+  let routeVibeLevel = 2
   let showRoute = true
+  const MIN_ROUTE_VIBE_LEVEL = 1
+  const MAX_ROUTE_VIBE_LEVEL = 10
+
+  // --- Isochrone state ---
+  let isochroneResult: IsochroneResult | null = null
+  let isochroneMode = false
+  let showIsochrone = true
+
+  // --- Centrality state ---
+  let centralityResult: CentralityResult | null = null
+  let showBetweenness = false
+  let isCentralityComputing = false
 
   const scoreLegend = [
     { label: '80-100', color: '#166534' },
@@ -603,6 +618,16 @@
       type: 'geojson',
       data: { type: 'FeatureCollection', features: [] },
     })
+
+    currentMap.addSource('isochrone', {
+      type: 'geojson',
+      data: { type: 'FeatureCollection', features: [] },
+    })
+
+    currentMap.addSource('centrality', {
+      type: 'geojson',
+      data: { type: 'FeatureCollection', features: [] },
+    })
   }
 
   function addLayers(currentMap: MapLibreMap) {
@@ -614,6 +639,30 @@
         'fill-color': ['coalesce', ['get', 'display_color'], '#60a5fa'],
         'fill-opacity': ['coalesce', ['get', 'display_opacity'], 0.3],
         'fill-outline-color': ['coalesce', ['get', 'display_outline_color'], '#1d4ed8'],
+      },
+    })
+
+    // Isochrone bands (below segments, above hexes)
+    currentMap.addLayer({
+      id: 'isochrone-fill',
+      type: 'fill',
+      source: 'isochrone',
+      layout: { visibility: 'none' },
+      paint: {
+        'fill-color': ['get', 'color'],
+        'fill-opacity': 0.22,
+      },
+    })
+
+    currentMap.addLayer({
+      id: 'isochrone-outline',
+      type: 'line',
+      source: 'isochrone',
+      layout: { visibility: 'none' },
+      paint: {
+        'line-color': ['get', 'color'],
+        'line-width': 2.5,
+        'line-opacity': 0.7,
       },
     })
 
@@ -645,6 +694,33 @@
           100,
           5.9,
         ],
+      },
+    })
+
+    // Betweenness centrality overlay (above segments)
+    currentMap.addLayer({
+      id: 'centrality-layer',
+      type: 'line',
+      source: 'centrality',
+      layout: { visibility: 'none' },
+      paint: {
+        'line-color': [
+          'interpolate',
+          ['linear'],
+          ['coalesce', ['get', 'normalized'], 0],
+          0, '#fef3c7',
+          0.2, '#f59e0b',
+          0.5, '#ef4444',
+          1, '#7f1d1d',
+        ],
+        'line-width': [
+          'interpolate',
+          ['linear'],
+          ['coalesce', ['get', 'normalized'], 0],
+          0, 2,
+          1, 10,
+        ],
+        'line-opacity': 0.85,
       },
     })
 
@@ -863,8 +939,12 @@
   }
 
   function bindMapEvents(currentMap: MapLibreMap) {
-    // Routing mode: intercept all clicks on the map for A/B selection
+    // Routing/isochrone mode: intercept all clicks on the map
     currentMap.on('click', (event) => {
+      if (isochroneMode) {
+        handleIsochroneClick(event.lngLat)
+        return
+      }
       if (routingMode !== 'idle') {
         handleRoutingClick(event.lngLat)
       }
@@ -881,14 +961,14 @@
       'hotspots',
     ]) {
       currentMap.on('mouseenter', layerId, () => {
-        if (routingMode !== 'idle') {
+        if (routingMode !== 'idle' || isochroneMode) {
           currentMap.getCanvas().style.cursor = 'crosshair'
         } else {
           currentMap.getCanvas().style.cursor = 'pointer'
         }
       })
       currentMap.on('mouseleave', layerId, () => {
-        if (routingMode !== 'idle') {
+        if (routingMode !== 'idle' || isochroneMode) {
           currentMap.getCanvas().style.cursor = 'crosshair'
         } else {
           currentMap.getCanvas().style.cursor = ''
@@ -897,7 +977,7 @@
     }
 
     currentMap.on('click', 'hexes-fill', (event) => {
-      if (routingMode !== 'idle') return
+      if (routingMode !== 'idle' || isochroneMode) return
       const feature = event.features?.[0]
       if (!feature) {
         return
@@ -913,7 +993,7 @@
       features?: MapGeoJSONFeature[]
       lngLat: { lat: number; lng: number }
     }) => {
-      if (routingMode !== 'idle') return
+      if (routingMode !== 'idle' || isochroneMode) return
       const feature = event.features?.[0]
       if (!feature) {
         return
@@ -928,7 +1008,7 @@
     currentMap.on('click', 'segments-top-fill', handleSegmentClick)
 
     currentMap.on('click', 'corridors-fill', (event) => {
-      if (routingMode !== 'idle') return
+      if (routingMode !== 'idle' || isochroneMode) return
       const feature = event.features?.[0]
       if (!feature) {
         return
@@ -940,7 +1020,7 @@
     })
 
     currentMap.on('click', 'connectors-fill', (event) => {
-      if (routingMode !== 'idle') return
+      if (routingMode !== 'idle' || isochroneMode) return
       const feature = event.features?.[0]
       if (!feature) {
         return
@@ -952,7 +1032,7 @@
     })
 
     currentMap.on('click', 'hotspots', (event) => {
-      if (routingMode !== 'idle') return
+      if (routingMode !== 'idle' || isochroneMode) return
       const feature = event.features?.[0]
       if (!feature) {
         return
@@ -962,7 +1042,7 @@
     })
 
     currentMap.on('click', 'points-racks', (event) => {
-      if (routingMode !== 'idle') return
+      if (routingMode !== 'idle' || isochroneMode) return
       const feature = event.features?.[0]
       if (!feature) {
         return
@@ -972,7 +1052,7 @@
     })
 
     currentMap.on('click', 'points-infrastructure', (event) => {
-      if (routingMode !== 'idle') return
+      if (routingMode !== 'idle' || isochroneMode) return
       const feature = event.features?.[0]
       if (!feature) {
         return
@@ -1247,6 +1327,41 @@
     }
 
     return `Trasa optymalizowana tylko pod metrykę „${metric.label}”. ${doc?.formula ?? ''}`
+  }
+
+  function routeVibeAlphaValue(level: number) {
+    return Math.max(0, level - 1)
+  }
+
+  function routeAlphaLabel(level: number) {
+    const alpha = routeVibeAlphaValue(level)
+    if (alpha <= 0) {
+      return 'Najkrótsza'
+    }
+    if (alpha <= 1) {
+      return `Lekki vibe (${level}/10)`
+    }
+    if (alpha < 2) {
+      return `Silny vibe (${level}/10)`
+    }
+    return `Vibe-first (${level}/10)`
+  }
+
+  function routeAlphaDescription(level: number) {
+    const alpha = routeVibeAlphaValue(level)
+    if (alpha <= 0) {
+      return 'Liczy się tylko długość odcinka. Vibe nie wpływa na routing.'
+    }
+    if (alpha <= 0.5) {
+      return 'Lekki wpływ vibe. Trasa dalej mocno preferuje krótszy dystans.'
+    }
+    if (alpha <= 1) {
+      return 'Zbalansowany kompromis między dystansem a vibe.'
+    }
+    if (alpha <= 2) {
+      return 'Silny wpływ vibe. Trasa może być wyraźnie dłuższa, jeśli obszary mają lepszy vibe.'
+    }
+    return 'Tryb vibe-first. Algorytm może wybrać nawet dużo dłuższą trasę, jeśli vibe jest istotnie lepszy.'
   }
 
   function dataDocByCode(currentSummary: Summary, code: string | undefined) {
@@ -1548,7 +1663,7 @@
       routingGraph,
       cells,
       vibeWeightsArray,
-      routeVibeAlpha,
+      routeVibeAlphaValue(routeVibeLevel),
     )
 
     const result = astar(routingGraph, routeStart.node_id, routeEnd.node_id, edgeCosts)
@@ -1635,6 +1750,128 @@
     setLayerVisibility('route-line', showRoute && !!routeResult)
     setLayerVisibility('route-markers', showRoute && (!!routeStart || !!routeEnd))
     setLayerVisibility('route-markers-label', showRoute && (!!routeStart || !!routeEnd))
+  }
+
+  // ---------------------------------------------------------------------------
+  // Isochrones
+  // ---------------------------------------------------------------------------
+
+  function startIsochrone() {
+    isochroneMode = true
+    isochroneResult = null
+  }
+
+  function cancelIsochrone() {
+    isochroneMode = false
+    isochroneResult = null
+    syncIsochroneDisplay()
+  }
+
+  function handleIsochroneClick(lngLat: { lng: number; lat: number }) {
+    if (!routingGraph || !isochroneMode) return false
+
+    const coordinate: [number, number] = [lngLat.lng, lngLat.lat]
+    const nearest = findNearestNode(coordinate, routingGraph)
+    if (!nearest) return true
+
+    isochroneMode = false
+
+    // Bands: 1km, 2.5km, 5km, 10km (in meters)
+    const result = computeIsochrone(routingGraph, nearest.node_id, [
+      { cost_limit: 1000, label: '1 km' },
+      { cost_limit: 2500, label: '2.5 km' },
+      { cost_limit: 5000, label: '5 km' },
+      { cost_limit: 10000, label: '10 km' },
+    ])
+
+    isochroneResult = result
+    syncIsochroneDisplay()
+    return true
+  }
+
+  function syncIsochroneDisplay() {
+    if (!map || !isMapReady) return
+
+    const source = map.getSource('isochrone') as GeoJSONSource | undefined
+    if (!source) return
+
+    if (!isochroneResult || !showIsochrone) {
+      source.setData({ type: 'FeatureCollection', features: [] })
+      setLayerVisibility('isochrone-fill', false)
+      setLayerVisibility('isochrone-outline', false)
+      return
+    }
+
+    const bandColors = ['#a78bfa', '#8b5cf6', '#6d28d9', '#4c1d95']
+
+    source.setData({
+      type: 'FeatureCollection',
+      features: isochroneResult.bands.map((band, i) => ({
+        type: 'Feature' as const,
+        geometry: {
+          type: 'Polygon' as const,
+          coordinates: [band.coordinates],
+        },
+        properties: {
+          label: band.label,
+          cost_limit: band.cost_limit,
+          color: bandColors[i] ?? '#4c1d95',
+        },
+      })),
+    })
+
+    setLayerVisibility('isochrone-fill', true)
+    setLayerVisibility('isochrone-outline', true)
+  }
+
+  // ---------------------------------------------------------------------------
+  // Centrality
+  // ---------------------------------------------------------------------------
+
+  async function runCentralityAnalysis() {
+    if (!routingGraph || isCentralityComputing) return
+
+    isCentralityComputing = true
+    // Run in a microtask to not block UI
+    await new Promise((resolve) => setTimeout(resolve, 50))
+
+    centralityResult = computeCentrality(routingGraph, 150)
+    isCentralityComputing = false
+    showBetweenness = true
+    syncCentralityDisplay()
+  }
+
+  function syncCentralityDisplay() {
+    if (!map || !isMapReady) return
+
+    const source = map.getSource('centrality') as GeoJSONSource | undefined
+    if (!source) return
+
+    if (!centralityResult || !showBetweenness || !routingGraph) {
+      source.setData({ type: 'FeatureCollection', features: [] })
+      setLayerVisibility('centrality-layer', false)
+      return
+    }
+
+    const maxB = centralityResult.max_betweenness
+    const features = routingGraph.edges
+      .filter((edge) => edge.segment_id !== -1) // skip virtual bridges
+      .map((edge, i) => ({
+        type: 'Feature' as const,
+        geometry: {
+          type: 'LineString' as const,
+          coordinates: edge.coordinates,
+        },
+        properties: {
+          betweenness: centralityResult!.betweenness_by_edge[i],
+          normalized: maxB > 0 ? centralityResult!.betweenness_by_edge[i] / maxB : 0,
+          segment_id: edge.segment_id,
+        },
+      }))
+      .filter((f) => f.properties.normalized > 0.01) // hide near-zero
+
+    source.setData({ type: 'FeatureCollection', features })
+    setLayerVisibility('centrality-layer', true)
   }
 
   function setLayerVisibility(layerId: string, visible: boolean) {
@@ -3164,22 +3401,27 @@ npm run dev</pre>
                   {/if}
 
                   <div class="space-y-2">
-                    <label class="flex items-center justify-between text-sm text-stone-700">
+                    <div class="flex items-center justify-between text-sm text-stone-700">
                       <span>Wplyw vibe na trase</span>
-                      <span class="font-semibold text-violet-700">{routeVibeAlpha === 0 ? 'Najkrotsza' : routeVibeAlpha === 1 ? 'Max vibe' : `${Math.round(routeVibeAlpha * 100)}%`}</span>
-                    </label>
+                      <span class="font-semibold text-violet-700">{routeAlphaLabel(routeVibeLevel)}</span>
+                    </div>
                     <input
+                      id="route-vibe-alpha"
                       type="range"
-                      min="0"
-                      max="1"
-                      step="0.05"
-                      bind:value={routeVibeAlpha}
+                      min={MIN_ROUTE_VIBE_LEVEL}
+                      max={MAX_ROUTE_VIBE_LEVEL}
+                      step="1"
+                      bind:value={routeVibeLevel}
                       onchange={() => { if (routeStart && routeEnd && routingMode === 'idle') computeRoute() }}
                       class="w-full accent-violet-600"
                     />
                     <div class="flex justify-between text-xs text-stone-400">
-                      <span>Najkrotsza droga</span>
-                      <span>Najlepszy vibe</span>
+                      <span>1 = najkrotsza droga</span>
+                      <span>10 = vibe-first</span>
+                    </div>
+                    <div class="rounded-xl bg-white px-4 py-3 text-xs leading-6 text-stone-600 ring-1 ring-violet-200">
+                      <p><span class="font-semibold text-stone-900">Poziom {routeVibeLevel}/10</span> • α = {routeVibeAlphaValue(routeVibeLevel).toFixed(2)} • {routeAlphaDescription(routeVibeLevel)}</p>
+                      <p class="mt-1">Mapowanie jest jawne: <code class="rounded bg-stone-100 px-1">α = poziom - 1</code>. Poziom 1 daje czystą najkrótszą trasę, a poziom 10 daje bardzo silny tryb vibe-first.</p>
                     </div>
                   </div>
                 </div>
@@ -3207,15 +3449,152 @@ npm run dev</pre>
                   <div class="mt-3 rounded-[1.25rem] border border-violet-200 bg-white px-4 py-3 text-sm leading-6 text-stone-600">
                     <p>
                       Trasa znaleziona algorytmem <span class="font-semibold text-stone-900">A*</span> po grafie {summary.network_analysis.nodes} wezlow
-                      i {summary.network_analysis.edges} krawedzi. Koszt krawedzi: <code class="rounded bg-stone-100 px-1 text-xs">length × (1 + α × (100 − vibe) / 100)</code>.
-                      {#if routeVibeAlpha > 0}
+                      i {summary.network_analysis.edges} krawedzi. Koszt krawedzi: <code class="rounded bg-stone-100 px-1 text-xs">length × (1 + α × ((100−vibe)/100)^1.5)</code>.
+                      {#if routeVibeAlphaValue(routeVibeLevel) > 0}
                         Aktywne vibe wplywaja na score krawedzi — trasa preferuje segmenty o wyzszym vibe.
                       {:else}
                         Przy α = 0 trasa jest najkrotsza pod wzgledem dystansu.
                       {/if}
                     </p>
+                    <p class="mt-2 text-xs text-stone-500">
+                      Kara jest eksponencjalna: <code class="rounded bg-stone-100 px-1">((100−vibe)/100)^1.5</code>. Dla poziomu {routeVibeLevel}/10 (α={routeVibeAlphaValue(routeVibeLevel).toFixed(1)}) odcinek z vibe=0 kosztuje <code class="rounded bg-stone-100 px-1">{(1 + routeVibeAlphaValue(routeVibeLevel)).toFixed(1)}×</code>, z vibe=50 kosztuje <code class="rounded bg-stone-100 px-1">{(1 + routeVibeAlphaValue(routeVibeLevel) * 0.354).toFixed(1)}×</code> swoja dlugosc.
+                    </p>
                   </div>
                 {/if}
+              {/if}
+            </section>
+
+            <section class="rounded-[1.5rem] border border-purple-300 bg-purple-50/80 p-5 shadow-lg shadow-purple-100/50 backdrop-blur">
+              <div class="flex items-center justify-between gap-4">
+                <div>
+                  <p class="text-xs font-semibold uppercase tracking-[0.24em] text-purple-600">Izochrony</p>
+                  <h3 class="mt-1 text-xl font-semibold tracking-tight text-stone-950">
+                    Zasieg z punktu
+                  </h3>
+                </div>
+                {#if isochroneResult}
+                  <span class="rounded-full bg-purple-600 px-3 py-1 text-sm font-semibold text-white">
+                    {isochroneResult.bands.length} pasma
+                  </span>
+                {/if}
+              </div>
+
+              {#if routingGraph}
+                <p class="mt-3 text-sm text-stone-600">
+                  Kliknij punkt na mapie, a system pokaze obszary osiagalne w promieniu 1, 2.5, 5 i 10 km po sciezkach rowerowych.
+                </p>
+                <div class="mt-3 flex gap-2">
+                  {#if isochroneMode}
+                    <button
+                      class="flex-1 rounded-xl bg-purple-600 px-4 py-2.5 text-sm font-semibold text-white animate-pulse"
+                      onclick={cancelIsochrone}
+                      type="button"
+                    >
+                      Kliknij na mapie...
+                    </button>
+                  {:else}
+                    <button
+                      class="flex-1 rounded-xl bg-purple-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-purple-700"
+                      onclick={startIsochrone}
+                      type="button"
+                    >
+                      {isochroneResult ? 'Nowa izochrona' : 'Wyznacz izochrony'}
+                    </button>
+                    {#if isochroneResult}
+                      <button
+                        class="rounded-xl bg-stone-200 px-4 py-2.5 text-sm font-medium text-stone-700 transition hover:bg-stone-300"
+                        onclick={cancelIsochrone}
+                        type="button"
+                      >
+                        Wyczysc
+                      </button>
+                    {/if}
+                  {/if}
+                </div>
+
+                {#if isochroneResult}
+                  <div class="mt-3 space-y-2">
+                    {#each isochroneResult.bands as band, i}
+                      <div class="flex items-center gap-3 rounded-xl bg-white px-3 py-2 text-sm">
+                        <span class="size-3 rounded-full" style={`background: ${['#a78bfa','#8b5cf6','#6d28d9','#4c1d95'][i]}`}></span>
+                        <span class="font-semibold text-stone-900">{band.label}</span>
+                        <span class="text-stone-500">({band.coordinates.length - 1} wezlow na obwodce)</span>
+                      </div>
+                    {/each}
+                  </div>
+                  <div class="mt-3 rounded-[1.25rem] border border-purple-200 bg-white px-4 py-3 text-sm leading-6 text-stone-600">
+                    Izochrony sa obliczone algorytmem <span class="font-semibold text-stone-900">Dijkstra</span> (bez celu, pelna eksploracja)
+                    po fizycznej dlugosci krawedzi. Kontury to <span class="font-semibold text-stone-900">convex hull</span> osiagalnych wezlow.
+                  </div>
+                {/if}
+              {:else}
+                <p class="mt-3 text-sm text-stone-500">Graf niedostepny.</p>
+              {/if}
+            </section>
+
+            <section class="rounded-[1.5rem] border border-amber-300 bg-amber-50/80 p-5 shadow-lg shadow-amber-100/50 backdrop-blur">
+              <div class="flex items-center justify-between gap-4">
+                <div>
+                  <p class="text-xs font-semibold uppercase tracking-[0.24em] text-amber-700">Centralnosc sieci</p>
+                  <h3 class="mt-1 text-xl font-semibold tracking-tight text-stone-950">
+                    Betweenness Centrality
+                  </h3>
+                </div>
+                {#if centralityResult}
+                  <label class={`inline-flex cursor-pointer items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition ${showBetweenness ? 'bg-amber-600 text-white' : 'bg-stone-100 text-stone-700'}`}>
+                    <input type="checkbox" class="sr-only" bind:checked={showBetweenness} onchange={syncCentralityDisplay} />
+                    <span>{showBetweenness ? 'Widoczna' : 'Ukryta'}</span>
+                  </label>
+                {/if}
+              </div>
+
+              {#if routingGraph}
+                <p class="mt-3 text-sm text-stone-600">
+                  Analiza mierzy, ile najkrotszych tras przechodzi przez kazdy segment — im wyzszy wynik, tym wazniejszy jest
+                  segment jako lacznik w sieci. Segmenty o wysokiej centralnosci to potencjalne waskie gardla.
+                </p>
+                <div class="mt-3">
+                  {#if isCentralityComputing}
+                    <button class="w-full rounded-xl bg-amber-400 px-4 py-2.5 text-sm font-semibold text-amber-950 animate-pulse" disabled type="button">
+                      Obliczanie (algorytm Brandesa)...
+                    </button>
+                  {:else if centralityResult}
+                    <button
+                      class="w-full rounded-xl bg-amber-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-amber-700"
+                      onclick={runCentralityAnalysis}
+                      type="button"
+                    >
+                      Przelicz ponownie
+                    </button>
+                  {:else}
+                    <button
+                      class="w-full rounded-xl bg-amber-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-amber-700"
+                      onclick={runCentralityAnalysis}
+                      type="button"
+                    >
+                      Oblicz centralnosc
+                    </button>
+                  {/if}
+                </div>
+
+                {#if centralityResult}
+                  <div class="mt-3 flex items-center gap-2 text-sm">
+                    <span class="text-stone-500">Skala:</span>
+                    <div class="flex flex-1 items-center gap-1">
+                      <span class="h-3 w-8 rounded" style="background:#fef3c7"></span>
+                      <span class="h-3 w-8 rounded" style="background:#f59e0b"></span>
+                      <span class="h-3 w-8 rounded" style="background:#ef4444"></span>
+                      <span class="h-3 w-8 rounded" style="background:#7f1d1d"></span>
+                    </div>
+                    <span class="text-stone-500">niska → wysoka</span>
+                  </div>
+                  <div class="mt-3 rounded-[1.25rem] border border-amber-200 bg-white px-4 py-3 text-sm leading-6 text-stone-600">
+                    Aproksymacja <span class="font-semibold text-stone-900">algorytmem Brandesa</span> na probce 150 wezlow zrodlowych.
+                    Wynik skalowany do pelnej sieci. Krawedzie o wynikach bliskich zeru sa ukryte.
+                  </div>
+                {/if}
+              {:else}
+                <p class="mt-3 text-sm text-stone-500">Graf niedostepny.</p>
               {/if}
             </section>
 
