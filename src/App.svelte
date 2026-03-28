@@ -48,6 +48,8 @@
   const HOTSPOTS_URL = '/generated/cycling-smart-city/hotspots.geojson'
   const CORRIDORS_URL = '/generated/cycling-smart-city/corridors.geojson'
   const CONNECTORS_URL = '/generated/cycling-smart-city/connectors.geojson'
+  const KRAKOW_PREVIEW_MARGIN_RATIO = 1
+  const KRAKOW_PREVIEW_MIN_ZOOM = 7.8
 
   let mapContainer: HTMLDivElement
   let maplibreModule: typeof import('maplibre-gl') | null = null
@@ -200,6 +202,8 @@
     type: 'FeatureCollection',
     features: [],
   }
+
+  type MapBoundsLike = [[number, number], [number, number]]
 
   const vibeMetricMeta: Array<{ key: VibeMetricKey; label: string; note: string }> = [
     {
@@ -590,6 +594,7 @@
       selectedCorridor = selectedCorridorScenario()?.recommended[0] ?? null
       selectedConnector = summary.off_network_connectors.recommended[0] ?? null
       selectedHex = getHexByIndex(summary.h3_grid.top_cells[0]?.h3_index) ?? summary.h3_grid.top_cells[0] ?? null
+      const previewBounds = buildPreviewBounds(summaryResponse.bounds)
 
       maplibreModule = await import('maplibre-gl')
 
@@ -597,6 +602,8 @@
         container: mapContainer,
         style: MAP_STYLE,
         attributionControl: { compact: true },
+        maxBounds: previewBounds,
+        minZoom: KRAKOW_PREVIEW_MIN_ZOOM,
       })
 
       map.addControl(
@@ -2165,6 +2172,21 @@
       zoom: 12,
       duration: 0,
     })
+  }
+
+  function buildPreviewBounds(bounds: [number, number, number, number] | null): MapBoundsLike | undefined {
+    if (!bounds) {
+      return undefined
+    }
+
+    const [west, south, east, north] = bounds
+    const lonMargin = Math.max((east - west) * KRAKOW_PREVIEW_MARGIN_RATIO, 0.01)
+    const latMargin = Math.max((north - south) * KRAKOW_PREVIEW_MARGIN_RATIO, 0.006)
+
+    return [
+      [west - lonMargin, south - latMargin],
+      [east + lonMargin, north + latMargin],
+    ]
   }
 
   function toTopSegment(feature: MapGeoJSONFeature): TopSegment {
