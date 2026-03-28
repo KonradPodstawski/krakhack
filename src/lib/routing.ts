@@ -482,10 +482,36 @@ export function buildRoutingGraph(
 
   const finalComponents = computeGraphComponents(nodes, adjacency)
 
+  // --- Phase 5: Assign H3 cell index to each edge ---
+  const h3 = await_h3()
+  let h3AssignedCount = 0
+  if (h3 && hexCells && hexCells.length > 0) {
+    const H3_RESOLUTION = hexCells[0].h3_resolution ?? 8
+    const validIndices = new Set<string>()
+    for (const cell of hexCells) validIndices.add(cell.h3_index)
+
+    for (const edge of edges) {
+      // Use midpoint of edge coordinates
+      const midIdx = Math.floor(edge.coordinates.length / 2)
+      const midCoord = edge.coordinates[midIdx]
+      try {
+        const cellIndex = h3.latLngToCell(midCoord[1], midCoord[0], H3_RESOLUTION)
+        if (validIndices.has(cellIndex)) {
+          edge.edge_h3_index = cellIndex
+          edge.edge_h3_score = cellScoreByIndex.get(cellIndex) ?? edge.segment_score
+          h3AssignedCount++
+        }
+      } catch {
+        // Edge outside valid H3 range — keep null
+      }
+    }
+  }
+
   console.log(
     `[routing] Graph: ${nodes.length} nodes, ${edges.length} edges, ` +
     `${splitCount} T-junctions, ${bridgeCount} bridges, ` +
-    `${finalComponents.component_count} components (was ${initialComponents.component_count})`
+    `${finalComponents.component_count} components (was ${initialComponents.component_count}), ` +
+    `${h3AssignedCount}/${edges.length} edges with H3 cell`
   )
 
   return {
