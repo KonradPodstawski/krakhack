@@ -1,0 +1,364 @@
+{
+  "bounds": [
+    19.805069794437838,
+    49.989806922891475,
+    20.190682300451567,
+    50.111044792778294
+  ],
+  "counts": {
+    "bike_racks": 3066,
+    "bike_infrastructure_points": 177,
+    "cycling_path_segments": 3525,
+    "greenery_polygons": 8730,
+    "noise_polygons": 48792
+  },
+  "score": {
+    "min": 24,
+    "max": 100,
+    "mean": 70.65,
+    "median": 64.84
+  },
+  "top_score_threshold": 100,
+  "top_segments": [
+    {
+      "segment_id": 4,
+      "score_rank": 1,
+      "score": 100,
+      "comfort_score": 100,
+      "kind": "ciąg pieszo-rowerowy",
+      "surface": "asfalt",
+      "length_km": 0.587,
+      "greenery_ratio": 1,
+      "max_noise_db": 65,
+      "nearest_rack_m": 69.13,
+      "nearest_infra_m": 297.13,
+      "center": [
+        19.933600899834335,
+        50.05253380061714
+      ]
+    },
+    {
+      "segment_id": 5,
+      "score_rank": 2,
+      "score": 100,
+      "comfort_score": 100,
+      "kind": "ciąg pieszo-rowerowy",
+      "surface": "asfalt",
+      "length_km": 0.973,
+      "greenery_ratio": 0.8571,
+      "max_noise_db": 71,
+      "nearest_rack_m": 53.14,
+      "nearest_infra_m": 161.21,
+      "center": [
+        19.924772922184914,
+        50.05326425132338
+      ]
+    },
+    {
+      "segment_id": 6,
+      "score_rank": 3,
+      "score": 100,
+      "comfort_score": 100,
+      "kind": "ciąg pieszo-rowerowy",
+      "surface": "asfalt",
+      "length_km": 0.222,
+      "greenery_ratio": 1,
+      "max_noise_db": 61,
+      "nearest_rack_m": 100.08,
+      "nearest_infra_m": 366.24,
+      "center": [
+        19.92139749635674,
+        50.05121630125677
+      ]
+    },
+    {
+      "segment_id": 7,
+      "score_rank": 4,
+      "score": 100,
+      "comfort_score": 100,
+      "kind": "droga rowerowa",
+      "surface": "asfalt",
+      "length_km": 0.337,
+      "greenery_ratio": 1,
+      "max_noise_db": 66,
+      "nearest_rack_m": 152.36,
+      "nearest_infra_m": 145.66,
+      "center": [
+        19.955742999674026,
+        50.049962400768514
+      ]
+    },
+    {
+      "segment_id": 9,
+      "score_rank": 5,
+      "score": 100,
+      "comfort_score": 100,
+      "kind": "droga rowerowa",
+      "surface": "asfalt",
+      "length_km": 3.468,
+      "greenery_ratio": 1,
+      "max_noise_db": 75,
+      "nearest_rack_m": 23.24,
+      "nearest_infra_m": 0.87,
+      "center": [
+        19.95389946889139,
+        50.05042031543119
+      ]
+    },
+    {
+      "segment_id": 10,
+      "score_rank": 6,
+      "score": 100,
+      "comfort_score": 100,
+      "kind": "przejazd",
+      "surface": "asfalt",
+      "length_km": 0.006,
+      "greenery_ratio": 1,
+      "max_noise_db": 69,
+      "nearest_rack_m": 140.33,
+      "nearest_infra_m": 109.1,
+      "center": [
+        19.88743491520306,
+        50.076086703418206
+      ]
+    },
+    {
+      "segment_id": 11,
+      "score_rank": 7,
+      "score": 100,
+      "comfort_score": 100,
+      "kind": "ciąg pieszo-rowerowy",
+      "surface": "asfalt",
+      "length_km": 0.81,
+      "greenery_ratio": 1,
+      "max_noise_db": 74,
+      "nearest_rack_m": 52.8,
+      "nearest_infra_m": 32.98,
+      "center": [
+        19.912292499582342,
+        50.05548240090169
+      ]
+    },
+    {
+      "segment_id": 17,
+      "score_rank": 8,
+      "score": 100,
+      "comfort_score": 100,
+      "kind": "ciąg pieszo-rowerowy",
+      "surface": "asfalt",
+      "length_km": 0.113,
+      "greenery_ratio": 1,
+      "max_noise_db": 66,
+      "nearest_rack_m": 79.36,
+      "nearest_infra_m": 326.19,
+      "center": [
+        19.95815649944424,
+        50.0401283011683
+      ]
+    },
+    {
+      "segment_id": 18,
+      "score_rank": 9,
+      "score": 100,
+      "comfort_score": 100,
+      "kind": "ciąg pieszo-rowerowy",
+      "surface": "asfalt",
+      "length_km": 0.006,
+      "greenery_ratio": 1,
+      "max_noise_db": 67,
+      "nearest_rack_m": 118.19,
+      "nearest_infra_m": 351.77,
+      "center": [
+        19.957897900104992,
+        50.04040810075727
+      ]
+    },
+    {
+      "segment_id": 19,
+      "score_rank": 10,
+      "score": 100,
+      "comfort_score": 100,
+      "kind": "ciąg pieszo-rowerowy",
+      "surface": "asfalt",
+      "length_km": 0.164,
+      "greenery_ratio": 1,
+      "max_noise_db": 72,
+      "nearest_rack_m": 35.41,
+      "nearest_infra_m": 352.62,
+      "center": [
+        19.957278700655976,
+        50.04058460110867
+      ]
+    },
+    {
+      "segment_id": 33,
+      "score_rank": 11,
+      "score": 100,
+      "comfort_score": 100,
+      "kind": "ciąg pieszo-rowerowy",
+      "surface": "asfalt",
+      "length_km": 0.02,
+      "greenery_ratio": 1,
+      "max_noise_db": 70,
+      "nearest_rack_m": 5.3,
+      "nearest_infra_m": 273.78,
+      "center": [
+        19.930857799641625,
+        50.08417210065526
+      ]
+    },
+    {
+      "segment_id": 34,
+      "score_rank": 12,
+      "score": 100,
+      "comfort_score": 100,
+      "kind": "ciąg pieszo-rowerowy",
+      "surface": "asfalt",
+      "length_km": 0.137,
+      "greenery_ratio": 1,
+      "max_noise_db": 68,
+      "nearest_rack_m": 4.92,
+      "nearest_infra_m": 285.29,
+      "center": [
+        19.93215909942869,
+        50.08419860111242
+      ]
+    },
+    {
+      "segment_id": 36,
+      "score_rank": 13,
+      "score": 100,
+      "comfort_score": 100,
+      "kind": "droga rowerowa",
+      "surface": "asfalt",
+      "length_km": 0.01,
+      "greenery_ratio": 1,
+      "max_noise_db": 73,
+      "nearest_rack_m": 68.74,
+      "nearest_infra_m": 106.44,
+      "center": [
+        19.911694724064954,
+        50.046889072989465
+      ]
+    },
+    {
+      "segment_id": 37,
+      "score_rank": 14,
+      "score": 100,
+      "comfort_score": 100,
+      "kind": "droga rowerowa",
+      "surface": "asfalt",
+      "length_km": 0.005,
+      "greenery_ratio": 1,
+      "max_noise_db": 75,
+      "nearest_rack_m": 63.28,
+      "nearest_infra_m": 101.02,
+      "center": [
+        19.91159676400275,
+        50.04691146982482
+      ]
+    },
+    {
+      "segment_id": 47,
+      "score_rank": 15,
+      "score": 100,
+      "comfort_score": 100,
+      "kind": "przejazd",
+      "surface": "asfalt",
+      "length_km": 0.007,
+      "greenery_ratio": 1,
+      "max_noise_db": 45,
+      "nearest_rack_m": 842.22,
+      "nearest_infra_m": 640.09,
+      "center": [
+        19.874176110922615,
+        50.040410736300764
+      ]
+    },
+    {
+      "segment_id": 57,
+      "score_rank": 16,
+      "score": 100,
+      "comfort_score": 100,
+      "kind": "droga rowerowa",
+      "surface": "asfalt",
+      "length_km": 0.052,
+      "greenery_ratio": 1,
+      "max_noise_db": 63,
+      "nearest_rack_m": 124.47,
+      "nearest_infra_m": 0.45,
+      "center": [
+        19.957669838072274,
+        50.06469632272227
+      ]
+    },
+    {
+      "segment_id": 70,
+      "score_rank": 17,
+      "score": 100,
+      "comfort_score": 100,
+      "kind": "ciąg pieszo-rowerowy",
+      "surface": "asfalt",
+      "length_km": 0.043,
+      "greenery_ratio": 1,
+      "max_noise_db": 54,
+      "nearest_rack_m": 100.79,
+      "nearest_infra_m": 402.05,
+      "center": [
+        19.934260893695395,
+        50.05207358127973
+      ]
+    },
+    {
+      "segment_id": 71,
+      "score_rank": 18,
+      "score": 100,
+      "comfort_score": 100,
+      "kind": "ciąg pieszo-rowerowy",
+      "surface": "asfalt",
+      "length_km": 0.049,
+      "greenery_ratio": 1,
+      "max_noise_db": 75,
+      "nearest_rack_m": 71.55,
+      "nearest_infra_m": 289.02,
+      "center": [
+        19.934979286939246,
+        50.05008630021948
+      ]
+    },
+    {
+      "segment_id": 72,
+      "score_rank": 19,
+      "score": 100,
+      "comfort_score": 100,
+      "kind": "droga rowerowa",
+      "surface": "asfalt",
+      "length_km": 2.671,
+      "greenery_ratio": 1,
+      "max_noise_db": 73,
+      "nearest_rack_m": 2.71,
+      "nearest_infra_m": 5.01,
+      "center": [
+        19.913651117059494,
+        50.06078656231063
+      ]
+    },
+    {
+      "segment_id": 73,
+      "score_rank": 20,
+      "score": 100,
+      "comfort_score": 100,
+      "kind": "droga rowerowa",
+      "surface": "asfalt",
+      "length_km": 0.595,
+      "greenery_ratio": 1,
+      "max_noise_db": 72,
+      "nearest_rack_m": 167.42,
+      "nearest_infra_m": 42.83,
+      "center": [
+        19.90371413202376,
+        50.059098547488
+      ]
+    }
+  ]
+}
