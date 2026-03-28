@@ -14,7 +14,13 @@ import type {
 // Constants (matching build script)
 // ---------------------------------------------------------------------------
 
-const GRAPH_SNAP_DECIMALS = 5
+// Reduced from 5 (~1.1m) to 4 (~11m) to merge nearby segment endpoints
+// that should logically connect but don't share exact GIS coordinates.
+const GRAPH_SNAP_DECIMALS = 4
+
+// Max gap (meters) to bridge between disconnected components with virtual edges.
+// 100m gives ~80% of nodes in the largest component (up from 15% without bridging).
+const AUTO_BRIDGE_MAX_DISTANCE_M = 100
 
 // ---------------------------------------------------------------------------
 // MinHeap (ported from build script)
@@ -244,62 +250,138 @@ export function buildRoutingGraph(
     }
   }
 
+  // --- Phase 1: T-junction detection ---
+  // Find segment endpoints that are near intermediate points of other segments.
+  // Insert split-points so these T-intersections become graph junctions.
+
+  const T_JUNCTION_MAX_M = 30
+
+  // Spatial grid of all intermediate points for fast lookup
+  const intermediateGrid = new Map<string, Array<{ coord: Coordinate; segIdx: number; ptIdx: number }>>()
+  const igridSize = 0.0004 // ~44m
+
+  for (let si = 0; si < segments.features.length; si++) {
+    const coords = segments.features[si].geometry?.coordinates
+    if (!coords || coords.length < 3) continue
+    for (let pi = 1; pi < coords.length - 1; pi++) {
+      const c = coords[pi] as Coordinate
+      if (!isCoordinate(c)) continue
+      const k = `${Math.floor(c[0] / igridSize)}:${Math.floor(c[1] / igridSize)}`
+      let bucket = intermediateGrid.get(k)
+      if (!bucket) { bucket = []; intermediateGrid.set(k, bucket) }
+      bucket.push({ coord: c, segIdx: si, ptIdx: pi })
+    }
+  }
+
+  // For each segment endpoint, find nearest intermediate point of a different segment
+  // splitPoints: Map<segmentIndex, Set<coordIndex>> — points where to split that segment
+  const splitPoints = new Map<number, Map<number, Coordinate>>()
+
+  for (let si = 0; si < segments.features.length; si++) {
+    const coords = segments.features[si].geometry?.coordinates
+    if (!coords || coords.length < 2) continue
+    const endpoints = [coords[0] as Coordinate, coords[coords.length - 1] as Coordinate]
+
+    for (const ep of endpoints) {
+      if (!isCoordinate(ep)) continue
+      const cx = Math.floor(ep[0] / igridSize)
+      const cy = Math.floor(ep[1] / igridSize)
+
+      let bestDist = T_JUNCTION_MAX_M + 1
+      let bestHit: { segIdx: number; ptIdx: number } | null = null
+
+      for (let dx = -1; dx <= 1; dx++) {
+        for (let dy = -1; dy <= 1; dy++) {
+          const bucket = intermediateGrid.get(`${cx + dx}:${cy + dy}`)
+          if (!bucket) continue
+          for (const hit of bucket) {
+            if (hit.segIdx === si) continue
+            const d = coordinateDistanceMeters(ep, hit.coord)
+            if (d < bestDist) {
+              bestDist = d
+              bestHit = hit
+            }
+          }
+        }
+      }
+
+      if (bestHit) {
+        let segSplits = splitPoints.get(bestHit.segIdx)
+        if (!segSplits) { segSplits = new Map(); splitPoints.set(bestHit.segIdx, segSplits) }
+        // Use the endpoint coordinate as the split point (so the node merges with endpoint via snap)
+        segSplits.set(bestHit.ptIdx, ep)
+      }
+    }
+  }
+
+  let splitCount = 0
+  for (const m of splitPoints.values()) splitCount += m.size
+
+  // --- Phase 2: Build graph with split segments ---
   const nodeByKey = new Map<string, GraphNode>()
   const nodes: GraphNode[] = []
   const edges: GraphEdge[] = []
 
-  for (const feature of segments.features) {
+  for (let si = 0; si < segments.features.length; si++) {
+    const feature = segments.features[si]
     const coordinates = feature.geometry?.coordinates
     if (!Array.isArray(coordinates) || coordinates.length < 2) {
       continue
     }
 
-    const start = coordinates[0] as Coordinate
-    const end = coordinates[coordinates.length - 1] as Coordinate
+    const segScore = round(Number(feature.properties.score ?? 0), 2)
+    const segSplits = splitPoints.get(si)
 
-    if (!isCoordinate(start) || !isCoordinate(end)) {
-      continue
-    }
-
-    const startNode = getOrCreateGraphNode(nodeByKey, nodes, start)
-    const endNode = getOrCreateGraphNode(nodeByKey, nodes, end)
-    const lengthM = Math.max(1, Number(feature.properties.length_km ?? 0) * 1000)
-
-    const center = feature.properties.center
-    const midpoint: Coordinate | null = isCoordinate(center) ? center : null
-
-    let edgeH3Index: string | null = null
-    let edgeH3Score = round(Number(feature.properties.score ?? 0), 2)
-
-    if (midpoint) {
-      try {
-        const h3 = await_h3()
-        if (h3) {
-          edgeH3Index = h3.latLngToCell(midpoint[1], midpoint[0], 8)
-          const cellScore = cellScoreByIndex.get(edgeH3Index)
-          if (cellScore != null) {
-            edgeH3Score = round(cellScore, 2)
-          }
-        }
-      } catch {
-        // h3 not available, use segment score
+    // Determine split indices for this segment (sorted)
+    const splitIndices: number[] = []
+    if (segSplits) {
+      for (const ptIdx of segSplits.keys()) {
+        splitIndices.push(ptIdx)
       }
+      splitIndices.sort((a, b) => a - b)
     }
 
-    edges.push({
-      edge_id: edges.length + 1,
-      segment_id: feature.properties.segment_id,
-      start_node_id: startNode.node_id,
-      end_node_id: endNode.node_id,
-      coordinates: coordinates as Coordinate[],
-      length_m: round(lengthM, 2),
-      segment_score: round(Number(feature.properties.score ?? 0), 2),
-      edge_h3_index: edgeH3Index,
-      edge_h3_score: edgeH3Score,
-      edge_cost: round(computeEdgeTravelCost(lengthM, edgeH3Score), 4),
-    })
+    // Generate sub-segments: [0..split1], [split1..split2], ..., [splitN..end]
+    const breakpoints = [0, ...splitIndices, coordinates.length - 1]
+    const uniqueBreakpoints = breakpoints.filter((v, i, a) => i === 0 || v !== a[i - 1])
+
+    for (let bi = 0; bi < uniqueBreakpoints.length - 1; bi++) {
+      const fromIdx = uniqueBreakpoints[bi]
+      const toIdx = uniqueBreakpoints[bi + 1]
+      if (toIdx - fromIdx < 1) continue
+
+      const subCoords = coordinates.slice(fromIdx, toIdx + 1) as Coordinate[]
+      const startCoord = segSplits?.get(fromIdx) ?? subCoords[0]
+      const endCoord = segSplits?.get(toIdx) ?? subCoords[subCoords.length - 1]
+
+      if (!isCoordinate(startCoord) || !isCoordinate(endCoord)) continue
+
+      const startNode = getOrCreateGraphNode(nodeByKey, nodes, startCoord)
+      const endNode = getOrCreateGraphNode(nodeByKey, nodes, endCoord)
+
+      // Compute sub-segment length
+      let subLengthM = 0
+      for (let ci = 0; ci < subCoords.length - 1; ci++) {
+        subLengthM += coordinateDistanceMeters(subCoords[ci], subCoords[ci + 1])
+      }
+      subLengthM = Math.max(1, subLengthM)
+
+      edges.push({
+        edge_id: edges.length + 1,
+        segment_id: feature.properties.segment_id,
+        start_node_id: startNode.node_id,
+        end_node_id: endNode.node_id,
+        coordinates: subCoords,
+        length_m: round(subLengthM, 2),
+        segment_score: segScore,
+        edge_h3_index: null,
+        edge_h3_score: segScore,
+        edge_cost: round(computeEdgeTravelCost(subLengthM, segScore), 4),
+      })
+    }
   }
 
+  // --- Phase 3: Build adjacency ---
   const adjacency: AdjacencyEntry[][] = Array.from({ length: nodes.length + 1 }, () => [])
 
   edges.forEach((edge, edgeIndex) => {
@@ -319,14 +401,97 @@ export function buildRoutingGraph(
     })
   })
 
-  const componentAnalysis = computeGraphComponents(nodes, adjacency)
+  // --- Phase 4: Auto-bridge disconnected components ---
+  const initialComponents = computeGraphComponents(nodes, adjacency)
+  const componentById = initialComponents.node_component_id_by_node_id
+
+  const gridCellSize = 0.001 // ~110m in lat/lng
+  const spatialGrid = new Map<string, number[]>()
+
+  for (const node of nodes) {
+    const cellKey = `${Math.floor(node.coordinate[0] / gridCellSize)}:${Math.floor(node.coordinate[1] / gridCellSize)}`
+    let bucket = spatialGrid.get(cellKey)
+    if (!bucket) {
+      bucket = []
+      spatialGrid.set(cellKey, bucket)
+    }
+    bucket.push(node.node_id)
+  }
+
+  let bridgeCount = 0
+
+  for (const node of nodes) {
+    const cx = Math.floor(node.coordinate[0] / gridCellSize)
+    const cy = Math.floor(node.coordinate[1] / gridCellSize)
+    const nodeComp = componentById[node.node_id]
+
+    for (let dx = -1; dx <= 1; dx++) {
+      for (let dy = -1; dy <= 1; dy++) {
+        const bucket = spatialGrid.get(`${cx + dx}:${cy + dy}`)
+        if (!bucket) continue
+
+        for (const otherNodeId of bucket) {
+          if (otherNodeId <= node.node_id) continue
+          if (componentById[otherNodeId] === nodeComp) continue
+
+          const otherNode = nodes[otherNodeId - 1]
+          const dist = coordinateDistanceMeters(node.coordinate, otherNode.coordinate)
+          if (dist > AUTO_BRIDGE_MAX_DISTANCE_M || dist < 0.5) continue
+
+          const bridgeEdge: GraphEdge = {
+            edge_id: edges.length + 1,
+            segment_id: -1,
+            start_node_id: node.node_id,
+            end_node_id: otherNodeId,
+            coordinates: [node.coordinate, otherNode.coordinate],
+            length_m: round(dist, 2),
+            segment_score: 50,
+            edge_h3_index: null,
+            edge_h3_score: 50,
+            edge_cost: round(computeEdgeTravelCost(dist, 50), 4),
+          }
+
+          const edgeIndex = edges.length
+          edges.push(bridgeEdge)
+
+          adjacency[node.node_id].push({
+            to_node_id: otherNodeId,
+            edge_index: edgeIndex,
+            cost: bridgeEdge.edge_cost,
+          })
+          adjacency[otherNodeId].push({
+            to_node_id: node.node_id,
+            edge_index: edgeIndex,
+            cost: bridgeEdge.edge_cost,
+          })
+
+          const otherComp = componentById[otherNodeId]
+          for (const n of nodes) {
+            if (componentById[n.node_id] === otherComp) {
+              componentById[n.node_id] = nodeComp
+            }
+          }
+
+          bridgeCount++
+        }
+      }
+    }
+  }
+
+  const finalComponents = computeGraphComponents(nodes, adjacency)
+
+  console.log(
+    `[routing] Graph: ${nodes.length} nodes, ${edges.length} edges, ` +
+    `${splitCount} T-junctions, ${bridgeCount} bridges, ` +
+    `${finalComponents.component_count} components (was ${initialComponents.component_count})`
+  )
 
   return {
     nodes,
     edges,
     adjacency,
-    largest_component_id: componentAnalysis.largest_component_id,
-    node_component_id_by_node_id: componentAnalysis.node_component_id_by_node_id,
+    largest_component_id: finalComponents.largest_component_id,
+    node_component_id_by_node_id: finalComponents.node_component_id_by_node_id,
   }
 }
 
