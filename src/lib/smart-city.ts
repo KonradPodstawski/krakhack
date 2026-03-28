@@ -8,12 +8,20 @@ export interface SegmentProperties {
   center: Coordinate | null
   comfort_score: number
   greenery_ratio: number
+  greenery_points: number
+  greenery_score: number
+  infrastructure_points: number
+  infrastructure_score: number
   is_top_segment: boolean
   kind: string | null
   length_km: number
   max_noise_db: number | null
   nearest_infra_m: number | null
   nearest_rack_m: number | null
+  noise_points: number
+  noise_score: number
+  rack_points: number
+  rack_score: number
   score: number
   score_rank: number | null
   segment_id: number
@@ -24,15 +32,85 @@ export interface TopSegment {
   center: Coordinate | null
   comfort_score: number
   greenery_ratio: number
+  greenery_points: number
+  greenery_score: number
+  infrastructure_points: number
+  infrastructure_score: number
   kind: string | null
   length_km: number
   max_noise_db: number | null
   nearest_infra_m: number | null
   nearest_rack_m: number | null
+  noise_points: number
+  noise_score: number
+  rack_points: number
+  rack_score: number
   score: number
   score_rank: number | null
   segment_id: number
   surface: string | null
+}
+
+export interface DataSourceMeta {
+  file: string
+  geometry: string
+  id: string
+  label: string
+  normalized_crs: string
+  source_crs: string
+  usage: string[]
+}
+
+export interface ProcessingStepMeta {
+  description: string
+  id: string
+  step: number
+  title: string
+}
+
+export interface MapLayerMeta {
+  data_source: string
+  id: string
+  order: number
+  role: string
+}
+
+export interface ScoringWeights {
+  greenery: number
+  infrastructure: number
+  noise: number
+  rack: number
+}
+
+export interface ScoreReferenceRange {
+  best: number
+  missingScore: number
+  worst: number
+}
+
+export interface ScoringReferences {
+  infrastructureDistanceM: ScoreReferenceRange
+  noiseDb: ScoreReferenceRange
+  rackDistanceM: ScoreReferenceRange
+}
+
+export interface ScoringMeta {
+  formula: string
+  output_range: [number, number]
+  references: ScoringReferences
+  sample_step_meters: number
+  tie_breakers: string[]
+  version: string
+  weights: ScoringWeights
+}
+
+export interface ExplainabilityMeta {
+  data_sources: DataSourceMeta[]
+  limitations: string[]
+  map_layers: MapLayerMeta[]
+  nondeterminism: string[]
+  processing_steps: ProcessingStepMeta[]
+  scoring: ScoringMeta
 }
 
 export interface SegmentFeatureCollection {
@@ -78,6 +156,7 @@ export interface Summary {
     greenery_polygons: number
     noise_polygons: number
   }
+  explainability: ExplainabilityMeta
   score: {
     max: number
     mean: number
@@ -90,7 +169,7 @@ export interface Summary {
 
 export const MAP_STYLE: StyleSpecification = {
   version: 8,
-  name: 'Krakow OSM',
+  name: 'Krakow OSM Gray',
   sources: {
     osm: {
       type: 'raster',
@@ -104,6 +183,13 @@ export const MAP_STYLE: StyleSpecification = {
       id: 'osm',
       type: 'raster',
       source: 'osm',
+      paint: {
+        'raster-saturation': -1,
+        'raster-contrast': 0.08,
+        'raster-brightness-min': 0.22,
+        'raster-brightness-max': 0.82,
+        'raster-opacity': 0.84,
+      },
     },
   ],
 }
@@ -142,6 +228,10 @@ export function formatPercent(value: number | null) {
 
 export function formatScore(value: number) {
   return value.toFixed(1)
+}
+
+export function formatPoints(value: number) {
+  return `${value.toFixed(1)} pkt`
 }
 
 export function scoreColor(score: number) {

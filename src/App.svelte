@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onDestroy, onMount } from 'svelte'
+  import { afterUpdate, onDestroy, onMount } from 'svelte'
   import type { Map as MapLibreMap, MapGeoJSONFeature, Popup as MapLibrePopup } from 'maplibre-gl'
   import {
     KRAKOW_CENTER,
@@ -7,6 +7,7 @@
     formatDistance,
     formatKilometers,
     formatNoise,
+    formatPoints,
     formatPercent,
     formatScore,
     scoreColor,
@@ -40,6 +41,25 @@
     { label: '0-49', color: '#b91c1c' },
   ]
 
+  const scoreComponentMeta = {
+    greenery: {
+      label: 'Zielen',
+      note: 'Procent probek segmentu, ktore wpadaja w poligony zieleni.',
+    },
+    noise: {
+      label: 'Halas',
+      note: 'Im mniejszy halas, tym wyzszy subscore.',
+    },
+    rack: {
+      label: 'Stojaki',
+      note: 'Im blizej stojaka, tym wyzszy subscore.',
+    },
+    infrastructure: {
+      label: 'Infrastruktura',
+      note: 'Im blizej punktowej infrastruktury, tym wyzszy subscore.',
+    },
+  } as const
+
   onMount(() => {
     void initialize()
   })
@@ -52,9 +72,11 @@
     map = null
   })
 
-  $: syncPointVisibility()
-  $: syncSegmentFilter()
-  $: syncSelectedSegment()
+  afterUpdate(() => {
+    syncPointVisibility()
+    syncSegmentFilter()
+    syncSelectedSegment()
+  })
 
   async function initialize() {
     isLoading = true
@@ -70,7 +92,7 @@
       map = new maplibreModule.Map({
         container: mapContainer,
         style: MAP_STYLE,
-        attributionControl: false,
+        attributionControl: { compact: true },
       })
 
       map.addControl(
@@ -124,23 +146,23 @@
           ['linear'],
           ['coalesce', ['get', 'score'], 0],
           0,
-          '#b91c1c',
+          '#9f1239',
           50,
-          '#d97706',
+          '#c2410c',
           65,
-          '#65a30d',
+          '#0f766e',
           80,
-          '#166534',
+          '#1d4ed8',
         ],
-        'line-opacity': 0.82,
+        'line-opacity': 0.96,
         'line-width': [
           'interpolate',
           ['linear'],
           ['coalesce', ['get', 'score'], 0],
           0,
-          1.4,
+          2,
           100,
-          4.8,
+          5.9,
         ],
       },
     })
@@ -152,8 +174,8 @@
       filter: ['==', ['get', 'is_top_segment'], true],
       paint: {
         'line-color': '#111827',
-        'line-opacity': 0.9,
-        'line-width': 8,
+        'line-opacity': 0.8,
+        'line-width': 9,
       },
     })
 
@@ -163,9 +185,9 @@
       source: 'segments',
       filter: ['==', ['get', 'is_top_segment'], true],
       paint: {
-        'line-color': '#f59e0b',
+        'line-color': '#facc15',
         'line-opacity': 0.95,
-        'line-width': 5,
+        'line-width': 5.8,
       },
     })
 
@@ -175,9 +197,9 @@
       source: 'segments',
       filter: ['==', ['get', 'segment_id'], -1],
       paint: {
-        'line-color': '#2563eb',
+        'line-color': '#0ea5e9',
         'line-opacity': 1,
-        'line-width': 7,
+        'line-width': 8,
       },
     })
 
@@ -187,10 +209,10 @@
       source: 'points',
       filter: ['==', ['get', 'point_kind'], 'rack'],
       paint: {
-        'circle-color': '#14532d',
-        'circle-radius': 4.5,
+        'circle-color': '#0f766e',
+        'circle-radius': 5.4,
         'circle-stroke-color': '#f8fafc',
-        'circle-stroke-width': 1.2,
+        'circle-stroke-width': 1.5,
       },
     })
 
@@ -200,10 +222,10 @@
       source: 'points',
       filter: ['==', ['get', 'point_kind'], 'infrastructure'],
       paint: {
-        'circle-color': '#7c3aed',
-        'circle-radius': 5,
+        'circle-color': '#2563eb',
+        'circle-radius': 5.9,
         'circle-stroke-color': '#f8fafc',
-        'circle-stroke-width': 1.2,
+        'circle-stroke-width': 1.5,
       },
     })
   }
@@ -361,11 +383,19 @@
       center: parseCoordinate(properties.center),
       comfort_score: toNumber(properties.comfort_score),
       greenery_ratio: toNumber(properties.greenery_ratio),
+      greenery_points: toNumber(properties.greenery_points),
+      greenery_score: toNumber(properties.greenery_score),
+      infrastructure_points: toNumber(properties.infrastructure_points),
+      infrastructure_score: toNumber(properties.infrastructure_score),
       kind: toNullableString(properties.kind),
       length_km: toNumber(properties.length_km),
       max_noise_db: toNullableNumber(properties.max_noise_db),
       nearest_infra_m: toNullableNumber(properties.nearest_infra_m),
       nearest_rack_m: toNullableNumber(properties.nearest_rack_m),
+      noise_points: toNumber(properties.noise_points),
+      noise_score: toNumber(properties.noise_score),
+      rack_points: toNumber(properties.rack_points),
+      rack_score: toNumber(properties.rack_score),
       score: toNumber(properties.score),
       score_rank: toNullableNumber(properties.score_rank),
       segment_id: toNumber(properties.segment_id),
@@ -373,13 +403,75 @@
     }
   }
 
+  function segmentBreakdown(segment: TopSegment) {
+    const weights = summary?.explainability.scoring.weights
+
+    return [
+      {
+        id: 'greenery',
+        label: scoreComponentMeta.greenery.label,
+        note: scoreComponentMeta.greenery.note,
+        raw: formatPercent(segment.greenery_ratio),
+        score: segment.greenery_score,
+        points: segment.greenery_points,
+        weight: weights?.greenery ?? 0,
+      },
+      {
+        id: 'noise',
+        label: scoreComponentMeta.noise.label,
+        note: scoreComponentMeta.noise.note,
+        raw: formatNoise(segment.max_noise_db),
+        score: segment.noise_score,
+        points: segment.noise_points,
+        weight: weights?.noise ?? 0,
+      },
+      {
+        id: 'rack',
+        label: scoreComponentMeta.rack.label,
+        note: scoreComponentMeta.rack.note,
+        raw: formatDistance(segment.nearest_rack_m),
+        score: segment.rack_score,
+        points: segment.rack_points,
+        weight: weights?.rack ?? 0,
+      },
+      {
+        id: 'infrastructure',
+        label: scoreComponentMeta.infrastructure.label,
+        note: scoreComponentMeta.infrastructure.note,
+        raw: formatDistance(segment.nearest_infra_m),
+        score: segment.infrastructure_score,
+        points: segment.infrastructure_points,
+        weight: weights?.infrastructure ?? 0,
+      },
+    ]
+  }
+
+  function formatWeight(weight: number) {
+    return `${Math.round(weight * 100)}%`
+  }
+
   function buildSegmentPopup(segment: TopSegment) {
+    const breakdownHtml = segmentBreakdown(segment)
+      .map(
+        (item) => `
+          <div class="rounded-xl bg-stone-50 px-3 py-2">
+            <div class="flex items-center justify-between gap-3">
+              <span class="font-medium text-stone-900">${escapeHtml(item.label)}</span>
+              <span class="text-stone-900">${formatPoints(item.points)}</span>
+            </div>
+            <p class="mt-1 text-xs text-stone-500">${escapeHtml(item.raw)} • subscore ${formatScore(item.score)}/100 • waga ${escapeHtml(formatWeight(item.weight))}</p>
+          </div>
+        `,
+      )
+      .join('')
+
     return `
       <div class="w-[18rem] bg-white p-4 text-stone-900">
         <div class="mb-3 flex items-start justify-between gap-3">
           <div>
             <p class="text-xs font-semibold uppercase tracking-[0.2em] text-stone-500">Segment #${segment.segment_id}</p>
             <h3 class="mt-1 text-lg font-semibold text-stone-950">${escapeHtml(segment.kind ?? 'nieopisany odcinek')}</h3>
+            <p class="mt-1 text-xs text-stone-500">Ranking #${segment.score_rank ?? 'brak'}</p>
           </div>
           <span class="rounded-full px-3 py-1 text-sm font-semibold text-white" style="background:${scoreColor(segment.score)}">${formatScore(segment.score)}</span>
         </div>
@@ -391,6 +483,10 @@
           <div><dt class="text-stone-500">Zielen</dt><dd class="font-medium text-stone-900">${formatPercent(segment.greenery_ratio)}</dd></div>
           <div><dt class="text-stone-500">Max halas</dt><dd class="font-medium text-stone-900">${formatNoise(segment.max_noise_db)}</dd></div>
         </dl>
+        <div class="mt-4 space-y-2">
+          <p class="text-xs font-semibold uppercase tracking-[0.2em] text-stone-500">Wyjasnienie score</p>
+          ${breakdownHtml}
+        </div>
       </div>
     `
   }
@@ -687,7 +783,7 @@ npm run dev</pre>
                       {selectedSegment.kind ?? 'nieopisany odcinek'}
                     </h3>
                     <p class="mt-1 text-sm text-stone-500">
-                      Segment #{selectedSegment.segment_id}
+                      Segment #{selectedSegment.segment_id} • ranking #{selectedSegment.score_rank ?? 'brak'}
                     </p>
                   </div>
                   <span class="rounded-full px-3 py-1 text-sm font-semibold text-white" style={`background:${scoreColor(selectedSegment.score)}`}>
@@ -721,14 +817,128 @@ npm run dev</pre>
                     <dd class="mt-1 font-semibold text-stone-950">{formatNoise(selectedSegment.max_noise_db)}</dd>
                   </div>
                 </dl>
+
+                <div class="mt-5">
+                  <div class="flex items-center justify-between gap-3">
+                    <div>
+                      <p class="text-xs font-semibold uppercase tracking-[0.2em] text-stone-500">Why this score</p>
+                      <h4 class="mt-1 text-base font-semibold text-stone-950">Rozbicie punktacji</h4>
+                    </div>
+                    <span class="rounded-full bg-stone-900 px-3 py-1 text-xs font-semibold text-stone-50">
+                      suma {formatPoints(selectedSegment.score)}
+                    </span>
+                  </div>
+
+                  <div class="mt-4 space-y-3">
+                    {#each segmentBreakdown(selectedSegment) as item}
+                      <div class="rounded-[1.25rem] border border-stone-200 bg-stone-50 px-4 py-3">
+                        <div class="flex items-start justify-between gap-3">
+                          <div>
+                            <p class="text-sm font-semibold text-stone-950">{item.label}</p>
+                            <p class="mt-1 text-xs leading-6 text-stone-500">{item.note}</p>
+                          </div>
+                          <div class="text-right">
+                            <p class="text-sm font-semibold text-stone-950">{formatPoints(item.points)}</p>
+                            <p class="mt-1 text-xs text-stone-500">waga {formatWeight(item.weight)}</p>
+                          </div>
+                        </div>
+                        <div class="mt-3 flex items-center justify-between gap-3 text-sm text-stone-700">
+                          <span>wartosc: {item.raw}</span>
+                          <span>subscore: {formatScore(item.score)}/100</span>
+                        </div>
+                      </div>
+                    {/each}
+                  </div>
+                </div>
               </section>
             {/if}
 
             <section class="rounded-[1.5rem] border border-stone-300 bg-white/82 p-5 shadow-lg shadow-amber-100/50 backdrop-blur">
-              <p class="text-xs font-semibold uppercase tracking-[0.24em] text-stone-500">Metoda</p>
-              <div class="mt-3 space-y-3 text-sm leading-7 text-stone-700">
-                <p>Score to heurystyka: premia za kontakt z zielenią i kara za halas oraz odleglosc od stojakow i punktow infrastruktury. Zielen i halas sa liczone przez deterministyczne probkowanie linii co staly krok.</p>
-                <p>Surowe poligony zieleni i halasu nie sa renderowane na mapie, bo bylyby zbyt ciezkie dla frontendu. Ich wplyw jest baked-in w wynik segmentu.</p>
+              <p class="text-xs font-semibold uppercase tracking-[0.24em] text-stone-500">Explainability</p>
+              <div class="mt-3 space-y-4 text-sm leading-7 text-stone-700">
+                <div class="rounded-[1.25rem] border border-stone-200 bg-stone-50 px-4 py-3">
+                  <p class="text-xs font-semibold uppercase tracking-[0.2em] text-stone-500">Formula</p>
+                  <p class="mt-2 font-medium text-stone-950">{summary.explainability.scoring.formula}</p>
+                  <p class="mt-2 text-stone-600">
+                    Probkowanie: co {summary.explainability.scoring.sample_step_meters} m • zakres wyniku {summary.explainability.scoring.output_range[0]}-{summary.explainability.scoring.output_range[1]}
+                  </p>
+                </div>
+
+                <div>
+                  <p class="text-xs font-semibold uppercase tracking-[0.2em] text-stone-500">Kolejnosc obliczen</p>
+                  <div class="mt-3 space-y-2">
+                    {#each summary.explainability.processing_steps as step}
+                      <div class="rounded-[1.25rem] border border-stone-200 bg-stone-50 px-4 py-3">
+                        <div class="flex items-center justify-between gap-3">
+                          <p class="text-sm font-semibold text-stone-950">{step.title}</p>
+                          <span class="rounded-full bg-white px-2.5 py-1 text-xs font-semibold text-stone-500 ring-1 ring-stone-200">
+                            {step.step}
+                          </span>
+                        </div>
+                        <p class="mt-2 text-sm leading-6 text-stone-600">{step.description}</p>
+                      </div>
+                    {/each}
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section class="rounded-[1.5rem] border border-stone-300 bg-white/82 p-5 shadow-lg shadow-amber-100/50 backdrop-blur">
+              <p class="text-xs font-semibold uppercase tracking-[0.24em] text-stone-500">Zrodla danych</p>
+              <div class="mt-4 space-y-3">
+                {#each summary.explainability.data_sources as source}
+                  <div class="rounded-[1.25rem] border border-stone-200 bg-stone-50 px-4 py-3">
+                    <div class="flex items-start justify-between gap-3">
+                      <div>
+                        <p class="text-sm font-semibold text-stone-950">{source.label}</p>
+                        <p class="mt-1 break-all font-mono text-xs text-stone-500">{source.file}</p>
+                      </div>
+                      <span class="rounded-full bg-white px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-stone-500 ring-1 ring-stone-200">
+                        {source.geometry}
+                      </span>
+                    </div>
+                    <p class="mt-3 text-xs text-stone-600">
+                      {source.source_crs} -> {source.normalized_crs}
+                    </p>
+                    <p class="mt-2 text-sm text-stone-700">{source.usage.join(' • ')}</p>
+                  </div>
+                {/each}
+              </div>
+            </section>
+
+            <section class="rounded-[1.5rem] border border-stone-300 bg-white/82 p-5 shadow-lg shadow-amber-100/50 backdrop-blur">
+              <p class="text-xs font-semibold uppercase tracking-[0.24em] text-stone-500">Kolejnosc warstw</p>
+              <div class="mt-4 space-y-2">
+                {#each summary.explainability.map_layers as layer}
+                  <div class="flex items-center justify-between gap-3 rounded-[1.25rem] border border-stone-200 bg-stone-50 px-4 py-3 text-sm">
+                    <div>
+                      <p class="font-semibold text-stone-950">{layer.id}</p>
+                      <p class="mt-1 text-stone-600">{layer.role}</p>
+                    </div>
+                    <div class="text-right">
+                      <p class="text-xs font-semibold uppercase tracking-[0.18em] text-stone-500">
+                        #{layer.order}
+                      </p>
+                      <p class="mt-1 text-xs text-stone-500">{layer.data_source}</p>
+                    </div>
+                  </div>
+                {/each}
+              </div>
+            </section>
+
+            <section class="rounded-[1.5rem] border border-stone-300 bg-white/82 p-5 shadow-lg shadow-amber-100/50 backdrop-blur">
+              <p class="text-xs font-semibold uppercase tracking-[0.24em] text-stone-500">Ograniczenia</p>
+              <div class="mt-4 space-y-2">
+                {#each summary.explainability.limitations as item}
+                  <div class="rounded-[1.25rem] border border-stone-200 bg-stone-50 px-4 py-3 text-sm leading-6 text-stone-700">
+                    {item}
+                  </div>
+                {/each}
+                {#each summary.explainability.nondeterminism as item}
+                  <div class="rounded-[1.25rem] border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-950">
+                    Niedeterminizm: {item}
+                  </div>
+                {/each}
               </div>
             </section>
           {/if}

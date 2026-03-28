@@ -18,6 +18,157 @@ const OUTPUT_DIR = path.resolve(process.argv[3] ?? DEFAULT_OUTPUT_DIR)
 
 const SAMPLE_STEP_METERS = 180
 const TOP_SEGMENT_COUNT = 20
+const SCORE_WEIGHTS = Object.freeze({
+  greenery: 0.35,
+  noise: 0.3,
+  rack: 0.2,
+  infrastructure: 0.15,
+})
+const SCORE_REFERENCES = Object.freeze({
+  noiseDb: { best: 45, worst: 85, missingScore: 50 },
+  rackDistanceM: { best: 0, worst: 500, missingScore: 0 },
+  infrastructureDistanceM: { best: 0, worst: 800, missingScore: 0 },
+})
+const DATA_SOURCES = Object.freeze([
+  {
+    id: 'bike_racks',
+    label: 'Stojaki ZTP',
+    file: 'data/Stojaki_ZTP.geojson',
+    geometry: 'Point/MultiPoint',
+    source_crs: 'EPSG:4326',
+    normalized_crs: 'EPSG:4326',
+    usage: ['nearest_rack_m', 'map layer: points-racks'],
+  },
+  {
+    id: 'bike_infrastructure',
+    label: 'Infrastruktura rowerowa ZTP',
+    file: 'data/Infrastruktura_rowerowa_ZTP.geojson',
+    geometry: 'Point/MultiPoint',
+    source_crs: 'EPSG:4326',
+    normalized_crs: 'EPSG:4326',
+    usage: ['nearest_infra_m', 'map layer: points-infrastructure'],
+  },
+  {
+    id: 'cycling_paths',
+    label: 'Ciagi rowerowe',
+    file: 'data/Ciagi_rowerowe/ciagi_rowerowe.shp',
+    geometry: 'LineString/MultiLineString',
+    source_crs: 'ETRF2000-PL CS2000 zone 7',
+    normalized_crs: 'EPSG:4326',
+    usage: ['segment geometry', 'base ranking unit', 'map layer: segments-base'],
+  },
+  {
+    id: 'greenery',
+    label: 'Zielen BDOT10k',
+    file: 'data/Zielen/{PTLZ,PTTR,PTUT}/*.shp',
+    geometry: 'Polygon/MultiPolygon',
+    source_crs: 'CS92',
+    normalized_crs: 'EPSG:4326',
+    usage: ['greenery_ratio', 'not rendered directly'],
+  },
+  {
+    id: 'noise',
+    label: 'Warstwy halasu',
+    file: 'data/halas/*/*.geojson',
+    geometry: 'Polygon/MultiPolygon',
+    source_crs: 'ETRF2000-PL CS2000 zone 7',
+    normalized_crs: 'EPSG:4326',
+    usage: ['max_noise_db', 'not rendered directly'],
+  },
+])
+const PROCESSING_STEPS = Object.freeze([
+  {
+    step: 1,
+    id: 'load_zip',
+    title: 'Wczytanie paczki',
+    description: 'Pliki sa czytane z data.zip po jawnych sciezkach i posortowanych wpisach ZIP.',
+  },
+  {
+    step: 2,
+    id: 'normalize_crs',
+    title: 'Normalizacja CRS',
+    description: 'Wszystkie warstwy sa sprowadzane do EPSG:4326 przed analiza i renderowaniem.',
+  },
+  {
+    step: 3,
+    id: 'flatten_geometry',
+    title: 'Ujednolicenie geometrii',
+    description: 'Multi-geometrie sa splaszczane, a wspolrzedne sa normalizowane do prostych tablic liczb.',
+  },
+  {
+    step: 4,
+    id: 'derive_metrics',
+    title: 'Wyliczenie metryk segmentu',
+    description:
+      'Dla kazdego segmentu liczone sa dlugosc, odleglosc do stojaka, odleglosc do infrastruktury, pokrycie zieleni i maksymalny halas.',
+  },
+  {
+    step: 5,
+    id: 'score_segments',
+    title: 'Wyjasnialny scoring',
+    description:
+      'Kazda metryka jest zamieniana na subscore 0-100, a finalny wynik to wazona suma liniowa bez ukrytych progow czasowych.',
+  },
+  {
+    step: 6,
+    id: 'rank_segments',
+    title: 'Ranking',
+    description:
+      'Ranking sortuje po score malejaco, potem po dluzszym segmencie, a na koncu po segment_id rosnaco.',
+  },
+])
+const MAP_LAYER_ORDER = Object.freeze([
+  {
+    order: 1,
+    id: 'osm',
+    role: 'basemap',
+    data_source: 'OpenStreetMap raster',
+  },
+  {
+    order: 2,
+    id: 'segments-base',
+    role: 'all scored segments',
+    data_source: 'segments.geojson',
+  },
+  {
+    order: 3,
+    id: 'segments-top-casing',
+    role: 'top segment outline',
+    data_source: 'segments.geojson',
+  },
+  {
+    order: 4,
+    id: 'segments-top-fill',
+    role: 'top segment highlight',
+    data_source: 'segments.geojson',
+  },
+  {
+    order: 5,
+    id: 'segments-selected',
+    role: 'selected segment highlight',
+    data_source: 'segments.geojson',
+  },
+  {
+    order: 6,
+    id: 'points-racks',
+    role: 'bike racks',
+    data_source: 'points.geojson',
+  },
+  {
+    order: 7,
+    id: 'points-infrastructure',
+    role: 'bike infrastructure points',
+    data_source: 'points.geojson',
+  },
+])
+const METHOD_LIMITATIONS = Object.freeze([
+  'Zielen i halas sa oceniane przez probkowanie linii co staly krok, a nie przez pelne przeciecie bufora powierzchniowego.',
+  'Podklad OSM sluzy tylko do orientacji przestrzennej i nie wchodzi do score.',
+  'Brak warstwy ruchu drogowego, nachylenia i bezpieczenstwa skrzyzowan, wiec ranking nie jest pelna ocena jakosci trasy.',
+])
+const NONDETERMINISM = Object.freeze([
+  'Jedyny runtime zewnetrzny na froncie to raster OSM; wynik analityczny i ranking sa lokalne i statyczne.',
+])
 
 const NOISE_SOURCE_BY_FOLDER = {
   '0': 'road_ldwn',
@@ -202,7 +353,7 @@ function scoreCyclingSegments(datasets) {
       greenery.features,
     )
     const maxNoiseDb = computeMaxNoise(corridorSamples, noiseIndex, noise.features)
-    const comfortScore = computeComfortScore({
+    const scoreBreakdown = computeScoreBreakdown({
       greeneryRatio,
       maxNoiseDb,
       nearestRackDistanceM,
@@ -222,8 +373,16 @@ function scoreCyclingSegments(datasets) {
         nearest_infra_m: roundNullable(nearestInfraDistanceM, 2),
         greenery_ratio: round(greeneryRatio, 4),
         max_noise_db: roundNullable(maxNoiseDb, 2),
-        comfort_score: round(comfortScore, 2),
-        score: round(comfortScore, 2),
+        greenery_score: round(scoreBreakdown.greenery.score, 2),
+        noise_score: round(scoreBreakdown.noise.score, 2),
+        rack_score: round(scoreBreakdown.rack.score, 2),
+        infrastructure_score: round(scoreBreakdown.infrastructure.score, 2),
+        greenery_points: round(scoreBreakdown.greenery.points, 2),
+        noise_points: round(scoreBreakdown.noise.points, 2),
+        rack_points: round(scoreBreakdown.rack.points, 2),
+        infrastructure_points: round(scoreBreakdown.infrastructure.points, 2),
+        comfort_score: round(scoreBreakdown.total, 2),
+        score: round(scoreBreakdown.total, 2),
         center,
         is_top_segment: false,
         score_rank: null,
@@ -231,19 +390,11 @@ function scoreCyclingSegments(datasets) {
     })
   }
 
-  const ranked = [...features]
-    .sort((left, right) => {
-      const scoreDelta = (right.properties.score ?? 0) - (left.properties.score ?? 0)
-      if (scoreDelta !== 0) {
-        return scoreDelta
-      }
-      return (left.properties.segment_id ?? 0) - (right.properties.segment_id ?? 0)
-    })
-    .slice(0, TOP_SEGMENT_COUNT)
+  const ranked = [...features].sort(compareSegmentRank)
 
   ranked.forEach((feature, rank) => {
-    feature.properties.is_top_segment = true
     feature.properties.score_rank = rank + 1
+    feature.properties.is_top_segment = rank < TOP_SEGMENT_COUNT
   })
 
   return {
@@ -292,6 +443,14 @@ function buildSummary(datasets, scoredSegments) {
       max_noise_db: feature.properties.max_noise_db,
       nearest_rack_m: feature.properties.nearest_rack_m,
       nearest_infra_m: feature.properties.nearest_infra_m,
+      greenery_score: feature.properties.greenery_score,
+      noise_score: feature.properties.noise_score,
+      rack_score: feature.properties.rack_score,
+      infrastructure_score: feature.properties.infrastructure_score,
+      greenery_points: feature.properties.greenery_points,
+      noise_points: feature.properties.noise_points,
+      rack_points: feature.properties.rack_points,
+      infrastructure_points: feature.properties.infrastructure_points,
       center: feature.properties.center,
     }))
 
@@ -310,26 +469,94 @@ function buildSummary(datasets, scoredSegments) {
       mean: round(mean(scores), 2),
       median: round(median(scores), 2),
     },
+    explainability: {
+      data_sources: DATA_SOURCES,
+      processing_steps: PROCESSING_STEPS,
+      map_layers: MAP_LAYER_ORDER,
+      scoring: {
+        version: 'v2_linear_weighted',
+        sample_step_meters: SAMPLE_STEP_METERS,
+        output_range: [0, 100],
+        tie_breakers: ['score desc', 'length desc', 'segment_id asc'],
+        weights: SCORE_WEIGHTS,
+        references: SCORE_REFERENCES,
+        formula:
+          'score = greenery_score*0.35 + noise_score*0.30 + rack_score*0.20 + infrastructure_score*0.15',
+      },
+      limitations: METHOD_LIMITATIONS,
+      nondeterminism: NONDETERMINISM,
+    },
     top_score_threshold: topSegments[topSegments.length - 1]?.score ?? 0,
     top_segments: topSegments,
   }
 }
 
-function computeComfortScore({
+function computeScoreBreakdown({
   greeneryRatio,
   maxNoiseDb,
   nearestRackDistanceM,
   nearestInfraDistanceM,
 }) {
-  const greeneryBonus = greeneryRatio * 45
-  const noisePenalty =
-    maxNoiseDb == null ? 0 : Math.max(0, (Number(maxNoiseDb) - 45) * 1.2)
-  const rackPenalty =
-    nearestRackDistanceM == null ? 10 : Math.min(nearestRackDistanceM / 40, 25)
-  const infraPenalty =
-    nearestInfraDistanceM == null ? 8 : Math.min(nearestInfraDistanceM / 80, 15)
+  const greeneryScore = clamp(greeneryRatio * 100, 0, 100)
+  const noiseScore =
+    maxNoiseDb == null
+      ? SCORE_REFERENCES.noiseDb.missingScore
+      : scaleDescending(maxNoiseDb, SCORE_REFERENCES.noiseDb.best, SCORE_REFERENCES.noiseDb.worst)
+  const rackScore =
+    nearestRackDistanceM == null
+      ? SCORE_REFERENCES.rackDistanceM.missingScore
+      : scaleDescending(
+          nearestRackDistanceM,
+          SCORE_REFERENCES.rackDistanceM.best,
+          SCORE_REFERENCES.rackDistanceM.worst,
+        )
+  const infrastructureScore =
+    nearestInfraDistanceM == null
+      ? SCORE_REFERENCES.infrastructureDistanceM.missingScore
+      : scaleDescending(
+          nearestInfraDistanceM,
+          SCORE_REFERENCES.infrastructureDistanceM.best,
+          SCORE_REFERENCES.infrastructureDistanceM.worst,
+        )
 
-  return clamp(100 - noisePenalty - rackPenalty - infraPenalty + greeneryBonus, 0, 100)
+  const greeneryPoints = greeneryScore * SCORE_WEIGHTS.greenery
+  const noisePoints = noiseScore * SCORE_WEIGHTS.noise
+  const rackPoints = rackScore * SCORE_WEIGHTS.rack
+  const infrastructurePoints = infrastructureScore * SCORE_WEIGHTS.infrastructure
+
+  return {
+    greenery: {
+      score: greeneryScore,
+      points: greeneryPoints,
+    },
+    noise: {
+      score: noiseScore,
+      points: noisePoints,
+    },
+    rack: {
+      score: rackScore,
+      points: rackPoints,
+    },
+    infrastructure: {
+      score: infrastructureScore,
+      points: infrastructurePoints,
+    },
+    total: clamp(greeneryPoints + noisePoints + rackPoints + infrastructurePoints, 0, 100),
+  }
+}
+
+function compareSegmentRank(left, right) {
+  const scoreDelta = (right.properties.score ?? 0) - (left.properties.score ?? 0)
+  if (scoreDelta !== 0) {
+    return scoreDelta
+  }
+
+  const lengthDelta = (right.properties.length_km ?? 0) - (left.properties.length_km ?? 0)
+  if (lengthDelta !== 0) {
+    return lengthDelta
+  }
+
+  return (left.properties.segment_id ?? 0) - (right.properties.segment_id ?? 0)
 }
 
 function buildCorridorSamples(lineFeature, lengthKm) {
@@ -749,6 +976,18 @@ function extractNoiseValue(properties) {
   }
 
   return null
+}
+
+function scaleDescending(value, best, worst) {
+  if (!Number.isFinite(value)) {
+    return 0
+  }
+
+  if (worst <= best) {
+    return value <= best ? 100 : 0
+  }
+
+  return clamp(((worst - value) / (worst - best)) * 100, 0, 100)
 }
 
 function safeLength(feature) {
