@@ -494,6 +494,7 @@
     syncSelectedSegment()
     syncSelectedCorridor()
     syncSelectedConnector()
+    syncRouteDisplay()
   })
 
   async function initialize() {
@@ -591,6 +592,16 @@
       type: 'geojson',
       data: CONNECTORS_URL,
       lineMetrics: true,
+    })
+
+    currentMap.addSource('route', {
+      type: 'geojson',
+      data: { type: 'FeatureCollection', features: [] },
+    })
+
+    currentMap.addSource('route-markers', {
+      type: 'geojson',
+      data: { type: 'FeatureCollection', features: [] },
     })
   }
 
@@ -789,9 +800,76 @@
         'circle-stroke-width': 2,
       },
     })
+
+    // --- Route A→B layers (on top of everything) ---
+    currentMap.addLayer({
+      id: 'route-casing',
+      type: 'line',
+      source: 'route',
+      layout: { visibility: 'none' },
+      paint: {
+        'line-color': '#1e293b',
+        'line-width': 10,
+        'line-opacity': 0.7,
+      },
+    })
+
+    currentMap.addLayer({
+      id: 'route-line',
+      type: 'line',
+      source: 'route',
+      layout: { visibility: 'none' },
+      paint: {
+        'line-color': '#8b5cf6',
+        'line-width': 5.5,
+        'line-opacity': 0.95,
+      },
+    })
+
+    currentMap.addLayer({
+      id: 'route-markers',
+      type: 'circle',
+      source: 'route-markers',
+      layout: { visibility: 'none' },
+      paint: {
+        'circle-radius': 10,
+        'circle-color': [
+          'match',
+          ['get', 'kind'],
+          'start', '#22c55e',
+          'end', '#ef4444',
+          '#8b5cf6',
+        ],
+        'circle-stroke-color': '#ffffff',
+        'circle-stroke-width': 3,
+      },
+    })
+
+    currentMap.addLayer({
+      id: 'route-markers-label',
+      type: 'symbol',
+      source: 'route-markers',
+      layout: {
+        visibility: 'none',
+        'text-field': ['get', 'label'],
+        'text-size': 13,
+        'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
+        'text-allow-overlap': true,
+      },
+      paint: {
+        'text-color': '#ffffff',
+      },
+    })
   }
 
   function bindMapEvents(currentMap: MapLibreMap) {
+    // Routing mode: intercept all clicks on the map for A/B selection
+    currentMap.on('click', (event) => {
+      if (routingMode !== 'idle') {
+        handleRoutingClick(event.lngLat)
+      }
+    })
+
     for (const layerId of [
       'hexes-fill',
       'segments-base',
@@ -803,14 +881,23 @@
       'hotspots',
     ]) {
       currentMap.on('mouseenter', layerId, () => {
-        currentMap.getCanvas().style.cursor = 'pointer'
+        if (routingMode !== 'idle') {
+          currentMap.getCanvas().style.cursor = 'crosshair'
+        } else {
+          currentMap.getCanvas().style.cursor = 'pointer'
+        }
       })
       currentMap.on('mouseleave', layerId, () => {
-        currentMap.getCanvas().style.cursor = ''
+        if (routingMode !== 'idle') {
+          currentMap.getCanvas().style.cursor = 'crosshair'
+        } else {
+          currentMap.getCanvas().style.cursor = ''
+        }
       })
     }
 
     currentMap.on('click', 'hexes-fill', (event) => {
+      if (routingMode !== 'idle') return
       const feature = event.features?.[0]
       if (!feature) {
         return
@@ -826,6 +913,7 @@
       features?: MapGeoJSONFeature[]
       lngLat: { lat: number; lng: number }
     }) => {
+      if (routingMode !== 'idle') return
       const feature = event.features?.[0]
       if (!feature) {
         return
@@ -840,6 +928,7 @@
     currentMap.on('click', 'segments-top-fill', handleSegmentClick)
 
     currentMap.on('click', 'corridors-fill', (event) => {
+      if (routingMode !== 'idle') return
       const feature = event.features?.[0]
       if (!feature) {
         return
@@ -851,6 +940,7 @@
     })
 
     currentMap.on('click', 'connectors-fill', (event) => {
+      if (routingMode !== 'idle') return
       const feature = event.features?.[0]
       if (!feature) {
         return
@@ -862,6 +952,7 @@
     })
 
     currentMap.on('click', 'hotspots', (event) => {
+      if (routingMode !== 'idle') return
       const feature = event.features?.[0]
       if (!feature) {
         return
@@ -871,6 +962,7 @@
     })
 
     currentMap.on('click', 'points-racks', (event) => {
+      if (routingMode !== 'idle') return
       const feature = event.features?.[0]
       if (!feature) {
         return
@@ -880,6 +972,7 @@
     })
 
     currentMap.on('click', 'points-infrastructure', (event) => {
+      if (routingMode !== 'idle') return
       const feature = event.features?.[0]
       if (!feature) {
         return
@@ -1359,6 +1452,189 @@
       ['get', 'connector_id'],
       selectedConnector?.connector_id ?? -1,
     ])
+  }
+
+  // ---------------------------------------------------------------------------
+  // Routing A→B
+  // ---------------------------------------------------------------------------
+
+  async function buildGraphAsync(
+    segments: SegmentFeatureCollection,
+    hexes: HexFeatureCollection,
+  ) {
+    isGraphBuilding = true
+    try {
+      await preloadH3()
+      const cells = hexes.features.map((f) => f.properties)
+      routingGraph = buildRoutingGraph(segments, cells)
+    } catch (err) {
+      console.error('Failed to build routing graph:', err)
+    } finally {
+      isGraphBuilding = false
+    }
+  }
+
+  function startRouting() {
+    routingMode = 'selectStart'
+    routeStart = null
+    routeEnd = null
+    routeResult = null
+    routeError = null
+  }
+
+  function cancelRouting() {
+    routingMode = 'idle'
+    routeStart = null
+    routeEnd = null
+    routeResult = null
+    routeError = null
+    syncRouteDisplay()
+  }
+
+  function handleRoutingClick(lngLat: { lng: number; lat: number }) {
+    if (!routingGraph) return false
+    if (routingMode === 'idle') return false
+
+    const coordinate: [number, number] = [lngLat.lng, lngLat.lat]
+    const nearest = findNearestNode(coordinate, routingGraph)
+
+    if (!nearest) {
+      routeError = 'Nie znaleziono ścieżki rowerowej w pobliżu (max 800 m).'
+      return true
+    }
+
+    if (routingMode === 'selectStart') {
+      routeStart = nearest
+      routeEnd = null
+      routeResult = null
+      routeError = null
+      routingMode = 'selectEnd'
+      syncRouteDisplay()
+      return true
+    }
+
+    if (routingMode === 'selectEnd') {
+      routeEnd = nearest
+      routeError = null
+      routingMode = 'idle'
+      computeRoute()
+      return true
+    }
+
+    return false
+  }
+
+  function computeRoute() {
+    if (!routingGraph || !routeStart || !routeEnd || !rawHexes) {
+      return
+    }
+
+    // Check if both nodes are in the same connected component
+    const startComponent = routingGraph.node_component_id_by_node_id[routeStart.node_id]
+    const endComponent = routingGraph.node_component_id_by_node_id[routeEnd.node_id]
+
+    if (startComponent !== endComponent) {
+      routeError = 'Punkty A i B są w rozłącznych częściach sieci rowerowej. Nie ma trasy.'
+      routeResult = null
+      syncRouteDisplay()
+      return
+    }
+
+    const vibes = activeVibes()
+    const vibeWeightsArray: VibeWeights[] = vibes.map((v) => ({ weights: v.weights }))
+    const cells = rawHexes.features.map((f) => f.properties)
+
+    const edgeCosts = buildVibeEdgeCosts(
+      routingGraph,
+      cells,
+      vibeWeightsArray,
+      routeVibeAlpha,
+    )
+
+    const result = astar(routingGraph, routeStart.node_id, routeEnd.node_id, edgeCosts)
+
+    if (!result) {
+      routeError = 'Nie znaleziono trasy między wybranymi punktami.'
+      routeResult = null
+    } else {
+      routeResult = result
+      routeError = null
+    }
+
+    syncRouteDisplay()
+
+    // Fit map to route bounds
+    if (routeResult && map && routeResult.coordinates.length > 1) {
+      const lngs = routeResult.coordinates.map((c) => c[0])
+      const lats = routeResult.coordinates.map((c) => c[1])
+      map.fitBounds(
+        [
+          [Math.min(...lngs) - 0.005, Math.min(...lats) - 0.003],
+          [Math.max(...lngs) + 0.005, Math.max(...lats) + 0.003],
+        ],
+        { duration: 600, padding: 60 },
+      )
+    }
+  }
+
+  function syncRouteDisplay() {
+    if (!map || !isMapReady) return
+
+    const routeSource = map.getSource('route') as GeoJSONSource | undefined
+    const markersSource = map.getSource('route-markers') as GeoJSONSource | undefined
+
+    if (routeSource) {
+      routeSource.setData(
+        routeResult && routeResult.coordinates.length > 1
+          ? {
+              type: 'FeatureCollection',
+              features: [
+                {
+                  type: 'Feature',
+                  geometry: {
+                    type: 'LineString',
+                    coordinates: routeResult.coordinates,
+                  },
+                  properties: {
+                    total_length_m: routeResult.total_length_m,
+                    mean_score: routeResult.mean_score,
+                  },
+                },
+              ],
+            }
+          : { type: 'FeatureCollection', features: [] },
+      )
+    }
+
+    if (markersSource) {
+      const features: Array<{
+        type: 'Feature'
+        geometry: { type: 'Point'; coordinates: [number, number] }
+        properties: { kind: string; label: string }
+      }> = []
+
+      if (routeStart) {
+        features.push({
+          type: 'Feature',
+          geometry: { type: 'Point', coordinates: routeStart.coordinate },
+          properties: { kind: 'start', label: 'A' },
+        })
+      }
+      if (routeEnd) {
+        features.push({
+          type: 'Feature',
+          geometry: { type: 'Point', coordinates: routeEnd.coordinate },
+          properties: { kind: 'end', label: 'B' },
+        })
+      }
+
+      markersSource.setData({ type: 'FeatureCollection', features })
+    }
+
+    setLayerVisibility('route-casing', showRoute && !!routeResult)
+    setLayerVisibility('route-line', showRoute && !!routeResult)
+    setLayerVisibility('route-markers', showRoute && (!!routeStart || !!routeEnd))
+    setLayerVisibility('route-markers-label', showRoute && (!!routeStart || !!routeEnd))
   }
 
   function setLayerVisibility(layerId: string, visible: boolean) {
@@ -2678,6 +2954,19 @@ npm run dev</pre>
                 >
                   Widok Krakow
                 </button>
+                {#if routingGraph}
+                  <button
+                    class={`rounded-full px-4 py-2 text-sm font-medium transition ${routingMode !== 'idle' ? 'bg-violet-600 text-white ring-2 ring-violet-300' : routeResult ? 'bg-violet-500 text-white' : 'bg-violet-100 text-violet-800 ring-1 ring-violet-300 hover:bg-violet-200'}`}
+                    onclick={() => routingMode !== 'idle' ? cancelRouting() : startRouting()}
+                    type="button"
+                  >
+                    {routingMode === 'selectStart' ? 'Kliknij A na mapie...' : routingMode === 'selectEnd' ? 'Kliknij B na mapie...' : routeResult ? 'Nowa trasa' : 'Wyznacz trase'}
+                  </button>
+                {:else if isGraphBuilding}
+                  <span class="inline-flex items-center gap-2 rounded-full bg-stone-100 px-4 py-2 text-sm text-stone-500">
+                    Budowanie grafu...
+                  </span>
+                {/if}
               </div>
             </div>
 
@@ -2787,6 +3076,147 @@ npm run dev</pre>
                   <dd class="mt-1 text-lg font-semibold text-stone-950">{formatScore(summary.top_score_threshold)}</dd>
                 </div>
               </dl>
+            </section>
+
+            <section class="rounded-[1.5rem] border border-violet-300 bg-violet-50/80 p-5 shadow-lg shadow-violet-100/50 backdrop-blur">
+              <div class="flex items-center justify-between gap-4">
+                <div>
+                  <p class="text-xs font-semibold uppercase tracking-[0.24em] text-violet-600">Trasa A → B</p>
+                  <h3 class="mt-1 text-xl font-semibold tracking-tight text-stone-950">
+                    Routing po ścieżkach rowerowych
+                  </h3>
+                </div>
+                {#if routeResult}
+                  <span class="rounded-full bg-violet-600 px-3 py-1 text-sm font-semibold text-white">
+                    {(routeResult.total_length_m / 1000).toFixed(2)} km
+                  </span>
+                {/if}
+              </div>
+
+              {#if isGraphBuilding}
+                <p class="mt-3 text-sm text-stone-600">Budowanie grafu z {summary.counts.cycling_path_segments} segmentow...</p>
+              {:else if !routingGraph}
+                <p class="mt-3 text-sm text-stone-600">Graf niedostepny.</p>
+              {:else}
+                <div class="mt-4 space-y-3">
+                  <div class="flex gap-2">
+                    {#if routingMode === 'idle' && !routeResult}
+                      <button
+                        class="flex-1 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-700"
+                        onclick={startRouting}
+                        type="button"
+                      >
+                        Wyznacz trase
+                      </button>
+                    {:else if routingMode !== 'idle'}
+                      <button
+                        class="flex-1 rounded-xl bg-stone-200 px-4 py-2.5 text-sm font-semibold text-stone-800 transition hover:bg-stone-300"
+                        onclick={cancelRouting}
+                        type="button"
+                      >
+                        Anuluj
+                      </button>
+                    {:else}
+                      <button
+                        class="flex-1 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-700"
+                        onclick={startRouting}
+                        type="button"
+                      >
+                        Nowa trasa
+                      </button>
+                      <button
+                        class="rounded-xl bg-stone-200 px-4 py-2.5 text-sm font-medium text-stone-700 transition hover:bg-stone-300"
+                        onclick={cancelRouting}
+                        type="button"
+                      >
+                        Wyczysc
+                      </button>
+                    {/if}
+                  </div>
+
+                  {#if routingMode === 'selectStart'}
+                    <div class="rounded-xl bg-green-100 px-4 py-3 text-sm text-green-900">
+                      Kliknij na mapie, zeby wybrac <span class="font-bold">punkt A</span> (start).
+                    </div>
+                  {:else if routingMode === 'selectEnd'}
+                    <div class="rounded-xl bg-red-100 px-4 py-3 text-sm text-red-900">
+                      Kliknij na mapie, zeby wybrac <span class="font-bold">punkt B</span> (cel).
+                    </div>
+                  {/if}
+
+                  {#if routeStart}
+                    <div class="flex items-center gap-2 rounded-xl bg-white px-3 py-2 text-sm">
+                      <span class="inline-flex size-6 items-center justify-center rounded-full bg-green-500 text-xs font-bold text-white">A</span>
+                      <span class="text-stone-700">{routeStart.coordinate[1].toFixed(5)}, {routeStart.coordinate[0].toFixed(5)}</span>
+                      <span class="text-stone-400">({Math.round(routeStart.snap_distance_m)} m snap)</span>
+                    </div>
+                  {/if}
+                  {#if routeEnd}
+                    <div class="flex items-center gap-2 rounded-xl bg-white px-3 py-2 text-sm">
+                      <span class="inline-flex size-6 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white">B</span>
+                      <span class="text-stone-700">{routeEnd.coordinate[1].toFixed(5)}, {routeEnd.coordinate[0].toFixed(5)}</span>
+                      <span class="text-stone-400">({Math.round(routeEnd.snap_distance_m)} m snap)</span>
+                    </div>
+                  {/if}
+
+                  {#if routeError}
+                    <div class="rounded-xl bg-red-100 px-4 py-3 text-sm text-red-900">{routeError}</div>
+                  {/if}
+
+                  <div class="space-y-2">
+                    <label class="flex items-center justify-between text-sm text-stone-700">
+                      <span>Wplyw vibe na trase</span>
+                      <span class="font-semibold text-violet-700">{routeVibeAlpha === 0 ? 'Najkrotsza' : routeVibeAlpha === 1 ? 'Max vibe' : `${Math.round(routeVibeAlpha * 100)}%`}</span>
+                    </label>
+                    <input
+                      type="range"
+                      min="0"
+                      max="1"
+                      step="0.05"
+                      bind:value={routeVibeAlpha}
+                      onchange={() => { if (routeStart && routeEnd && routingMode === 'idle') computeRoute() }}
+                      class="w-full accent-violet-600"
+                    />
+                    <div class="flex justify-between text-xs text-stone-400">
+                      <span>Najkrotsza droga</span>
+                      <span>Najlepszy vibe</span>
+                    </div>
+                  </div>
+                </div>
+
+                {#if routeResult}
+                  <dl class="mt-4 grid grid-cols-2 gap-3 text-sm text-stone-700">
+                    <div class="rounded-2xl bg-white px-4 py-3">
+                      <dt class="text-stone-500">Dystans</dt>
+                      <dd class="mt-1 text-lg font-semibold text-stone-950">{(routeResult.total_length_m / 1000).toFixed(2)} km</dd>
+                    </div>
+                    <div class="rounded-2xl bg-white px-4 py-3">
+                      <dt class="text-stone-500">Czas (~15 km/h)</dt>
+                      <dd class="mt-1 text-lg font-semibold text-stone-950">{Math.ceil(routeResult.total_length_m / 250)} min</dd>
+                    </div>
+                    <div class="rounded-2xl bg-white px-4 py-3">
+                      <dt class="text-stone-500">Segmenty</dt>
+                      <dd class="mt-1 text-lg font-semibold text-stone-950">{routeResult.segment_count}</dd>
+                    </div>
+                    <div class="rounded-2xl bg-white px-4 py-3">
+                      <dt class="text-stone-500">Sredni score</dt>
+                      <dd class="mt-1 text-lg font-semibold" style={`color:${scoreColor(routeResult.mean_score)}`}>{formatScore(routeResult.mean_score)}</dd>
+                    </div>
+                  </dl>
+
+                  <div class="mt-3 rounded-[1.25rem] border border-violet-200 bg-white px-4 py-3 text-sm leading-6 text-stone-600">
+                    <p>
+                      Trasa znaleziona algorytmem <span class="font-semibold text-stone-900">A*</span> po grafie {summary.network_analysis.nodes} wezlow
+                      i {summary.network_analysis.edges} krawedzi. Koszt krawedzi: <code class="rounded bg-stone-100 px-1 text-xs">length × (1 + α × (100 − vibe) / 100)</code>.
+                      {#if routeVibeAlpha > 0}
+                        Aktywne vibe wplywaja na score krawedzi — trasa preferuje segmenty o wyzszym vibe.
+                      {:else}
+                        Przy α = 0 trasa jest najkrotsza pod wzgledem dystansu.
+                      {/if}
+                    </p>
+                  </div>
+                {/if}
+              {/if}
             </section>
 
             <section class="rounded-[1.5rem] border border-stone-300 bg-white/82 p-5 shadow-lg shadow-amber-100/50 backdrop-blur">
